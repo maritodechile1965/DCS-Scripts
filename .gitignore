@@ -1,0 +1,14 @@
+# DCS
+*.miz
+*.acmi
+Logs/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+*.swp
+*~
