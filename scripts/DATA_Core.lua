@@ -84,6 +84,7 @@ function DATA_Core.GetOrCreatePilot(pilotId, name, coalition)
       id              = pilotId,
       name            = name or pilotId,
       coalition       = coalition,
+      aircraftType    = nil,   -- ver DATA_Core.SetPilotAircraftType, capturado en PlayerEnterUnit
       points          = 0,
       missionsToday   = 0,
       logbook         = {},
@@ -98,6 +99,18 @@ end
 -- @return table|nil
 function DATA_Core.GetPilot(pilotId)
   return _pilots[pilotId]
+end
+
+--- Registra/actualiza el tipo de aeronave que vuela el piloto.
+-- Pensado para llamarse desde el handler de PlayerEnterUnit, momento
+-- en que la unidad existe con certeza (a diferencia de Hit/Dead,
+-- donde la unidad puede ya estar destruida y GetTypeName() fallar).
+-- @param pilotId string
+-- @param aircraftType string  ej. "F/A-18C", "F-16C_50", "Su-27"
+function DATA_Core.SetPilotAircraftType(pilotId, aircraftType)
+  local pilot = _pilots[pilotId]
+  if not pilot then return end
+  pilot.aircraftType = aircraftType
 end
 
 --- Suma (o resta, con numero negativo) puntos a un piloto.
@@ -275,16 +288,19 @@ end
 -- ni de PTS_Manager.
 -- @return string
 function DATA_Core.PointsLedgerToCSV()
-  local lines = { "timestamp,pilotId,coalition,category,amount,weapon,targetName,mgrs,reason" }
+  local lines = { "clockTime,pilotId,pilotAircraft,coalition,category,domain,amount,weapon,targetName,targetType,mgrs,reason" }
   for _, entry in ipairs(_pointsLedger) do
     table.insert(lines, table.concat({
-      tostring(entry.timestamp or ""),
+      tostring(entry.clockTime or ""),
       tostring(entry.pilotId or ""),
+      tostring(entry.pilotAircraft or ""),
       tostring(entry.coalition or ""),
       tostring(entry.category or ""),
+      tostring(entry.domain or ""),
       tostring(entry.amount or ""),
       tostring(entry.weapon or ""),
       tostring(entry.targetName or ""),
+      tostring(entry.targetType or ""),
       tostring(entry.mgrs or ""),
       tostring(entry.reason or ""),
     }, ","))
@@ -333,6 +349,15 @@ local function _onPlayerEnterUnit(EventData)
   end
 
   DATA_Core.GetOrCreatePilot(EventData.IniPlayerName, EventData.IniPlayerName, pilotCoalition)
+
+  -- Capturado aqui (no en Hit/Dead) porque la unidad recien esta
+  -- siendo ocupada, GetTypeName() es confiable en este momento.
+  if EventData.IniUnit then
+    local ok, typeName = pcall(function() return EventData.IniUnit:GetTypeName() end)
+    if ok and typeName then
+      DATA_Core.SetPilotAircraftType(EventData.IniPlayerName, typeName)
+    end
+  end
 end
 
 local function _onShot(EventData)

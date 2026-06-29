@@ -95,6 +95,45 @@ local function _uniquePilotIds(hits)
   return result
 end
 
+-- Hora del MUNDO de la mision (no la hora real de Windows -- esa
+-- depende de "os", sandboxeado por DCS). timer.getAbsTime() es nativo
+-- de DCS y da segundos desde medianoche del dia configurado en el
+-- Mission Editor. La convertimos a "HH:MM:SS" con aritmetica simple,
+-- sin ninguna libreria adicional.
+local function _missionClockHHMMSS()
+  local ok, absSeconds = pcall(timer.getAbsTime)
+  if not ok or not absSeconds then return nil end
+
+  local totalSeconds = math.floor(absSeconds) % 86400  -- por si pasa de medianoche
+  local hours   = math.floor(totalSeconds / 3600)
+  local minutes = math.floor((totalSeconds % 3600) / 60)
+  local seconds = totalSeconds % 60
+
+  return string.format("%02d:%02d:%02d", hours, minutes, seconds)
+end
+
+-- Determina si una unidad es "air" (avion/helicoptero) o "ground"
+-- (vehiculo, infanteria, barco, estructura -- todo lo no-aereo se
+-- agrupa como "ground" para simplificar el filtro en Excel).
+local function _domainOf(MooseUnit)
+  if not MooseUnit then return nil end
+  local ok, category = pcall(function() return MooseUnit:GetCategory() end)
+  if not ok or category == nil then return nil end
+
+  if category == Unit.Category.AIRPLANE or category == Unit.Category.HELICOPTER then
+    return "air"
+  end
+  return "ground"
+end
+
+-- Tipo de unidad (avion o vehiculo), capturado de forma segura.
+local function _typeNameOf(MooseUnit)
+  if not MooseUnit then return nil end
+  local ok, typeName = pcall(function() return MooseUnit:GetTypeName() end)
+  if ok then return typeName end
+  return nil
+end
+
 --------------------------------------------------------------------
 -- HANDLERS DE EVENTOS
 --------------------------------------------------------------------
@@ -107,13 +146,21 @@ local function _onHit(EventData)
   local shooterCoalition = _coalitionSideOf(EventData.IniCoalition)
   local targetUnitName   = EventData.TgtUnitName
 
+  -- Nombre "legible" del objetivo: callsign si es jugador humano,
+  -- nombre crudo de DCS si es IA (igual criterio que _pilotIdFrom).
+  local targetDisplayName = EventData.TgtPlayerName or EventData.TgtUnitName
+
   _hitsLog[targetUnitName] = _hitsLog[targetUnitName] or {}
   table.insert(_hitsLog[targetUnitName], {
-    pilotId    = _pilotIdFrom(EventData),
-    coalition  = shooterCoalition,
-    weapon     = EventData.WeaponName,
-    mgrs       = _mgrsOf(EventData.TgtUnit),
-    timestamp  = timer.getTime(),
+    pilotId      = _pilotIdFrom(EventData),
+    coalition    = shooterCoalition,
+    weapon       = EventData.WeaponName,
+    mgrs         = _mgrsOf(EventData.TgtUnit),
+    targetName   = targetDisplayName,
+    targetType   = _typeNameOf(EventData.TgtUnit),
+    domain       = _domainOf(EventData.TgtUnit),
+    clockTime    = _missionClockHHMMSS(),
+    timestamp    = timer.getTime(),
   })
 end
 
@@ -166,11 +213,22 @@ local function _onDeadOrCrash(EventData)
     category = "Collateral"
   end
 
-  -- Datos comunes para el ledger (weapon/mgrs del primer hit disponible,
-  -- si existe -- representativo, no necesariamente el impacto final).
-  local lastHit = hits[#hits]
-  local weaponUsed = lastHit and lastHit.weapon or nil
-  local mgrsUsed    = lastHit and lastHit.mgrs or nil
+  -- Datos comunes para el ledger (del ultimo hit disponible -- es el
+  -- mas representativo del impacto que efectivamente abatio al objetivo).
+  local lastHit       = hits[#hits]
+  local weaponUsed     = lastHit and lastHit.weapon or nil
+  local mgrsUsed        = lastHit and lastHit.mgrs or nil
+  local targetNameUsed  = lastHit and lastHit.targetName or victimUnitName
+  local targetTypeUsed  = lastHit and lastHit.targetType or nil
+  local domainUsed      = lastHit and lastHit.domain or nil
+  local clockTimeUsed   = lastHit and lastHit.clockTime or _missionClockHHMMSS()
+
+  -- Obtiene el tipo de aeronave que vuela un piloto contribuyente,
+  -- previamente capturado por DATA_Core en el evento PlayerEnterUnit.
+  local function _pilotAircraftType(pilotId)
+    local pilot = pilotId and DATA_Core.GetPilot(pilotId)
+    return pilot and pilot.aircraftType or nil
+  end
 
   if category == "TargetDestroyed" or category == "EnemyKill" then
     local basePoints  = (category == "TargetDestroyed")
@@ -182,16 +240,20 @@ local function _onDeadOrCrash(EventData)
     for _, pilotId in ipairs(contributors) do
       DATA_Core.AddPilotPoints(pilotId, pointsEach)
       DATA_Core.AddPointsLedgerEntry({
-        pilotId    = pilotId,
-        coalition  = shooterCoalition,
-        category   = category,
-        amount     = pointsEach,
-        weapon     = weaponUsed,
-        targetName = victimUnitName,
-        mgrs       = mgrsUsed,
-        reason     = (category == "TargetDestroyed")
-                       and "Target oficial de mision destruido"
-                       or  "Unidad enemiga destruida",
+        clockTime     = clockTimeUsed,
+        pilotId       = pilotId,
+        pilotAircraft = _pilotAircraftType(pilotId),
+        coalition     = shooterCoalition,
+        category      = category,
+        domain        = domainUsed,
+        amount        = pointsEach,
+        weapon        = weaponUsed,
+        targetName    = targetNameUsed,
+        targetType    = targetTypeUsed,
+        mgrs          = mgrsUsed,
+        reason        = (category == "TargetDestroyed")
+                          and "Target oficial de mision destruido"
+                          or  "Unidad enemiga destruida",
       })
     end
 
@@ -207,14 +269,18 @@ local function _onDeadOrCrash(EventData)
         DATA_Core.AddPilotPoints(victimPilotId, PTS_Manager.POINTS.OWN_LOSS)
       end
       DATA_Core.AddPointsLedgerEntry({
-        pilotId    = victimPilotId,
-        coalition  = victimCoalition,
-        category   = "OwnLoss",
-        amount     = PTS_Manager.POINTS.OWN_LOSS,
-        weapon     = weaponUsed,
-        targetName = victimUnitName,
-        mgrs       = mgrsUsed,
-        reason     = "Perdida de unidad propia",
+        clockTime     = clockTimeUsed,
+        pilotId       = victimPilotId,
+        pilotAircraft = _pilotAircraftType(victimPilotId),
+        coalition     = victimCoalition,
+        category      = "OwnLoss",
+        domain        = domainUsed,
+        amount        = PTS_Manager.POINTS.OWN_LOSS,
+        weapon        = weaponUsed,
+        targetName    = targetNameUsed,
+        targetType    = targetTypeUsed,
+        mgrs          = mgrsUsed,
+        reason        = "Perdida de unidad propia",
       })
     end
 
@@ -225,27 +291,35 @@ local function _onDeadOrCrash(EventData)
     for _, pilotId in ipairs(contributors) do
       DATA_Core.AddPilotPoints(pilotId, pointsEach)
       DATA_Core.AddPointsLedgerEntry({
-        pilotId    = pilotId,
-        coalition  = shooterCoalition,
-        category   = "BlueOnBlue",
-        amount     = pointsEach,
-        weapon     = weaponUsed,
-        targetName = victimUnitName,
-        mgrs       = mgrsUsed,
-        reason     = "Fuego amigo",
+        clockTime     = clockTimeUsed,
+        pilotId       = pilotId,
+        pilotAircraft = _pilotAircraftType(pilotId),
+        coalition     = shooterCoalition,
+        category      = "BlueOnBlue",
+        domain        = domainUsed,
+        amount        = pointsEach,
+        weapon        = weaponUsed,
+        targetName    = targetNameUsed,
+        targetType    = targetTypeUsed,
+        mgrs          = mgrsUsed,
+        reason        = "Fuego amigo",
       })
     end
 
   else -- "Collateral"
     DATA_Core.AddPointsLedgerEntry({
-      pilotId    = nil,
-      coalition  = victimCoalition,
-      category   = "Collateral",
-      amount     = PTS_Manager.POINTS.COLLATERAL,
-      weapon     = nil,
-      targetName = victimUnitName,
-      mgrs       = nil,
-      reason     = "Sin atribucion clara de impacto",
+      clockTime     = clockTimeUsed,
+      pilotId       = nil,
+      pilotAircraft = nil,
+      coalition     = victimCoalition,
+      category      = "Collateral",
+      domain        = domainUsed,
+      amount        = PTS_Manager.POINTS.COLLATERAL,
+      weapon        = nil,
+      targetName    = targetNameUsed,
+      targetType    = targetTypeUsed,
+      mgrs          = nil,
+      reason        = "Sin atribucion clara de impacto",
     })
   end
 

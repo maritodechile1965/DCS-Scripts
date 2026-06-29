@@ -73,7 +73,7 @@
     <p class="hud-title">PROJECT DASHBOARD // DCS SCRIPTING</p>
     <div class="hud-sub">MOOSE · MIST · LUA 5.1 — ARQUITECTURA EVENT-DRIVEN</div>
   </div>
-  <div class="hud-clock">SESIÓN 5 CERRADA<br>29/06/2026 — 16:45</div>
+  <div class="hud-clock">SESIÓN 5 (CIERRE EXTENDIDO)<br>29/06/2026</div>
 </div>
 
 <div class="section-label">HORAS DE VUELO (DESARROLLO)</div>
@@ -91,7 +91,7 @@
   <tr><td>2</td><td>29/06</td><td>00:30</td><td>01:50</td><td>Prueba de Event Handlers</td></tr>
   <tr><td>3</td><td>29/06</td><td>06:40</td><td>08:20</td><td>Cierre BaseCaptured + investigación clases MOOSE</td></tr>
   <tr><td>4</td><td>29/06</td><td>08:00</td><td>09:50</td><td>DATA_Core v1 + migración a GitHub</td></tr>
-  <tr><td>5</td><td>29/06</td><td>14:15</td><td>16:45</td><td>Validación DATA_Core + diseño, escritura y validación de PTS_Manager</td></tr>
+  <tr><td>5</td><td>29/06</td><td>14:15</td><td>~21:15*</td><td>DATA_Core + PTS_Manager (diseño, escritura, validación) + ledger ampliado (hora/avión/dominio)</td></tr>
 </table>
 
 <div class="section-label">SCRIPTS TERMINADOS Y FUNCIONANDO</div>
@@ -101,11 +101,22 @@
   <div class="script-item done"><div class="script-top"><span>DATA_Core.lua</span><span class="script-status status-done">v1 VALIDADO + LEDGER DE PUNTOS</span></div><div class="progress-track"><div class="progress-fill done" style="width:100%"></div></div></div>
 </div>
 
-<div class="script-item done"><div class="script-top"><span>PTS_Manager.lua</span><span class="script-status status-done">v1 VALIDADO (EnemyKill/OwnLoss)</span></div><div class="progress-track"><div class="progress-fill done" style="width:100%"></div></div></div>
+<div class="script-item done"><div class="script-top"><span>PTS_Manager.lua</span><span class="script-status status-done">v2 VALIDADO — campos ampliados</span></div><div class="progress-track"><div class="progress-fill done" style="width:100%"></div></div></div>
+
+<div class="section-label">PTS_MANAGER v2 — CAMPOS AMPLIADOS (VALIDADOS)</div>
+<div class="cat-grid">
+  <div class="cat-item"><b>clockTime</b> — hora del mundo DCS, HH:MM:SS</div>
+  <div class="cat-item"><b>pilotAircraft</b> — tipo aeronave propia</div>
+  <div class="cat-item"><b>domain</b> — "air" / "ground"</div>
+  <div class="cat-item"><b>targetType</b> — tipo de unidad objetivo</div>
+</div>
+<div class="arch-box" style="margin-top:10px;">
+  Prueba real: derribo A-4E-C (IA) por "New callsign". Hora 08:00:54 (mundo DCS), dominio "air", MGRS y arma correctos. pilotAircraft=nil confirmado correcto para IA sin jugador.
+</div>
 
 <div class="section-label">PRÓXIMA TAREA — SESIÓN 6</div>
 <div class="arch-box">
-  Probar PTS_Manager con <b>unidades terrestres</b>: validar caso TargetDestroyed (RegisterTarget) y BlueOnBlue, y confirmar captura de MGRS para vehículos/tanques.
+  Probar PTS_Manager con <b>unidades terrestres</b>: validar caso TargetDestroyed (RegisterTarget) y BlueOnBlue, y confirmar captura de MGRS/domain="ground" para vehículos/tanques.
 </div>
 
 <div class="section-label">PTS_MANAGER — CATEGORÍAS DE PUNTOS</div>

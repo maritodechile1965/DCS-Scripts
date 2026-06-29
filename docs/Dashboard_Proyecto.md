@@ -7,9 +7,9 @@
 | 2 | 29/06/2026 | 00:30 | 01:50 | 1h 20min | Prueba de Event Handlers (EVT_Dispatcher + TEST_Handler) |
 | 3 | 29/06/2026 | 06:40 | 08:20 | 1h 40min | Actualización dashboard / Cierre validación EVT_Dispatcher (BaseCaptured) / Investigación clases MOOSE y repos |
 | 4 | 29/06/2026 | 08:00 | 09:50 | 1h 50min | Diseño y escritura de DATA_Core v1 / Migración del proyecto a GitHub |
-| 5 | 29/06/2026 | 14:15 | 16:45 | 2h 30min | Validación en juego de DATA_Core + diseño, escritura y validación en juego de PTS_Manager |
+| 5 | 29/06/2026 | 14:15 | 21:15* | ~4h | Validación DATA_Core + diseño/escritura/validación PTS_Manager + ampliación de campos del ledger (hora, tipo aeronave, dominio aire/tierra) |
 
-**Total acumulado (sesiones 1-5): 8h 20min**
+**Total acumulado (sesiones 1-5): ~9h 50min** *(ver nota sobre cierre de sesión más abajo)*
 
 ---
 
@@ -23,8 +23,11 @@
   - 2 bugs corregidos en validación: suscripción faltante a `PlayerEnterUnit`, y uso de `os` (sandboxeado por DCS) reemplazado por `timer.getTime()`.
 
 ## ✅ Scripts terminados y funcionando (cont.)
-- **PTS_Manager.lua** — ✅ **v1 VALIDADO EN JUEGO** (sesión 5, caso EnemyKill/OwnLoss).
-  - ⚠️ Pendiente validar: caso `TargetDestroyed` (unidad registrada vía RegisterTarget) y caso `BlueOnBlue`, además del comportamiento con unidades terrestres (próxima tarea).
+- **PTS_Manager.lua** — ✅ **v2 VALIDADO EN JUEGO** (sesión 5, caso EnemyKill/OwnLoss, campos ampliados).
+  - Campos ampliados y validados: `clockTime` (hora del mundo DCS vía timer.getAbsTime(), formato HH:MM:SS), `pilotAircraft` (tipo de aeronave propia, capturado en PlayerEnterUnit), `domain` ("air"/"ground"), `targetType` (tipo de unidad objetivo, ej. "A-4E-C"), `targetName` (callsign o nombre crudo DCS).
+  - Prueba real confirmada: derribo A-4E-C (IA) por "New callsign" — ledger con 2 entradas, hora 08:00:54 (mundo DCS), dominio "air", MGRS y arma correctos. Campo `pilotAircraft = nil` confirmado como comportamiento correcto cuando la unidad es IA sin jugador humano.
+  - `DATA_Core.lua` también ampliado: nuevo campo `pilot.aircraftType`, capturado en el handler de `PlayerEnterUnit`.
+  - ⚠️ Pendiente validar: caso `TargetDestroyed` (RegisterTarget), caso `BlueOnBlue`, y comportamiento con **unidades terrestres** (próxima tarea, ver abajo).
   - Tabla `POINTS` con valores editables: `TARGET_DESTROYED` (+15), `ENEMY_KILL` (+10), `BLUE_ON_BLUE` (-20), `COLLATERAL` (0), `OWN_LOSS` (-10) — todos placeholder, ajustables libremente sin tocar la lógica.
   - Se suscribe a `Hit`, `Dead`, `Crash` (3 eventos nuevos en el proyecto).
   - Registra cada impacto (arma, piloto, coalición, posición MGRS) en un log temporal por unidad objetivo.
@@ -105,7 +108,9 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\PTS_Manager.
 - Infraestructura: GitHub como fuente de verdad única.
 
 ---
-*Última actualización: 29/06/2026 — Sesión 5 CERRADA (16:45)*
+*Última actualización: 29/06/2026 — Sesión 5 (cierre extendido, ver nota)*
+
+> **Nota sobre el cierre de sesión:** la sesión 5 se cerró formalmente a las 16:45, pero el trabajo continuó después sin un nuevo "inicio de sesión" (ampliación de PTS_Manager/DATA_Core y su validación en juego). Esa actividad queda registrada aquí dentro de la sesión 5 extendida. A partir de la próxima vez, recordar cerrar y reabrir sesión explícitamente para mantener el registro de horas preciso.
 
 ---
 
