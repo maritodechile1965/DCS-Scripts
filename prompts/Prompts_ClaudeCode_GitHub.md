@@ -72,7 +72,7 @@ en los archivos locales del repo.
 
 ```
 Estoy cerrando la sesión de trabajo en el proyecto DCS Scripting.
-Repo local: <RUTA_LOCAL_DEL_REPO>
+Repo local: C:\Users\mario\Documents\DCS-Scripts
 
 Necesito que hagas lo siguiente, en orden:
 
