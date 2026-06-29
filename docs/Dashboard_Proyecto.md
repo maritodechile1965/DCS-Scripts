@@ -7,9 +7,9 @@
 | 2 | 29/06/2026 | 00:30 | 01:50 | 1h 20min | Prueba de Event Handlers (EVT_Dispatcher + TEST_Handler) |
 | 3 | 29/06/2026 | 06:40 | 08:20 | 1h 40min | Actualización dashboard / Cierre validación EVT_Dispatcher (BaseCaptured) / Investigación clases MOOSE y repos |
 | 4 | 29/06/2026 | 08:00 | 09:50 | 1h 50min | Diseño y escritura de DATA_Core v1 / Migración del proyecto a GitHub |
-| 5 | 29/06/2026 | 14:15 | 16:20 | 2h 05min | Validación en juego de DATA_Core + diseño y escritura de PTS_Manager |
+| 5 | 29/06/2026 | 14:15 | 16:45 | 2h 30min | Validación en juego de DATA_Core + diseño, escritura y validación en juego de PTS_Manager |
 
-**Total acumulado: 7h 55min**
+**Total acumulado (sesiones 1-5): 8h 20min**
 
 ---
 
@@ -22,8 +22,9 @@
   - Nueva API (sesión 5): `AddPointsLedgerEntry`, `GetPointsLedger`, `PointsLedgerToCSV` (esta última solo concatena strings en memoria, no usa `io`, lista para exportar el día que se habilite `os`/`io`/`lfs` en `MissionScripting.lua` sin tocar nada de la lógica existente).
   - 2 bugs corregidos en validación: suscripción faltante a `PlayerEnterUnit`, y uso de `os` (sandboxeado por DCS) reemplazado por `timer.getTime()`.
 
-## 🔧 Script en desarrollo
-- **PTS_Manager.lua** — Estado: **escrito (v1), pendiente de prueba en juego.**
+## ✅ Scripts terminados y funcionando (cont.)
+- **PTS_Manager.lua** — ✅ **v1 VALIDADO EN JUEGO** (sesión 5, caso EnemyKill/OwnLoss).
+  - ⚠️ Pendiente validar: caso `TargetDestroyed` (unidad registrada vía RegisterTarget) y caso `BlueOnBlue`, además del comportamiento con unidades terrestres (próxima tarea).
   - Tabla `POINTS` con valores editables: `TARGET_DESTROYED` (+15), `ENEMY_KILL` (+10), `BLUE_ON_BLUE` (-20), `COLLATERAL` (0), `OWN_LOSS` (-10) — todos placeholder, ajustables libremente sin tocar la lógica.
   - Se suscribe a `Hit`, `Dead`, `Crash` (3 eventos nuevos en el proyecto).
   - Registra cada impacto (arma, piloto, coalición, posición MGRS) en un log temporal por unidad objetivo.
@@ -31,7 +32,7 @@
   - Reparte puntos en partes iguales entre todos los pilotos que contribuyeron al kill (no solo "el último impacto").
   - Penaliza automáticamente al bando que pierde la unidad (`OwnLoss`), de forma simétrica al que la destruyó.
   - Cada evento de puntos queda registrado en el ledger de `DATA_Core` con: piloto, coalición, categoría, monto, arma, nombre del target, MGRS y motivo — pensado desde el diseño para exportarse a CSV/Excel más adelante.
-  - **Próximo paso:** probar en juego (derribo real) y confirmar con `#DATA_Core.GetPointsLedger()` que se registró correctamente.
+  - **VALIDADO EN JUEGO (sesión 5):** kill real Blue→Red confirmado. Ledger con 2 entradas (EnemyKill +10 al piloto, OwnLoss -10 a la coalición Red), arma (AIM_120C) y MGRS (37T GG 27979 68424) capturados correctamente. `_pilotIdFrom` con fallback a IniUnitName funcionando para unidades sin jugador humano.
 
 ---
 
@@ -74,7 +75,7 @@
   └── prompts/   (inicio sesión, fin sesión, estructura inicial, conectar/push)
   ```
 - GitHub es la fuente de verdad del proyecto.
-- Sesión 5 cerrada y subida al repo (commit Sesión 5).
+- **Pendiente:** commit + push con los archivos actualizados de sesión 5 (DATA_Core.lua con ledger, PTS_Manager.lua nuevo, ambos dashboards).
 
 ---
 
@@ -104,4 +105,9 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\PTS_Manager.
 - Infraestructura: GitHub como fuente de verdad única.
 
 ---
-*Última actualización: 29/06/2026 — Sesión 5 cerrada (16:20)*
+*Última actualización: 29/06/2026 — Sesión 5 CERRADA (16:45)*
+
+---
+
+## 🎯 PRÓXIMA TAREA (anotada para sesión 6)
+**Probar los puntos con unidades terrestres.** Validar que PTS_Manager clasifica correctamente kills de vehículos/tanques/infantería (no solo aviones), tanto en el caso TargetDestroyed (con RegisterTarget) como EnemyKill/Collateral sin registro previo. Confirmar también que la captura de MGRS funciona igual de bien para unidades terrestres.
