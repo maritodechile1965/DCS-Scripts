@@ -6,25 +6,25 @@
 | 1 | 28/06/2026 | 23:20 | 00:20 (29/06) | 1h 00min | Creación de dashboard y arquitectura del Event Dispatcher |
 | 2 | 29/06/2026 | 00:30 | 01:50 | 1h 20min | Prueba de Event Handlers (EVT_Dispatcher + TEST_Handler) |
 | 3 | 29/06/2026 | 06:40 | 08:20 | 1h 40min | Actualización dashboard / Cierre validación EVT_Dispatcher (BaseCaptured) / Investigación clases MOOSE y repos |
-| 4 | 29/06/2026 | 08:00 | — | — | Descripción objetivo scripts y campaña dinámica / Reconciliación de dashboard |
+| 4 | 29/06/2026 | 08:00 | 09:50 | 1h 50min | Diseño y escritura de DATA_Core v1 / Migración del proyecto a GitHub (estructura docs-scripts-prompts) |
 
-**Total acumulado: 4h 00min** (sesiones 1–3 cerradas; sesión 4 en curso)
-**Hoy (29/06/2026): 3h 00min** + sesión 4 en curso
+**Total acumulado: 5h 50min**
+**Hoy (29/06/2026): 4h 50min**
 
 ---
 
 ## 🔧 Script en desarrollo
-*(ninguno en desarrollo activo en este momento)*
+- **DATA_Core.lua** — Estado: **escrito (v1), pendiente de prueba en misión real.**
+  - Estructuras en memoria: Pilotos, Coaliciones, Targets/Objetivos, Misiones activas.
+  - API pública: `GetOrCreatePilot`, `AddPilotPoints`, `CanFlyMissionToday`, `RegisterMissionFlown`, `AddLogbookEntry`, `RegisterShot`, `GetCoalition`, `AddCoalitionPoints`, `RegisterTarget`, `GetTarget`, `SetTargetDestroyed`, `CreateMission`, `GetMission`, `GetActiveMissions`.
+  - Suscrito a `EVT_Dispatcher` (eventos `Shot`, `Dead`, `Crash`, `Takeoff`, `Land`, `PilotDead`, `Ejection`), usando las constantes `EVENTS.X` reales de MOOSE y leyendo los campos correctos del `EventData` nativo (`IniPlayerName`, `IniUnitName`, `WeaponName`, `TgtUnitName`).
+  - Corrección aplicada en esta sesión: la primera versión asumía una firma de `Subscribe()` y una forma de `EventData` incorrectas; se corrigió tras revisar el código fuente real de `EVT_Dispatcher.lua`.
+  - Sin persistencia a disco (decisión consciente: en memoria por ahora, se resetea con la misión).
+  - **Próximo paso:** probar en una misión vacía junto con `EVT_Dispatcher`, confirmar en `dcs.log` el mensaje `"DATA_Core :: INICIADO correctamente, suscrito a EVT_Dispatcher."`.
 
 ## ✅ Scripts terminados y funcionando
-- **EVT_Dispatcher.lua** — ✅ **13/13 eventos validados en juego.**
-  - Base: MOOSE `EVENTHANDLER` (no Lua puro).
-  - Pub/Sub central con `Subscribe()` / `Unsubscribe()`.
-  - Aislamiento de errores por `pcall`.
-  - Eventos confirmados: Birth, Takeoff, Land, PlayerEnterUnit, PlayerLeaveUnit, Dead, Crash, Hit, Shot, Ejection, LandingAfterEjection, PilotDead, **BaseCaptured**.
-  - Listo para que otros módulos del backlog se suscriban a él.
-
-- **TEST_Handler.lua** — ✅ Cumplió su propósito de validación. Queda como módulo de referencia/debug; no es necesario mantenerlo activo en producción (se puede remover del `loadfile()` de carga, o dejar comentado).
+- **EVT_Dispatcher.lua** — ✅ 13/13 eventos validados en juego. Sin cambios esta sesión.
+- **TEST_Handler.lua** — ✅ Cumplió su propósito de validación. Sin cambios esta sesión.
 
 ---
 
@@ -42,19 +42,35 @@
 11. LORD — GCI aéreo (rango de detección configurable)
 12. Bases CTLD
 13. Creación Template
-14. CarrierTemplate — cubierta de portaaviones por fase (despegue, recuperaciones, recuperación de emergencia)
-15. TemplateSpawn — spawn de templates (ej. helipad) en cualquier punto del mapa, por coordenada/referencia
-16. SkyNet Custom (nombre por definir) — IADS propio inspirado en Skynet, a medida del proyecto
-17. 🔴 **TextToSpeech (PRIORIDAD ALTA)** — capacidad transversal de voz dinámica vía SRS (DCS-SimpleRadio-Standalone), para LORD/GCI, CSAR, Ground Control y futuro AWACS
+14. CarrierTemplate — cubierta de portaaviones por fase
+15. TemplateSpawn — spawn de templates por coordenada
+16. SkyNet Custom (nombre por definir) — IADS propio
+17. 🔴 **TextToSpeech (PRIORIDAD ALTA)** — voz dinámica vía SRS
 
 ### 💡 Ideas en evaluación (no oficiales aún — ver Ideas_Sueltas.md)
-- DATA_Core — estructura central de "base de datos" en memoria (Pilotos, Coalición, Objetivos/Unidades, Misiones activas). Identificado como bloque crítico previo a Warehouse y Puntos.
-- PTS_Manager — lógica de puntos (gana/pierde) para piloto y coalición.
+- PTS_Manager — lógica de puntos (gana/pierde) para piloto y coalición. Próximo bloque lógico después de validar DATA_Core en juego.
 - TARS (`Ops.TARS`) — misiones de reconocimiento foto/visual.
 - SCORING (`Functional.Scoring`) — puntaje oficial MOOSE + CSV, posible conexión a Warehouse.
 
-### 🗺️ Alcance de campaña dinámica (Golfo Pérsico) — registrado 29/06/2026
-Visión general del proyecto completo descrita por Mario: 2 coaliciones (Blue humana / Red IA), Warehouse con consumo de recursos, sistema de puntos individual y de coalición, IADS propio, CSAR con template de spawn a ~30nm, misiones de reconocimiento, menú de suministros por puntos, refuerzo de IADS, misiones terrestres de invasión, misiones de ala fija (SEAD/Escort/Strike/Runway Attack) con mínimo de pilotos requerido, bitácora de vuelo por piloto (máx. 2 misiones aéreas/día), página web de misiones (target folder, SPINS, JIPTL, ATO, FPL, NAV Card, Target Data Package), puntos por A-A y pérdidas, CSAR con puntos, logística, tabla de objetos/objetivos con coordenadas y estado, registro de armamento disparado/ranking, reporte automatizado post-misión, área de carrier con heli de rescate, CTLD simplificado, guerra terrestre de tanques con CAS, MEDEVAC, CarrierOps, ataques a buques, CAPs IA. Esta visión se descompone progresivamente en el backlog oficial a medida que cada pieza madura.
+---
+
+## 🗂️ Infraestructura del proyecto — Migración a GitHub (decidida esta sesión)
+- Repo: https://github.com/maritodechile1965/DCS-Scripts
+- Estructura adoptada:
+  ```
+  DCS-Scripts/
+  ├── readme.md
+  ├── .gitignore
+  ├── docs/      (este dashboard, dashboard visual, referencias MOOSE, ideas sueltas)
+  ├── scripts/   (EVT_Dispatcher.lua, DATA_Core.lua, TEST_Handler.lua)
+  └── prompts/   (prompts de Claude Code: inicio sesión, fin sesión, estructura inicial, conectar/push)
+  ```
+- Repo local en `C:\Users\mario\Documents\DCS`, inicializado con `git init` (historial propio, no clonado del remoto original).
+- Primer commit local: `4eddded` (10 archivos).
+- `core.autocrlf = true` configurado para evitar warnings de saltos de línea en Windows.
+- El remoto original tenía 2 commits placeholder sin contenido de valor; Mario autorizó sobrescribirlos con `push --force-with-lease` (o `--force` si era necesario) desde el repo local.
+- **Pendiente de confirmar en la próxima sesión:** verificar en el navegador que el push se reflejó correctamente en GitHub (carpetas docs/scripts/prompts visibles).
+- A partir de ahora, GitHub es la fuente de verdad del proyecto — se reemplaza la subida manual de archivos sueltos a project knowledge por el flujo: prompt de inicio (Claude Code lee el repo real) → trabajo en chat → prompt de fin (Claude Code hace commit/push con confirmación de Mario).
 
 ---
 
@@ -63,22 +79,26 @@ Visión general del proyecto completo descrita por Mario: 2 coaliciones (Blue hu
 ```lua
 assert(loadfile("C:\\Users\\TU_USUARIO\\Saved Games\\DCS\\Scripts\\Moose.lua"))()
 assert(loadfile("C:\\Users\\TU_USUARIO\\DCS_Scripts\\EVT_Dispatcher.lua"))()
+assert(loadfile("C:\\Users\\TU_USUARIO\\DCS_Scripts\\DATA_Core.lua"))()
 ```
 
-> Orden obligatorio: Moose.lua primero, EVT_Dispatcher.lua después, ambos en triggers `MISSION START`. Reemplazar `TU_USUARIO` y rutas reales. Doble barra invertida `\\` obligatoria en Lua.
+> Orden obligatorio: Moose.lua → EVT_Dispatcher.lua → DATA_Core.lua, todos en triggers `MISSION START`. Reemplazar `TU_USUARIO` y rutas reales. Doble barra invertida `\\` obligatoria en Lua.
 
 ---
 
 ## 🏛️ Decisiones de arquitectura vigentes
 - Event Dispatcher Central construido sobre MOOSE (`EVENTHANDLER`/`_EVENTDISPATCHER`), no Lua puro — para no duplicar el motor de eventos.
+- `DATA_Core` es la única "base de datos" en memoria del proyecto — los demás módulos deben leer/escribir a través de su API pública, nunca manipular tablas internas directamente.
 - Convención de nombres fija para todo el proyecto:
   - Dispatcher central: `EVT_Dispatcher`
+  - Módulo de datos: `DATA_Core`
   - Prefijos por módulo: `WH_`, `CSAR_`, `FTR_`, `ESC_`, `TRP_`, `GC_`, `CTLD_`
   - Casing: `PascalCase` (objetos MOOSE), `camelCase` (variables locales), `UPPER_SNAKE_CASE` (constantes/flags)
   - Handlers por módulo: `<PREFIJO>_Handler`
-  - Regla extendida: nombres de variables, objetos MOOSE y nomenclatura deben mantenerse idénticos/consistentes entre todos los scripts del proyecto (sin renombrar equivalentes entre módulos)
+  - Regla extendida: nomenclatura idéntica entre todos los scripts del proyecto, sin renombrar equivalentes entre módulos
 - No modificar scripts ya funcionando salvo necesidad justificada.
 - Ningún script se escribe sin autorización explícita previa.
+- Infraestructura: GitHub como fuente de verdad única (ver sección de arriba).
 
 ---
-*Última actualización: 29/06/2026 — Sesión 4 (08:00)*
+*Última actualización: 29/06/2026 — Sesión 4 cerrada (09:50)*
