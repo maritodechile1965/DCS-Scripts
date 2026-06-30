@@ -1,91 +1,196 @@
 --[[
 ====================================================================
- PTS_Manager.lua
- Modulo de gestion de puntos: decide CUANDO y CUANTO otorgar o
- penalizar, segun los eventos reales del juego. No almacena estado
- propio -- toda la data persiste en DATA_Core (pilotos, coaliciones,
- ledger de puntos).
+ PTS_Manager.lua  v3
+ Modulo de gestion de puntos + tracking de armas + mensajes en
+ pantalla. Decide CUANDO y CUANTO otorgar o penalizar, segun los
+ eventos reales del juego. No almacena estado propio -- toda la
+ data persiste en DATA_Core.
 
  Dependencias:
    - Moose.lua          (cargado antes)
-   - EVT_Dispatcher.lua (cargado antes, este modulo se suscribe a el)
-   - DATA_Core.lua      (cargado antes, aqui se escriben los puntos)
+   - EVT_Dispatcher.lua (cargado antes)
+   - DATA_Core.lua      (cargado antes)
 
- Version: v1
- Convencion de nombres del proyecto:
-   - Prefijo de modulo: PTS_
-   - PascalCase para objetos/namespace, camelCase variables locales,
-     UPPER_SNAKE_CASE constantes/flags
+ Version: v3 (tracking armas + mensajes pantalla + MGRS DCS nativo)
+ Convencion de nombres: PTS_, PascalCase, camelCase, UPPER_SNAKE
 ====================================================================
 ]]
 
 PTS_Manager = {}
 
 --------------------------------------------------------------------
--- CONFIGURACION DE PUNTOS (editable libremente, sin afectar la logica)
+-- CONFIGURACION DE PUNTOS (editable libremente)
 --------------------------------------------------------------------
-
--- Valores iniciales (placeholder) -- Mario puede ajustar cualquiera
--- de estos numeros en cualquier momento sin tocar el resto del script.
 PTS_Manager.POINTS = {
-  TARGET_DESTROYED =  15,  -- destruir un target oficial de mision (DATA_Core.RegisterTarget)
-  ENEMY_KILL       =  10,  -- matar unidad enemiga no designada como target
-  BLUE_ON_BLUE     = -20,  -- fuego amigo (penaliza a quien dispara)
-  COLLATERAL       =   0,  -- dano colateral sin atribucion clara -- neutro por defecto
-  OWN_LOSS         = -10,  -- penalizacion a la coalicion/piloto que pierde la unidad
+  TARGET_DESTROYED =  15,
+  ENEMY_KILL       =  10,
+  BLUE_ON_BLUE     = -20,
+  COLLATERAL       =   0,
+  OWN_LOSS         = -10,
+  MISS             =   0,  -- impacto en terreno sin objetivo
 }
 
 --------------------------------------------------------------------
--- ESTRUCTURAS INTERNAS (privadas al modulo)
+-- ESTRUCTURAS INTERNAS
 --------------------------------------------------------------------
-
--- Registro temporal de impactos por unidad objetivo, indexado por el
--- nombre de la unidad (IniUnitName de la victima). Se limpia cuando
--- la unidad muere. Estructura: _hitsLog[targetUnitName] = { {hit1}, {hit2}, ... }
-local _hitsLog = {}
+local _hitsLog    = {}   -- [targetUnitName] = { {hit1}, {hit2}, ... }
+local _weaponTrack = {}  -- [weaponKey] = { pilotId, weaponName, ... }
 
 --------------------------------------------------------------------
--- UTILIDADES INTERNAS
+-- UTILIDADES
 --------------------------------------------------------------------
 
--- Mismo criterio de identificacion de piloto usado en DATA_Core:
--- preferir IniPlayerName (jugador humano), si no existe usar
--- IniUnitName (IA u otro caso). Duplicado intencionalmente aqui (bajo
--- acoplamiento entre modulos) en vez de exponerlo desde DATA_Core.
 local function _pilotIdFrom(EventData)
   if not EventData then return nil end
   return EventData.IniPlayerName or EventData.IniUnitName
 end
 
--- Convierte la constante numerica EventData.IniCoalition / TgtCoalition
--- de DCS a los strings "blue"/"red" usados en todo el proyecto.
-local function _coalitionSideOf(coalitionConstant)
-  if coalitionConstant == coalition.side.BLUE then
-    return "blue"
-  elseif coalitionConstant == coalition.side.RED then
-    return "red"
+local function _coalitionSideOf(c)
+  if c == coalition.side.BLUE then return "blue"
+  elseif c == coalition.side.RED then return "red" end
+  return nil
+end
+
+local function _missionClockHHMMSS()
+  local ok, t = pcall(timer.getAbsTime)
+  if not ok or not t then return nil end
+  local s = math.floor(t) % 86400
+  return string.format("%02d:%02d:%02d", math.floor(s/3600), math.floor((s%3600)/60), s%60)
+end
+
+local function _feet(meters)
+  return math.floor((meters or 0) * 3.28084)
+end
+
+-- Convierte un Vec3 DCS a string MGRS
+local function _vec3ToMGRS(vec3)
+  if not vec3 then return nil end
+  local ok, mgrs = pcall(function()
+    return COORDINATE:NewFromVec3(vec3):ToStringMGRS()
+  end)
+  if ok and mgrs then return mgrs end
+  return nil
+end
+
+-- Obtiene el objeto DCS nativo del arma desde EventData.
+-- Prueba EventData.weapon (lowercase, raw DCS en world.addEventHandler)
+-- y EventData.Weapon:GetDCSObject() (MOOSE wrapper).
+-- Basado en el patron probado de BombImpact.lua de Mario.
+local function _getDCSWeapon(EventData)
+  if EventData.weapon then
+    local ok, pt = pcall(function() return EventData.weapon:getPoint() end)
+    if ok and pt then return EventData.weapon end
+  end
+  if EventData.Weapon then
+    local ok, obj = pcall(function() return EventData.Weapon:GetDCSObject() end)
+    if ok and obj then return obj end
+    -- Algunos builds de MOOSE tienen Weapon como DCS nativo directo
+    local ok2, pt2 = pcall(function() return EventData.Weapon:getPoint() end)
+    if ok2 and pt2 then return EventData.Weapon end
   end
   return nil
 end
 
--- Intenta obtener la posicion MGRS de una unidad en el momento del
--- impacto (mientras sigue viva). Envuelto en pcall porque TgtUnit
--- puede no existir para todo tipo de evento/objeto (ej. scenery).
-local function _mgrsOf(MooseUnit)
-  if not MooseUnit then return nil end
-  local ok, mgrs = pcall(function()
-    return MooseUnit:GetCoordinate():ToStringMGRS()
-  end)
-  if ok then return mgrs end
+-- MGRS del punto de impacto usando el objeto DCS del arma (mas preciso)
+-- con fallbacks a la unidad objetivo.
+local function _mgrsFromEvent(EventData)
+  -- 1: arma DCS nativa (patron BombImpact.lua -- el mas confiable)
+  local dcsWeapon = _getDCSWeapon(EventData)
+  if dcsWeapon then
+    local ok, vec3 = pcall(function() return dcsWeapon:getPoint() end)
+    if ok and vec3 then return _vec3ToMGRS(vec3) end
+  end
+  -- 2: unidad objetivo DCS nativa
+  if EventData.TgtUnit then
+    local ok, obj = pcall(function() return EventData.TgtUnit:GetDCSObject() end)
+    if ok and obj then
+      local ok2, vec3 = pcall(function() return obj:getPoint() end)
+      if ok2 and vec3 then return _vec3ToMGRS(vec3) end
+    end
+    -- 3: wrapper MOOSE
+    local ok3, mgrs = pcall(function()
+      return EventData.TgtUnit:GetCoordinate():ToStringMGRS()
+    end)
+    if ok3 and mgrs then return mgrs end
+  end
   return nil
 end
 
--- Elimina pilotIds duplicados de un array de hits, devolviendo un
--- array de pilotIds unicos (para repartir puntos sin contar dos veces
--- al mismo piloto que impacto varias veces al mismo objetivo).
+-- Clasifica un objeto DCS en una etiqueta legible para el ledger y pantalla.
+-- Retorna: etiqueta (AIRCRAFT/VEHICLE/SHIP/STRUCTURE/BUILDING/OBJECT), typeName
+local function _classifyDCSTarget(dcsTarget)
+  if not dcsTarget then return "UNKNOWN", nil end
+
+  local typeName = nil
+  local ok, tn = pcall(function() return dcsTarget:getTypeName() end)
+  if ok then typeName = tn end
+
+  local ok2, objCat = pcall(function() return Object.getCategory(dcsTarget) end)
+  if not ok2 then return "OBJECT", typeName end
+
+  if objCat == Object.Category.UNIT then
+    local ok3, desc = pcall(function() return dcsTarget:getDesc() end)
+    if ok3 and desc and desc.category ~= nil then
+      local c = desc.category
+      if c == Unit.Category.AIRPLANE or c == Unit.Category.HELICOPTER then
+        return "AIRCRAFT", typeName
+      elseif c == Unit.Category.GROUND_UNIT then
+        return "VEHICLE", typeName
+      elseif c == Unit.Category.SHIP then
+        return "SHIP", typeName
+      elseif c == Unit.Category.STRUCTURE then
+        return "STRUCTURE", typeName
+      end
+    end
+    return "UNIT", typeName
+  elseif objCat == Object.Category.STATIC then
+    return "BUILDING", typeName
+  elseif objCat == Object.Category.SCENERY then
+    return "BUILDING", typeName
+  end
+
+  return "OBJECT", typeName
+end
+
+-- Dominio "air"/"ground" con multiples fallbacks (igual que v2).
+local function _domainOf(MooseUnit)
+  if not MooseUnit then return nil end
+  local ok, cat = pcall(function() return MooseUnit:GetCategory() end)
+  if ok and cat ~= nil then
+    if cat == Unit.Category.AIRPLANE or cat == Unit.Category.HELICOPTER then
+      return "air"
+    end
+    return "ground"
+  end
+  local ok2, obj = pcall(function() return MooseUnit:GetDCSObject() end)
+  if ok2 and obj then
+    local ok3, desc = pcall(function() return obj:getDesc() end)
+    if ok3 and desc and desc.category ~= nil then
+      if desc.category == Unit.Category.AIRPLANE or
+         desc.category == Unit.Category.HELICOPTER then
+        return "air"
+      end
+      return "ground"
+    end
+    return "ground"
+  end
+  return nil
+end
+
+local function _typeNameOf(MooseUnit)
+  if not MooseUnit then return nil end
+  local ok, tn = pcall(function() return MooseUnit:GetTypeName() end)
+  if ok and tn then return tn end
+  local ok2, obj = pcall(function() return MooseUnit:GetDCSObject() end)
+  if ok2 and obj then
+    local ok3, desc = pcall(function() return obj:getDesc() end)
+    if ok3 and desc and desc.typeName then return desc.typeName end
+  end
+  return nil
+end
+
 local function _uniquePilotIds(hits)
-  local seen = {}
-  local result = {}
+  local seen, result = {}, {}
   for _, hit in ipairs(hits) do
     if hit.pilotId and not seen[hit.pilotId] then
       seen[hit.pilotId] = true
@@ -95,97 +200,243 @@ local function _uniquePilotIds(hits)
   return result
 end
 
--- Hora del MUNDO de la mision (no la hora real de Windows -- esa
--- depende de "os", sandboxeado por DCS). timer.getAbsTime() es nativo
--- de DCS y da segundos desde medianoche del dia configurado en el
--- Mission Editor. La convertimos a "HH:MM:SS" con aritmetica simple,
--- sin ninguna libreria adicional.
-local function _missionClockHHMMSS()
-  local ok, absSeconds = pcall(timer.getAbsTime)
-  if not ok or not absSeconds then return nil end
-
-  local totalSeconds = math.floor(absSeconds) % 86400  -- por si pasa de medianoche
-  local hours   = math.floor(totalSeconds / 3600)
-  local minutes = math.floor((totalSeconds % 3600) / 60)
-  local seconds = totalSeconds % 60
-
-  return string.format("%02d:%02d:%02d", hours, minutes, seconds)
-end
-
--- Determina si una unidad es "air" (avion/helicoptero) o "ground"
--- (vehiculo, infanteria, barco, estructura -- todo lo no-aereo se
--- agrupa como "ground" para simplificar el filtro en Excel).
-local function _domainOf(MooseUnit)
-  if not MooseUnit then return nil end
-  local ok, category = pcall(function() return MooseUnit:GetCategory() end)
-  if not ok or category == nil then return nil end
-
-  if category == Unit.Category.AIRPLANE or category == Unit.Category.HELICOPTER then
-    return "air"
-  end
-  return "ground"
-end
-
--- Tipo de unidad (avion o vehiculo), capturado de forma segura.
-local function _typeNameOf(MooseUnit)
-  if not MooseUnit then return nil end
-  local ok, typeName = pcall(function() return MooseUnit:GetTypeName() end)
-  if ok then return typeName end
-  return nil
+local function _pilotAircraftType(pilotId)
+  local pilot = pilotId and DATA_Core.GetPilot(pilotId)
+  return pilot and pilot.aircraftType or nil
 end
 
 --------------------------------------------------------------------
 -- HANDLERS DE EVENTOS
 --------------------------------------------------------------------
 
--- Registra cada impacto (Hit) en el log temporal de la unidad objetivo,
--- para poder reconstruir despues quien contribuyo a su destruccion.
+-- SHOT: filtra canones, inicia tracking del arma, muestra mensaje.
+local function _onShot(EventData)
+  -- Usar EventData.Weapon directamente para WEAPON:New()
+  -- (patron exacto de BombImpact.lua de Mario -- NO usar GetDCSObject())
+  local mooseWeaponObj = EventData.Weapon
+  if not mooseWeaponObj then return end
+
+  -- Para filtrar canones, intentar obtener el descriptor via DCS nativo
+  local dcsWeapon = _getDCSWeapon(EventData)
+  if dcsWeapon then
+    local ok, desc = pcall(function() return dcsWeapon:getDesc() end)
+    if ok and desc and desc.category == Weapon.Category.SHELL then
+      return  -- ignorar proyectiles de canon
+    end
+  end
+
+  local pilotId        = _pilotIdFrom(EventData)
+  local pilotCoalition = _coalitionSideOf(EventData.IniCoalition)
+  local pilotAircraft  = _pilotAircraftType(pilotId)
+
+  -- Nombre del arma
+  local weaponName = EventData.WeaponName or "Unknown"
+  if dcsWeapon then
+    local ok, desc = pcall(function() return dcsWeapon:getDesc() end)
+    if ok and desc then
+      weaponName = desc.displayName or desc.typeName or weaponName
+    end
+  end
+
+  -- MGRS de lanzamiento (posicion del avion al disparar)
+  local launchMGRS = nil
+  if EventData.IniUnit then
+    local ok, mgrs = pcall(function()
+      return EventData.IniUnit:GetCoordinate():ToStringMGRS()
+    end)
+    if ok and mgrs then launchMGRS = mgrs end
+  end
+
+  -- Mensaje en pantalla al disparar
+  trigger.action.outText(string.format(
+    "[SHOT] %s | %s | %s | MGRS: %s",
+    tostring(pilotId or "IA"),
+    tostring(pilotAircraft or "?"),
+    tostring(weaponName),
+    tostring(launchMGRS or "N/A")
+  ), 10)
+
+  -- Crear WEAPON wrapper pasando EventData.Weapon directamente
+  -- (igual que BombImpact.lua: WEAPON:New(EventData.Weapon))
+  local ok, weaponWrapper = pcall(function() return WEAPON:New(mooseWeaponObj) end)
+  if not ok or not weaponWrapper then
+    env.info("PTS_Manager :: WEAPON:New() fallo para " .. weaponName)
+    return
+  end
+
+  local key = tostring(mooseWeaponObj)  -- clave unica para este disparo
+  _weaponTrack[key] = {
+    pilotId       = pilotId,
+    pilotAircraft = pilotAircraft,
+    coalition     = pilotCoalition,
+    weaponName    = weaponName,
+    launchMGRS    = launchMGRS,
+    hitRegistered = false,
+  }
+
+  -- Closure que captura 'key' para el callback de impacto.
+  -- NOTA TECNICA: cuando MOOSE dispara este callback, el objeto DCS
+  -- del arma ya fue destruido por DCS ("Object doesn't exist"), por lo
+  -- que GetPointVec3()/GetCoordinate() siempre fallan aqui. El MGRS
+  -- de los MISS queda nil -- decision consciente: los tiros perdidos
+  -- en terreno no necesitan posicion exacta de impacto.
+  -- El MGRS si se captura correctamente para hits reales via _onHit.
+  local function _impactCallback(ww)
+    -- Verificar MISS 0.3s despues del impacto.
+    -- Si hitRegistered sigue false, el arma pego en terreno sin objetivo.
+    SCHEDULER:New(nil, function()
+      local i = _weaponTrack[key]
+      if not i then return end
+
+      if not i.hitRegistered then
+        local msg = string.format(
+          "[MISS] %s | %s | %s",
+          tostring(i.pilotId or "IA"),
+          tostring(i.pilotAircraft or "?"),
+          tostring(i.weaponName)
+        )
+        trigger.action.outText(msg, 15)
+        env.info("PTS_Manager :: " .. msg)
+
+        DATA_Core.AddPointsLedgerEntry({
+          clockTime     = _missionClockHHMMSS(),
+          pilotId       = i.pilotId,
+          pilotAircraft = i.pilotAircraft,
+          coalition     = i.coalition,
+          category      = "Miss",
+          domain        = "ground",
+          amount        = PTS_Manager.POINTS.MISS,
+          weapon        = i.weaponName,
+          targetName    = "TERRAIN",
+          targetType    = "MISS",
+          mgrs          = nil,
+          reason        = "Impacto en terreno sin objetivo",
+        })
+      end
+
+      _weaponTrack[key] = nil
+    end, {}, 0.3, nil)
+  end
+
+  pcall(function()
+    weaponWrapper:SetFuncImpact(_impactCallback)
+    weaponWrapper:StartTrack()
+  end)
+end
+
+-- HIT: registra impacto con datos enriquecidos via DCS nativo.
 local function _onHit(EventData)
   if not EventData or not EventData.TgtUnitName then return end
 
-  local shooterCoalition = _coalitionSideOf(EventData.IniCoalition)
-  local targetUnitName   = EventData.TgtUnitName
-
-  -- Nombre "legible" del objetivo: callsign si es jugador humano,
-  -- nombre crudo de DCS si es IA (igual criterio que _pilotIdFrom).
+  local targetUnitName    = EventData.TgtUnitName
+  local shooterCoalition  = _coalitionSideOf(EventData.IniCoalition)
   local targetDisplayName = EventData.TgtPlayerName or EventData.TgtUnitName
 
+  -- Clasificar el objetivo usando DCS nativo (mas confiable que MOOSE wrapper)
+  local targetLabel = nil  -- VEHICLE, AIRCRAFT, BUILDING, etc.
+  local targetType  = nil  -- tipo real de DCS ("T-72B", etc.)
+
+  -- Intentar via objeto DCS nativo del target
+  if EventData.TgtUnit then
+    local ok, obj = pcall(function() return EventData.TgtUnit:GetDCSObject() end)
+    if ok and obj then
+      targetLabel, targetType = _classifyDCSTarget(obj)
+    end
+  end
+  -- Fallback a MOOSE wrapper
+  if not targetType then
+    targetType = _typeNameOf(EventData.TgtUnit)
+  end
+  -- Si es un object_id numerico (scenery), etiquetar como BUILDING
+  if not targetLabel and tonumber(targetUnitName) then
+    targetLabel = "BUILDING"
+  end
+
+  -- Determinar dominio con fallbacks
+  local domain = _domainOf(EventData.TgtUnit)
+  if domain == nil then
+    local targetRecord = DATA_Core.GetTarget(targetUnitName)
+    if targetRecord then domain = targetRecord.type
+    elseif tonumber(targetUnitName) then domain = "ground"
+    else domain = "ground" end
+  end
+
+  -- MGRS del punto de impacto (DCS nativo primero, por BombImpact.lua)
+  local mgrsImpact = _mgrsFromEvent(EventData)
+
+  -- Altitud del impacto en pies (desde objeto DCS del arma)
+  local altImpactFt = nil
+  local dcsWeapon = _getDCSWeapon(EventData)
+  if dcsWeapon then
+    local ok, vec3 = pcall(function() return dcsWeapon:getPoint() end)
+    if ok and vec3 then altImpactFt = _feet(vec3.y or 0) end
+  end
+
+  -- Nombre del objetivo: si tiene un nombre real o es scenery numerico
+  local displayName = targetDisplayName
+  if tonumber(targetDisplayName) and targetLabel then
+    displayName = targetLabel  -- "BUILDING" mas legible que "86122733"
+  end
+
+  -- Marcar en weapon track que este arma SI impacto un objetivo (no es MISS)
+  if dcsWeapon then
+    local key = tostring(dcsWeapon)
+    if _weaponTrack[key] then
+      _weaponTrack[key].hitRegistered = true
+      _weaponTrack[key].targetName    = displayName
+      _weaponTrack[key].targetLabel   = targetLabel
+    end
+  end
+
+  -- Mensaje en pantalla al impactar un objetivo
+  local wInfo = dcsWeapon and _weaponTrack[tostring(dcsWeapon)]
+  local pilotMsg = wInfo and wInfo.pilotId or _pilotIdFrom(EventData) or "IA"
+  local aircraftMsg = wInfo and wInfo.pilotAircraft or "?"
+  local weaponMsg = wInfo and wInfo.weaponName or EventData.WeaponName or "?"
+
+  trigger.action.outText(string.format(
+    "[IMPACT] Obj: %s | Tipo: %s | MGRS: %s | Alt: %s ft | Arma: %s | %s | %s",
+    tostring(displayName),
+    tostring(targetLabel or targetType or "?"),
+    tostring(mgrsImpact or "N/A"),
+    tostring(altImpactFt or "N/A"),
+    tostring(weaponMsg),
+    tostring(aircraftMsg),
+    tostring(pilotMsg)
+  ), 15)
+
+  -- Guardar en _hitsLog para la logica de scoring en _onDeadOrCrash
   _hitsLog[targetUnitName] = _hitsLog[targetUnitName] or {}
   table.insert(_hitsLog[targetUnitName], {
     pilotId      = _pilotIdFrom(EventData),
     coalition    = shooterCoalition,
-    weapon       = EventData.WeaponName,
-    mgrs         = _mgrsOf(EventData.TgtUnit),
-    targetName   = targetDisplayName,
-    targetType   = _typeNameOf(EventData.TgtUnit),
-    domain       = _domainOf(EventData.TgtUnit),
+    weapon       = wInfo and wInfo.weaponName or EventData.WeaponName,
+    mgrs         = mgrsImpact,
+    altFt        = altImpactFt,
+    targetName   = displayName,
+    targetType   = targetLabel or targetType,
+    domain       = domain,
     clockTime    = _missionClockHHMMSS(),
     timestamp    = timer.getTime(),
   })
 end
 
--- Logica central: al morir una unidad, clasifica el evento en una de
--- las 4 categorias acordadas y reparte/penaliza puntos en consecuencia.
+-- DEAD/CRASH: logica de scoring (sin cambios respecto a v2).
 local function _onDeadOrCrash(EventData)
   if not EventData or not EventData.IniUnitName then return end
 
   local victimUnitName  = EventData.IniUnitName
   local victimCoalition = _coalitionSideOf(EventData.IniCoalition)
   local victimPilotId   = _pilotIdFrom(EventData)
-  local hits             = _hitsLog[victimUnitName] or {}
-  local targetRecord     = DATA_Core.GetTarget(victimUnitName)
+  local hits            = _hitsLog[victimUnitName] or {}
+  local targetRecord    = DATA_Core.GetTarget(victimUnitName)
 
-  local category
-  local contributors = {}      -- array de pilotIds que reciben el premio/penalizacion
-  local shooterCoalition = nil -- coalicion de quienes dispararon (para puntos de coalicion)
+  local category, contributors, shooterCoalition = nil, {}, nil
 
   if targetRecord then
-    -- Cualquier unidad registrada oficialmente como target de mision
-    -- manda sobre las demas categorias.
-    category = "TargetDestroyed"
-    contributors = _uniquePilotIds(hits)
-    if hits[1] then shooterCoalition = hits[1].coalition end
-
+    category         = "TargetDestroyed"
+    contributors     = _uniquePilotIds(hits)
+    shooterCoalition = hits[1] and hits[1].coalition or nil
   elseif #hits > 0 then
     local enemyHits, friendlyHits = {}, {}
     for _, hit in ipairs(hits) do
@@ -195,47 +446,41 @@ local function _onDeadOrCrash(EventData)
         table.insert(enemyHits, hit)
       end
     end
-
     if #enemyHits > 0 then
-      category = "EnemyKill"
-      contributors = _uniquePilotIds(enemyHits)
+      category         = "EnemyKill"
+      contributors     = _uniquePilotIds(enemyHits)
       shooterCoalition = enemyHits[1].coalition
     else
-      category = "BlueOnBlue"
-      contributors = _uniquePilotIds(friendlyHits)
+      category         = "BlueOnBlue"
+      contributors     = _uniquePilotIds(friendlyHits)
       shooterCoalition = friendlyHits[1].coalition
     end
-
   else
-    -- Sin impactos registrados (ej. murio por IA sin pasar por el
-    -- evento Hit, o es un objeto/escenario no rastreado): no hay
-    -- atribucion confiable, se registra neutro.
     category = "Collateral"
   end
 
-  -- Datos comunes para el ledger (del ultimo hit disponible -- es el
-  -- mas representativo del impacto que efectivamente abatio al objetivo).
-  local lastHit       = hits[#hits]
-  local weaponUsed     = lastHit and lastHit.weapon or nil
-  local mgrsUsed        = lastHit and lastHit.mgrs or nil
-  local targetNameUsed  = lastHit and lastHit.targetName or victimUnitName
-  local targetTypeUsed  = lastHit and lastHit.targetType or nil
-  local domainUsed      = lastHit and lastHit.domain or nil
-  local clockTimeUsed   = lastHit and lastHit.clockTime or _missionClockHHMMSS()
+  local lastHit        = hits[#hits]
+  local weaponUsed     = lastHit and lastHit.weapon    or nil
+  local mgrsUsed       = lastHit and lastHit.mgrs      or nil
+  local targetNameUsed = lastHit and lastHit.targetName or victimUnitName
+  local targetTypeUsed = lastHit and lastHit.targetType or nil
+  local domainUsed     = lastHit and lastHit.domain    or nil
+  local clockTimeUsed  = lastHit and lastHit.clockTime or _missionClockHHMMSS()
 
-  -- Obtiene el tipo de aeronave que vuela un piloto contribuyente,
-  -- previamente capturado por DATA_Core en el evento PlayerEnterUnit.
-  local function _pilotAircraftType(pilotId)
-    local pilot = pilotId and DATA_Core.GetPilot(pilotId)
-    return pilot and pilot.aircraftType or nil
+  -- Fallbacks de dominio
+  if domainUsed == nil then
+    local tr = DATA_Core.GetTarget(victimUnitName)
+    if tr then domainUsed = tr.type
+    elseif tonumber(victimUnitName) then domainUsed = "ground"
+    else domainUsed = "ground" end
   end
 
   if category == "TargetDestroyed" or category == "EnemyKill" then
-    local basePoints  = (category == "TargetDestroyed")
-                          and PTS_Manager.POINTS.TARGET_DESTROYED
-                          or  PTS_Manager.POINTS.ENEMY_KILL
-    local numContrib  = math.max(1, #contributors)
-    local pointsEach  = basePoints / numContrib
+    local basePoints = (category == "TargetDestroyed")
+                        and PTS_Manager.POINTS.TARGET_DESTROYED
+                        or  PTS_Manager.POINTS.ENEMY_KILL
+    local numContrib = math.max(1, #contributors)
+    local pointsEach = basePoints / numContrib
 
     for _, pilotId in ipairs(contributors) do
       DATA_Core.AddPilotPoints(pilotId, pointsEach)
@@ -251,18 +496,14 @@ local function _onDeadOrCrash(EventData)
         targetName    = targetNameUsed,
         targetType    = targetTypeUsed,
         mgrs          = mgrsUsed,
-        reason        = (category == "TargetDestroyed")
+        reason        = category == "TargetDestroyed"
                           and "Target oficial de mision destruido"
                           or  "Unidad enemiga destruida",
       })
     end
-
     if shooterCoalition then
       DATA_Core.AddCoalitionPoints(shooterCoalition, basePoints)
     end
-
-    -- Penalizacion simetrica al bando que perdio la unidad (si tenia
-    -- coalicion identificable). Se registra como evento separado.
     if victimCoalition then
       DATA_Core.AddCoalitionPoints(victimCoalition, PTS_Manager.POINTS.OWN_LOSS)
       if victimPilotId and DATA_Core.GetPilot(victimPilotId) then
@@ -287,7 +528,6 @@ local function _onDeadOrCrash(EventData)
   elseif category == "BlueOnBlue" then
     local numContrib = math.max(1, #contributors)
     local pointsEach = PTS_Manager.POINTS.BLUE_ON_BLUE / numContrib
-
     for _, pilotId in ipairs(contributors) do
       DATA_Core.AddPilotPoints(pilotId, pointsEach)
       DATA_Core.AddPointsLedgerEntry({
@@ -306,7 +546,7 @@ local function _onDeadOrCrash(EventData)
       })
     end
 
-  else -- "Collateral"
+  else  -- Collateral
     DATA_Core.AddPointsLedgerEntry({
       clockTime     = clockTimeUsed,
       pilotId       = nil,
@@ -323,20 +563,18 @@ local function _onDeadOrCrash(EventData)
     })
   end
 
-  -- Limpieza: ya no se necesita el log de impactos de esta unidad.
   _hitsLog[victimUnitName] = nil
 end
 
 --------------------------------------------------------------------
 -- SUSCRIPCION A EVT_Dispatcher
 --------------------------------------------------------------------
-
 if EVT_Dispatcher and EVT_Dispatcher.Subscribe and DATA_Core then
+  EVT_Dispatcher:Subscribe(EVENTS.Shot,  _onShot,         "PTS_Manager")
   EVT_Dispatcher:Subscribe(EVENTS.Hit,   _onHit,          "PTS_Manager")
   EVT_Dispatcher:Subscribe(EVENTS.Dead,  _onDeadOrCrash,  "PTS_Manager")
   EVT_Dispatcher:Subscribe(EVENTS.Crash, _onDeadOrCrash,  "PTS_Manager")
-
   env.info("PTS_Manager :: INICIADO correctamente, suscrito a EVT_Dispatcher.")
 else
-  env.error("PTS_Manager :: EVT_Dispatcher o DATA_Core no encontrados. Verificar orden de carga (Moose.lua -> EVT_Dispatcher.lua -> DATA_Core.lua -> PTS_Manager.lua).")
+  env.error("PTS_Manager :: EVT_Dispatcher o DATA_Core no encontrados.")
 end

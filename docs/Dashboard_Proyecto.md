@@ -5,37 +5,37 @@
 |---|---|---|---|---|---|
 | 1 | 28/06/2026 | 23:20 | 00:20 (29/06) | 1h 00min | Creación de dashboard y arquitectura del Event Dispatcher |
 | 2 | 29/06/2026 | 00:30 | 01:50 | 1h 20min | Prueba de Event Handlers (EVT_Dispatcher + TEST_Handler) |
-| 3 | 29/06/2026 | 06:40 | 08:20 | 1h 40min | Actualización dashboard / Cierre validación EVT_Dispatcher (BaseCaptured) / Investigación clases MOOSE y repos |
+| 3 | 29/06/2026 | 06:40 | 08:20 | 1h 40min | Actualización dashboard / Cierre validación EVT_Dispatcher (BaseCaptured) / Investigación clases MOOSE |
 | 4 | 29/06/2026 | 08:00 | 09:50 | 1h 50min | Diseño y escritura de DATA_Core v1 / Migración del proyecto a GitHub |
-| 5 | 29/06/2026 | 14:15 | 21:15* | ~4h | Validación DATA_Core + diseño/escritura/validación PTS_Manager + ampliación de campos del ledger (hora, tipo aeronave, dominio aire/tierra) |
+| 5* | 29/06/2026 | 14:15 | ~21:15 | ~7h | Validación DATA_Core + PTS_Manager v2 + ledger ampliado (hora/avión/dominio/tipo) |
+| 6 | 30/06/2026 | 07:40 | 10:00 | 2h 20min | PTS_Manager Ground Impacts — validación targets terrestres |
+| 7 | 30/06/2026 | 11:30 | 14:00 | 2h 30min | PTS_Manager v3 + WEAPON tracking + mensajes pantalla + DATA_Export |
 
-**Total acumulado (sesiones 1-5): ~9h 50min** *(ver nota sobre cierre de sesión más abajo)*
+**Total acumulado: ~17h 40min**
+*Sesión 5 extendida sin cierre formal intermedio.
 
 ---
 
 ## ✅ Scripts terminados y funcionando
 - **EVT_Dispatcher.lua** — ✅ 13/13 eventos validados en juego.
 - **TEST_Handler.lua** — ✅ Cumplió su propósito de validación.
-- **DATA_Core.lua** — ✅ **v1 VALIDADO EN JUEGO** (sesión 5).
-  - Estructuras: Pilotos, Coaliciones, Targets/Objetivos, Misiones activas, **Ledger de puntos** (nuevo, sesión 5).
-  - 8 suscripciones a eventos de vuelo/piloto.
-  - Nueva API (sesión 5): `AddPointsLedgerEntry`, `GetPointsLedger`, `PointsLedgerToCSV` (esta última solo concatena strings en memoria, no usa `io`, lista para exportar el día que se habilite `os`/`io`/`lfs` en `MissionScripting.lua` sin tocar nada de la lógica existente).
-  - 2 bugs corregidos en validación: suscripción faltante a `PlayerEnterUnit`, y uso de `os` (sandboxeado por DCS) reemplazado por `timer.getTime()`.
+- **DATA_Core.lua** — ✅ v1 VALIDADO EN JUEGO.
+  - Estructuras: Pilotos (con `aircraftType`), Coaliciones, Targets/Objetivos, Misiones activas, Ledger de puntos.
+  - 8 suscripciones: PlayerEnterUnit, Shot, Dead, Crash, Takeoff, Land, PilotDead, Ejection.
+  - API: `GetOrCreatePilot`, `SetPilotAircraftType`, `AddPilotPoints`, `CanFlyMissionToday`, `RegisterMissionFlown`, `ResetDailyCounters`, `AddLogbookEntry`, `RegisterShot`, `GetCoalition`, `AddCoalitionPoints`, `RegisterTarget`, `GetTarget`, `SetTargetDestroyed`, `CreateMission`, `GetMission`, `GetActiveMissions`, `AddPointsLedgerEntry`, `GetPointsLedger`, `PointsLedgerToCSV`.
 
-## ✅ Scripts terminados y funcionando (cont.)
-- **PTS_Manager.lua** — ✅ **v2 VALIDADO EN JUEGO** (sesión 5, caso EnemyKill/OwnLoss, campos ampliados).
-  - Campos ampliados y validados: `clockTime` (hora del mundo DCS vía timer.getAbsTime(), formato HH:MM:SS), `pilotAircraft` (tipo de aeronave propia, capturado en PlayerEnterUnit), `domain` ("air"/"ground"), `targetType` (tipo de unidad objetivo, ej. "A-4E-C"), `targetName` (callsign o nombre crudo DCS).
-  - Prueba real confirmada: derribo A-4E-C (IA) por "New callsign" — ledger con 2 entradas, hora 08:00:54 (mundo DCS), dominio "air", MGRS y arma correctos. Campo `pilotAircraft = nil` confirmado como comportamiento correcto cuando la unidad es IA sin jugador humano.
-  - `DATA_Core.lua` también ampliado: nuevo campo `pilot.aircraftType`, capturado en el handler de `PlayerEnterUnit`.
-  - ⚠️ Pendiente validar: caso `TargetDestroyed` (RegisterTarget), caso `BlueOnBlue`, y comportamiento con **unidades terrestres** (próxima tarea, ver abajo).
-  - Tabla `POINTS` con valores editables: `TARGET_DESTROYED` (+15), `ENEMY_KILL` (+10), `BLUE_ON_BLUE` (-20), `COLLATERAL` (0), `OWN_LOSS` (-10) — todos placeholder, ajustables libremente sin tocar la lógica.
-  - Se suscribe a `Hit`, `Dead`, `Crash` (3 eventos nuevos en el proyecto).
-  - Registra cada impacto (arma, piloto, coalición, posición MGRS) en un log temporal por unidad objetivo.
-  - Al morir la unidad, clasifica en 4 categorías: `TargetDestroyed` (target oficial de misión), `EnemyKill`, `BlueOnBlue` (fuego amigo, penaliza), `Collateral` (sin atribución clara, neutro por defecto).
-  - Reparte puntos en partes iguales entre todos los pilotos que contribuyeron al kill (no solo "el último impacto").
-  - Penaliza automáticamente al bando que pierde la unidad (`OwnLoss`), de forma simétrica al que la destruyó.
-  - Cada evento de puntos queda registrado en el ledger de `DATA_Core` con: piloto, coalición, categoría, monto, arma, nombre del target, MGRS y motivo — pensado desde el diseño para exportarse a CSV/Excel más adelante.
-  - **VALIDADO EN JUEGO (sesión 5):** kill real Blue→Red confirmado. Ledger con 2 entradas (EnemyKill +10 al piloto, OwnLoss -10 a la coalición Red), arma (AIM_120C) y MGRS (37T GG 27979 68424) capturados correctamente. `_pilotIdFrom` con fallback a IniUnitName funcionando para unidades sin jugador humano.
+- **PTS_Manager.lua** — ✅ v2 VALIDADO EN JUEGO (A-A y terrestre).
+  - Categorías: `TargetDestroyed`, `EnemyKill`, `BlueOnBlue`, `Collateral`, `OwnLoss`.
+  - Campos del ledger: `clockTime` (HH:MM:SS mundo DCS), `pilotId`, `pilotAircraft`, `coalition`, `category`, `domain` ("air"/"ground"), `amount`, `weapon`, `targetName`, `targetType`, `mgrs`, `reason`.
+  - Reparto proporcional de puntos entre contribuyentes.
+  - 3 fallbacks de dominio en `_onHit` y `_onDeadOrCrash`.
+  - Soporte para scenery DCS (object_id numérico) → `Collateral` + `domain="ground"`.
+  - Soporte para edificios estáticos colocados por el usuario via `RegisterTarget()`.
+  - **Pendiente validar:** `BlueOnBlue`, `TargetDestroyed` con piloto humano (todas las pruebas de terrestre fueron con IA).
+  - MGRS funciona para todos los hits reales (via DCS nativo en _onHit). MGRS para MISS es nil por decisión consciente: cuando MOOSE dispara el impact callback, el objeto DCS del arma ya fue destruido ("Object doesn't exist") — no es posible obtener la posición. Los tiros perdidos en terreno no necesitan posición exacta.
+  - targetType clasificado correctamente: VEHICLE, AIRCRAFT, BUILDING, STRUCTURE, SHIP via `Object.getCategory()` DCS nativo.
+  - Nueva estructura de mensajes en pantalla: `[SHOT] piloto | aeronave | arma | MGRS_lanzamiento` y `[IMPACT] objeto | tipo | MGRS | alt | arma | aeronave | piloto`
+  - **Pendiente validar:** BlueOnBlue, TargetDestroyed con piloto humano, WeaponLog con humano (actualmente 0 disparos porque todas las pruebas de terrestre fueron con IA).
 
 ---
 
@@ -59,60 +59,60 @@
 17. 🔴 **TextToSpeech (PRIORIDAD ALTA)**
 
 ### 💡 Ideas en evaluación
+- **DATA_Export.lua** (futuro) — lee `PointsLedgerToCSV()` y escribe a disco cuando se habilite `os`/`io` en `MissionScripting.lua`.
+- **Bajas colaterales** (futuro) — cruzar `object_id` numéricos del ledger contra catálogo de edificios del mapa para cuantificar daño civil/estructural. No prioritario.
 - TARS (`Ops.TARS`) — misiones de reconocimiento.
-- ~~SCORING (`Functional.Scoring`)~~ — **evaluado y descartado en sesión 5**: bypasea EVT_Dispatcher (su propio HandleEvent), tiene tabla de jugadores propia (duplica DATA_Core), y requiere `os`/`io` habilitado para CSV. Se construyó PTS_Manager propio en su lugar, reutilizando solo el concepto de reparto entre contribuyentes y escalas configurables.
-- **DATA_Export.lua** (futuro) — módulo que lea `DATA_Core.PointsLedgerToCSV()` y escriba a disco, el día que se decida habilitar `os`/`io`/`lfs` en `MissionScripting.lua`. No requiere tocar PTS_Manager ni DATA_Core cuando se construya.
+- ~~SCORING (`Functional.Scoring`)~~ — descartado (bypasea EVT_Dispatcher, duplica DATA_Core, requiere os/io).
 
 ---
 
-## 🗂️ Infraestructura del proyecto — GitHub
+## 🎯 Pendientes para sesión 8
+1. Validar con **piloto humano disparando** (no IA): confirmar [SHOT]/[IMPACT] en pantalla, pilotAircraft en ledger, WeaponLog con datos reales
+2. Validar **BlueOnBlue** en juego
+3. Validar **TargetDestroyed** con piloto humano
+4. Agregar `PTS_Manager.lua` y `DATA_Export.lua` al orden de carga en el dashboard
+
+---
+
+## 🗂️ Infraestructura — GitHub
 - Repo: https://github.com/maritodechile1965/DCS-Scripts
-- Directorio local: `C:\Users\mario\Documents\DCS-Scripts` (scripts en `...\DCS-Scripts\scripts\`)
+- Directorio local: `C:\Users\mario\Documents\DCS-Scripts`
+- Último commit confirmado: `0f5e9e4` (sincronizado)
 - Estructura:
   ```
   DCS-Scripts/
-  ├── readme.md
-  ├── .gitignore
-  ├── docs/      (dashboards, referencias MOOSE, ideas sueltas, checklist de sesión)
+  ├── readme.md / .gitignore
+  ├── docs/      (Dashboard_Proyecto.md, Dashboard_Visual.html, Referencias_MOOSE.md, Ideas_Sueltas.md, Checklist_Sesion.md)
   ├── scripts/   (EVT_Dispatcher.lua, DATA_Core.lua, PTS_Manager.lua, TEST_Handler.lua)
-  └── prompts/   (inicio sesión, fin sesión, estructura inicial, conectar/push)
+  └── prompts/   (Prompts_ClaudeCode_GitHub.md, Prompt_Estructura_Inicial_Repo.md, Prompt_Conectar_Push_GitHub.md)
   ```
-- GitHub es la fuente de verdad del proyecto.
-- **Pendiente:** commit + push con los archivos actualizados de sesión 5 (DATA_Core.lua con ledger, PTS_Manager.lua nuevo, ambos dashboards).
 
 ---
 
-## 🧷 Comandos de referencia — Carga de scripts vía `loadfile()` (DO SCRIPT, Mission Editor)
+## 🧷 Comandos — Carga loadfile() en Mission Editor
 
 ```lua
 assert(loadfile("C:\\Users\\mario\\Saved Games\\DCS\\Scripts\\Moose.lua"))()
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\EVT_Dispatcher.lua"))()
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\DATA_Core.lua"))()
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\PTS_Manager.lua"))()
+assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\DATA_Export.lua"))()
 ```
 
-> Orden obligatorio: Moose.lua → EVT_Dispatcher.lua → DATA_Core.lua → PTS_Manager.lua, todos en triggers `MISSION START`.
+Orden obligatorio. Doble barra invertida `\\` obligatoria en Lua.
 
 ---
 
 ## 🏛️ Decisiones de arquitectura vigentes
-- Event Dispatcher Central construido sobre MOOSE (`EVENTHANDLER`), no Lua puro.
-- `DATA_Core` es la única "base de datos" en memoria del proyecto.
-- Los módulos se suscriben SOLO a los eventos que realmente necesitan, agregando suscripciones incrementalmente.
-- No usar la librería `os` de Lua — usar `timer.getTime()`. Funciones de exportación a texto (CSV en memoria) SÍ se pueden escribir ya, evitando solo la escritura real a disco (`io.open`) hasta que se decida habilitar el sandbox.
-- `PTS_Manager` no almacena estado propio — toda la persistencia vive en `DATA_Core` (ledger de puntos incluido). Los módulos de lógica de negocio (puntos, misiones, CSAR, etc.) son "sin estado", leen/escriben siempre a través de `DATA_Core`.
-- Se evaluó y descartó adoptar la clase nativa `Functional.Scoring` de MOOSE por incompatibilidad arquitectónica (ver sección de ideas en evaluación).
-- Convención de nombres: prefijos `WH_` `CSAR_` `FTR_` `ESC_` `TRP_` `GC_` `CTLD_` `PTS_` `DATA_`; `PascalCase`/`camelCase`/`UPPER_SNAKE_CASE`.
-- No modificar scripts ya funcionando salvo necesidad justificada.
-- Ningún script se escribe sin autorización explícita previa.
-- Infraestructura: GitHub como fuente de verdad única.
+- Dispatcher central `EVT_Dispatcher` sobre MOOSE `EVENTHANDLER` (no Lua puro).
+- `DATA_Core` es la única fuente de estado del proyecto — los módulos no tocan tablas internas directamente.
+- `PTS_Manager` es "sin estado" — toda persistencia vive en `DATA_Core`.
+- Módulos se suscriben SOLO a los eventos que necesitan, agregando incrementalmente.
+- No usar `os` de Lua — usar `timer.getTime()` y `timer.getAbsTime()`.
+- `PointsLedgerToCSV()` ya existe en memoria; escritura a disco pendiente de habilitar `os`/`io` en `MissionScripting.lua` (un módulo `DATA_Export.lua` aparte, sin tocar lo existente).
+- Convención: `EVT_Dispatcher`, `DATA_Core`, prefijos `WH_` `CSAR_` `FTR_` `ESC_` `TRP_` `GC_` `CTLD_` `PTS_` `DATA_`, `PascalCase`/`camelCase`/`UPPER_SNAKE`.
+- No modificar scripts funcionando salvo necesidad justificada. Ningún código sin autorización previa.
+- GitHub como fuente de verdad única.
 
 ---
-*Última actualización: 29/06/2026 — Sesión 5 (cierre extendido, ver nota)*
-
-> **Nota sobre el cierre de sesión:** la sesión 5 se cerró formalmente a las 16:45, pero el trabajo continuó después sin un nuevo "inicio de sesión" (ampliación de PTS_Manager/DATA_Core y su validación en juego). Esa actividad queda registrada aquí dentro de la sesión 5 extendida. A partir de la próxima vez, recordar cerrar y reabrir sesión explícitamente para mantener el registro de horas preciso.
-
----
-
-## 🎯 PRÓXIMA TAREA (anotada para sesión 6)
-**Probar los puntos con unidades terrestres.** Validar que PTS_Manager clasifica correctamente kills de vehículos/tanques/infantería (no solo aviones), tanto en el caso TargetDestroyed (con RegisterTarget) como EnemyKill/Collateral sin registro previo. Confirmar también que la captura de MGRS funciona igual de bien para unidades terrestres.
+*Última actualización: 30/06/2026 — Sesión 7 cerrada (14:00)*
