@@ -30,9 +30,12 @@ DCS-Scripts/
 Claude Code lea el estado real del repo (no memoria, no asunciones) y te
 entregue un resumen fresco antes de tocar nada.
 
+cd documents\dcs-scripts
+claude
+
 ```
 Estoy iniciando una sesión de trabajo en el proyecto DCS Scripting
-(MOOSE/MIST/Lua 5.1). Repo local: <RUTA_LOCAL_DEL_REPO>
+(MOOSE/MIST/Lua 5.1). Repo local: C:\Users\mario\Documents\DCS-Scripts
 
 Antes de hacer cualquier cambio, necesito que:
 
@@ -71,6 +74,10 @@ sesión (código nuevo, dashboard actualizado, etc.) ya estén guardados
 en los archivos locales del repo.
 
 ```
+cd documents\dcs-scripts
+claude
+
+
 Estoy cerrando la sesión de trabajo en el proyecto DCS Scripting.
 Repo local: C:\Users\mario\Documents\DCS-Scripts
 

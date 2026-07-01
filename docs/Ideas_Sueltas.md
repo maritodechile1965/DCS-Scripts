@@ -22,8 +22,10 @@ Simula misiones de reconocimiento fotográfico y observación visual en DCS Worl
 
 ---
 
-### SCORING
+### ~~SCORING~~ — DESCARTADO
 **Fuente:** [`Functional.Scoring`](https://flightcontrol-master.github.io/MOOSE_DOCS_DEVELOP/Documentation/Functional.Scoring.html) (clase oficial MOOSE)
+
+**Estado:** descartado (ver `Dashboard_Proyecto.md`, sección "Ideas en evaluación") — bypasea `EVT_Dispatcher`, duplica `DATA_Core`, y requiere `os`/`io`.
 
 Administra el puntaje de los logros de los jugadores, y crea un archivo CSV registrando los eventos de puntaje y resultados, para uso en sitios web de equipo o escuadrón.
 
