@@ -10,8 +10,9 @@
 | 5* | 29/06/2026 | 14:15 | ~21:15 | ~7h | Validación DATA_Core + PTS_Manager v2 + ledger ampliado (hora/avión/dominio/tipo) |
 | 6 | 30/06/2026 | 07:40 | 10:00 | 2h 20min | PTS_Manager Ground Impacts — validación targets terrestres |
 | 7 | 30/06/2026 | 11:30 | 14:00 | 2h 30min | PTS_Manager v3 + WEAPON tracking + mensajes pantalla + DATA_Export |
+| 8 | 01/07/2026 | 10:10 | 11:20 | 1h 10min | Estrategia grabación datos / Persistencia / Diseño conceptual CAMPAIGN_Manager |
 
-**Total acumulado: ~17h 40min**
+**Total acumulado: ~18h 50min**
 *Sesión 5 extendida sin cierre formal intermedio.
 
 ---
@@ -41,6 +42,7 @@
   - API: `WritePointsLedger`, `WriteWeaponLog`, `WriteAll`.
   - Genera `DCS_Points_Ledger.csv` y `DCS_Weapon_Log.csv` en `<writedir>/Logs/`.
   - Registra automáticamente un ítem en el menú F10 → Other → "Exportar logs (CSV)".
+  - **Modelo híbrido pendiente de construir** (ver sección "Pendiente en DATA_Export" más abajo): `WritePilotLog`, `WriteSessionLog`, detección de aterrizaje correcto.
 
 ---
 
@@ -70,11 +72,22 @@
 
 ---
 
-## 🎯 Pendientes para sesión 8
+## 🎯 Pendientes para sesión 9 (validación PTS_Manager)
 1. Validar con **piloto humano disparando** (no IA): confirmar [SHOT]/[IMPACT] en pantalla, pilotAircraft en ledger, WeaponLog con datos reales
 2. Validar **BlueOnBlue** en juego
 3. Validar **TargetDestroyed** con piloto humano
-4. ~~Agregar `PTS_Manager.lua` y `DATA_Export.lua` al orden de carga en el dashboard~~ — ✅ ya estaba resuelto (ver bloque `loadfile()` más abajo).
+
+## 🏗️ Próximo gran bloque: CAMPAIGN_Manager (chat dedicado)
+- Escenario: **Siria** (cambio desde Golfo Pérsico — decidido sesión 8)
+- Módulos: `ZONE_State`, `MIS_Manager`, `TIMER_Manager`
+- Archivo de configuración: `MISSIONS_Config.lua` (Lua nativo, en el repo)
+- Ver diseño completo en `Ideas_Sueltas.md`
+
+## 🔧 Pendiente en DATA_Export (modelo híbrido)
+- Detectar "aterrizaje correcto" (Land + motor apagado + PlayerLeaveUnit)
+- `DATA_Export.WritePilotLog(pilotId)` → CSV individual del piloto
+- `DATA_Export.WriteSessionLog()` → CSV de sesión completa con timestamp
+- Persistencia: `DCS_Dead_Units.csv` para recrear destrucción entre sesiones
 
 ---
 
@@ -113,10 +126,10 @@ Orden obligatorio. Doble barra invertida `\\` obligatoria en Lua.
 - `PTS_Manager` es "sin estado" — toda persistencia vive en `DATA_Core`.
 - Módulos se suscriben SOLO a los eventos que necesitan, agregando incrementalmente.
 - No usar `os` de Lua — usar `timer.getTime()` y `timer.getAbsTime()`.
-- `PointsLedgerToCSV()` genera el CSV en memoria; `DATA_Export.lua` ya implementa la escritura a disco (`WritePointsLedger`, `WriteWeaponLog`, `WriteAll`), pendiente de validar en juego con `os`/`io`/`lfs` habilitados en `MissionScripting.lua`.
+- `PointsLedgerToCSV()` genera el CSV en memoria; `DATA_Export.lua` ya implementa la escritura a disco (`WritePointsLedger`, `WriteWeaponLog`, `WriteAll`), pendiente de validar en juego con `os`/`io`/`lfs` habilitados en `MissionScripting.lua`. Modelo híbrido de grabación (por piloto + por sesión) pendiente de construir — ver `Ideas_Sueltas.md`.
 - Convención: `EVT_Dispatcher`, `DATA_Core`, prefijos `WH_` `CSAR_` `FTR_` `ESC_` `TRP_` `GC_` `CTLD_` `PTS_` `DATA_`, `PascalCase`/`camelCase`/`UPPER_SNAKE`.
 - No modificar scripts funcionando salvo necesidad justificada. Ningún código sin autorización previa.
 - GitHub como fuente de verdad única.
 
 ---
-*Última actualización: 30/06/2026 — Sesión 7 cerrada (14:00)*
+*Última actualización: 01/07/2026 — Sesión 8 cerrada (11:20)*
