@@ -1,0 +1,938 @@
+Sí — si lo planteamos como escenario DCS, y Líbano + Jordania fueran NFZ, entonces la defensa de Damasco yo la armaría pensando en cerrar los corredores de entrada más probables desde Israel, especialmente:
+
+corredor oeste / suroeste desde la zona del Mar de Galilea – Golán
+corredor sur desde el eje Daraa / frontera sur
+corredor este como amenaza secundaria o ruta de escape
+ataques SEAD azules entrando bajo, usando terreno, y luego rematando radares/SAM con stand-off
+
+Tu lectura del mapa tiene sentido:
+ese “embudo” desde Israel hacia Damasco es exactamente donde yo asumiría que vendrá el esfuerzo principal azul.
+
+1) Idea general de defensa
+
+Yo no protegería “toda Siria”.
+Concentraría la red en un sistema por capas para defender:
+
+Damasco
+Mezzeh
+Damascus Intl
+Dumayr
+bases o instalaciones militares cercanas
+nodos C2 / depósitos / radares
+
+La lógica sería:
+
+detectar lejos
+obligar al paquete azul a separarse
+hacerle gastar HARM / munición
+proteger los SAM grandes con SHORAD
+poner señuelos
+no dejar todos los radares encendidos al inicio
+2) Ejes de amenaza que yo asumiría
+Eje A — Principal
+Oeste / Suroeste
+
+Desde Israel / Mar de Galilea / Golán hacia Daraa – Damasco
+
+Este sería el eje más peligroso porque:
+
+es corto;
+permite entrar con paquetes SEAD rápidos;
+los azules pueden usar terreno;
+desde ahí pueden buscar abrir corredor directo a Damasco.
+Eje B — Secundario
+Sur
+
+Desde el sur hacia el área de Daraa – Izra – Sheikh Miskin y luego norte.
+
+Aunque Jordania sea NFZ, el borde sur sigue siendo sensible en tu escenario por cercanía con la frontera y porque puede usarse como línea de ingreso controlada.
+
+Eje C — Menor
+Este / Sudeste
+
+Desierto abierto al este de Damasco.
+
+Lo vigilaría, pero no pondría el grueso de la defensa ahí.
+
+Eje D — Muy bajo
+Norte / Noreste
+
+Solo como entrada alternativa o maniobra de distracción.
+
+3) Cómo distribuiría la defensa
+
+Voy a plantearlo como capas, no como una sola burbuja.
+
+CAPA 1 — EWR / ALERTA TEMPRANA
+
+Objetivo: detectar y activar el resto.
+
+Yo pondría 3 nodos EWR:
+EWR-1 — suroeste de Damasco
+
+Para vigilar el acceso desde el Golán / Mar de Galilea.
+
+EWR-2 — noreste o este de Damasco
+
+Como respaldo, por si destruyen el primero.
+
+EWR-3 — sur / sureste
+
+Para cubrir el eje Daraa–sur y evitar punto ciego.
+
+Unidades
+55G6
+1L13
+opcional algún radar adicional si usas mod
+Protección
+
+Cada EWR con:
+
+1 x SA-15 Tor o SA-19 Tunguska
+1 x Shilka
+2 x Igla
+1 x camión ammo/fuel
+Idea DCS
+
+No los dejaría todos activos siempre.
+Haría que:
+
+uno esté activo,
+otro en silencio,
+otro se active por trigger cuando un grupo azul cruce cierta línea.
+CAPA 2 — DEFENSA ESTRATÉGICA DE DAMASCO
+
+Aquí pondría el “escudo principal”.
+
+Sitio estratégico principal
+
+Alrededor de Damasco / eje norte-este de la ciudad, no dentro del centro urbano, sino en una posición que permita cubrir:
+
+Damasco
+Mezzeh
+Damascus Intl
+aproximación desde el oeste/suroeste
+Sistemas recomendados DCS
+SA-10 como columna vertebral
+o
+si usas High Digit SAMs: SA-20 como versión más dura
+Composición
+radar de búsqueda
+radar de seguimiento
+lanzadores
+puesto de mando
+ammo/fuel
+SHORAD cercano
+Protección cercana del SA-10 / SA-20
+1 x SA-15 Tor
+1 x SA-19 Tunguska
+1 x Shilka
+2 x Igla
+Propósito
+
+No tanto matar todo, sino:
+
+obligar a los azules a hacer SEAD serio;
+negar entrada directa a media/alta cota;
+empujar a los azules a entrar bajo.
+CAPA 3 — SAM MEDIO PARA CERRAR CORREDORES
+
+Aquí está la clave en tu mapa.
+
+Yo pondría 3 sitios SAM medios, cada uno mirando un corredor.
+
+SAM Medio Oeste / Suroeste
+Zona:
+
+entre el eje Daraa – suroeste de Damasco
+
+Función:
+
+cerrar el corredor natural que sube desde Israel / Golán hacia Damasco.
+
+Sistema:
+SA-6
+o
+SA-11 si quieres más dificultad
+Protección:
+1 x SA-15 o SA-13
+1 x Shilka
+1 x Igla team
+SAM Medio Sur
+Zona:
+
+al sur o sur-sureste de Damasco, cubriendo la aproximación desde Daraa.
+
+Sistema:
+SA-3 o SA-6 para nivel medio
+SA-11 para nivel difícil
+Función:
+
+evitar que un paquete azul rodee el sistema principal y entre desde el sur.
+
+SAM Medio Este
+Zona:
+
+este / noreste de Damasco
+
+Función:
+cubrir flancos;
+proteger retirada;
+evitar hueco total si destruyen los otros sitios.
+Sistema:
+SA-6 o SA-11
+4) Protección específica de las bases aéreas
+
+Yo no pondría solo una burbuja sobre Damasco.
+También haría defensa puntual en cada base importante.
+
+A) Mezzeh
+
+Base muy sensible por cercanía a Damasco.
+
+Defensa
+1 x SA-15 Tor
+1 x Shilka
+2 x Igla
+1 x ZU-23
+1 x ammo truck
+Rol
+
+Defensa de punto.
+No necesita ser un sitio gigante, pero sí castigar vuelos rasantes y ataques de precisión.
+
+B) Damascus Intl
+
+Objetivo muy lógico para strike azul.
+
+Defensa
+1 x SA-8 Osa
+1 x SA-15 Tor
+1 x Shilka
+2 x Igla
+1 x ZU-23
+Rol
+
+Defender pista, terminal militar, plataformas y depósitos.
+
+C) Dumayr / base al noreste
+
+Muy útil como base secundaria y para extender la red.
+
+Defensa
+1 x SA-6 o SA-11
+1 x SA-13
+1 x Shilka
+2 x Igla
+Rol
+
+Base + nodo adelantado de defensa para evitar que el enemigo te flanquee por el noreste.
+
+D) Otras instalaciones / depósitos
+
+En sitios menores pondría solo:
+
+ZU-23
+Shilka
+Igla
+SA-13
+5) Lo más importante: no poner todo centrado en Damasco
+
+Ese es el error más típico.
+
+Si concentras todo en el centro:
+
+una vez que el azul abra un hueco, entra directo;
+todos los radares quedan en el mismo sector;
+los HARM tienen blancos obvios;
+la defensa se vuelve predecible.
+
+Yo haría esto:
+
+ANILLO EXTERIOR
+EWR + detección + uno o dos nodos separados
+
+ANILLO INTERMEDIO
+SA-10 / SA-20 cubriendo Damasco
++
+2 o 3 SAM medios en los corredores
+
+ANILLO INTERIOR
+SA-15 / SA-19 / SA-8 / SA-13
++
+AAA + MANPADS en cada base
+6) Distribución concreta que yo usaría en tu mapa
+
+Si tomo tu dibujo como referencia, haría algo así:
+
+SECTOR 1 — Suroeste / corredor principal
+
+El más fuerte
+
+1 x EWR
+1 x SAM medio (SA-6 o SA-11)
+1 x SHORAD de protección
+algunos MANPADS emboscados
+
+Este sector debe ser el primero que vean los azules al entrar.
+
+SECTOR 2 — Centro Damasco
+
+Núcleo estratégico
+
+1 x SA-10 / SA-20
+1 x SA-15
+1 x SA-19
+1 x Shilka
+defensa puntual de Mezzeh y Damascus Intl
+
+Este es tu “escudo central”.
+
+SECTOR 3 — Sur
+
+Cierre del bypass
+
+1 x SAM medio
+1 x SHORAD
+MANPADS dispersos
+
+Esto evita que el azul diga:
+“no entro por el oeste; entro por abajo y subo directo”.
+
+SECTOR 4 — Este / noreste
+
+Respaldo y profundidad
+
+1 x EWR
+1 x SAM medio o SHORAD fuerte
+defensa sobre Dumayr o nodo similar
+
+No sería el sector más pesado, pero sí importante para no dejar una autopista libre.
+
+7) Cómo lo haría jugable en DCS
+
+Para que sea entretenido y no un muro imposible:
+
+A. No enciendas todo desde el minuto 1
+radar principal activo;
+radares secundarios apagados;
+activación por trigger o Skynet.
+B. Usa sitios falsos
+
+Pon 1 o 2:
+
+lanzadores decorativos,
+radar falso,
+camiones,
+un pequeño campamento.
+
+Eso obliga a identificar.
+
+C. Defiende los radares, no solo los lanzadores
+
+Muchos sitios DCS se vuelven inútiles si el radar cae.
+
+D. Mezcla sistemas
+
+No hagas todo SA-10.
+Mejor:
+
+SA-10 principal
+SA-6/11 en corredores
+SA-15/19 alrededor
+Shilka / ZU-23 / Igla en bases
+E. Crea “capas de castigo”
+alto: lo amenaza el SAM estratégico
+medio: lo amenaza el SAM medio
+bajo: lo amenazan SHORAD + AAA + MANPADS
+
+Así obligas al piloto a pensar.
+
+8) Plantilla práctica que usaría
+Opción equilibrada
+DAMASCUS_EWR_SW
+DAMASCUS_EWR_E
+
+DAMASCUS_STRAT_SAM_01   -> SA-10
+DAMASCUS_MED_SAM_SW     -> SA-6 / SA-11
+DAMASCUS_MED_SAM_S      -> SA-3 / SA-6
+DAMASCUS_MED_SAM_E      -> SA-6
+
+DAMASCUS_SHORAD_CORE_01 -> SA-15
+DAMASCUS_SHORAD_CORE_02 -> SA-19
+
+MEZZEH_POINT_DEF
+DAMASCUS_INTL_POINT_DEF
+DUMAYR_POINT_DEF
+
+AAA_MANPADS_MEZZEH
+AAA_MANPADS_DAMASCUS_INTL
+AAA_MANPADS_DUMAYR
+
+DECOY_SITE_SW
+DECOY_SITE_S
+9) Si lo quieres por niveles de entrenamiento
+Fácil
+1 EWR
+1 SA-6
+1 SA-8
+AAA + MANPADS en una base
+Medio
+2 EWR
+1 SA-10
+2 SAM medios
+2 SHORAD
+defensa puntual de 2 bases
+1 señuelo
+Difícil
+2 o 3 EWR
+1 SA-10 o SA-20
+2 o 3 SAM medios
+SA-15 + SA-19
+AAA + MANPADS densos
+señuelos
+activación por IADS / triggers
+10) Mi conclusión sobre tu mapa
+
+Sí:
+yo asumiría que la principal amenaza azul viene desde Israel, usando el corredor del Mar de Galilea / Golán, y por eso:
+
+el suroeste sería el sector más defendido;
+Damasco tendría el sitio estratégico principal;
+las bases alrededor tendrían defensa puntual;
+el sur tendría un segundo bloqueo;
+el este quedaría como respaldo y profundidad.
+
+Si quieres, en el siguiente mensaje te puedo hacer una de estas 2 cosas:
+
+Opción A
+
+Un esquema textual exacto por sectores del mapa
+(tipo: “poner SA-10 aquí, EWR aquí, SA-6 aquí, Tor aquí…”)
+
+Opción B
+
+Un dibujo sobre tu imagen, marcando:
+
+EWR
+SAM largo
+SAM medios
+SHORAD
+AAA / MANPADS
+sectores fácil / medio / difícil
+
+Si quieres, te hago la Opción B directamente sobre este mapa.
+
+haz las  opciones A y B
+Dejó de pensar
+
+Lo sentimos, pero la indicación podría infringir nuestras normas de contenido. Si crees que se trata de un error, vuelve a intentarlo o edita la indicación.
+
+donde pondrias las unidades, necesito que el sistema no se recargue para que los players no tengan lag
+Pensó durante 23s
+
+Sí. Para que sea jugable en multiplayer y no genere lag, yo no llenaría todo el mapa. Haría una defensa con pocos sitios, bien ubicados y activados por zonas.
+
+La idea sería esta:
+
+1) Corredor principal desde Israel / Golán / Mar de Galilea
+2) Núcleo de Damasco
+3) Cierre sur
+4) Profundidad este / Dumayr
+5) Defensa puntual de bases
+Distribución que yo usaría
+1. Sector suroeste — corredor principal
+
+Este es el sector más importante. Es donde tú marcaste que probablemente entren los azules.
+
+Aquí pondría el primer bloqueo SAM.
+
+SECTOR_SW_CORREDOR
+
+Unidades:
+- 1 x EWR 1L13 o 55G6
+- 1 x SA-6 o SA-11
+- 1 x SA-15 Tor
+- 1 x Shilka o ZU-23
+- 1 o 2 x Igla
+- 1 x Ammo truck
+
+Ubicación:
+No pegado a Damasco. Lo pondría al suroeste de Damasco, entre el corredor de entrada y la ciudad, pero separado de la base aérea para que no todo muera con un solo ataque.
+
+Rol:
+Primer anillo de desgaste. Obliga a los azules a hacer SEAD antes de acercarse a Damasco.
+
+2. Núcleo Damasco — defensa estratégica
+
+Aquí pondría el sistema principal, pero solo uno para no cargar el servidor.
+
+DAMASCUS_CORE_SAM
+
+Unidades:
+- 1 x SA-10 principal
+- 1 x SA-15 Tor protegiendo el radar
+- 1 x SA-19 Tunguska o Shilka
+- 2 x Igla
+- 1 x Command truck
+- 1 x Ammo truck
+- 1 x Fuel truck
+
+Ubicación:
+Lo pondría al este o noreste de Damasco, no dentro de la ciudad. Desde ahí puede cubrir Damasco, Mezzeh, Damascus Intl y parte del corredor oeste/suroeste.
+
+Rol:
+Escudo principal. No debe ser la primera unidad que encuentren los azules. Debe estar detrás del primer bloqueo.
+
+3. Sector sur — cierre del bypass
+
+Este sector evita que los azules rodeen por el sur y suban directo hacia Damasco.
+
+SECTOR_SUR_BYPASS
+
+Unidades:
+- 1 x SA-3 o SA-6
+- 1 x SA-13
+- 1 x ZU-23
+- 1 x Igla
+- 1 x Ammo truck
+
+Ubicación:
+Al sur / sur-sureste de Damasco, cubriendo el espacio entre la ruta de entrada sur y el núcleo de la ciudad.
+
+Rol:
+No es el sitio principal. Es una trampa de flanco para evitar que el paquete azul entre por abajo.
+
+4. Sector este — profundidad / Dumayr
+
+Este sector lo usaría como respaldo, no como muro principal.
+
+SECTOR_ESTE_DUMAYR
+
+Unidades:
+- 1 x EWR 1L13 o 55G6
+- 1 x SA-6 o SA-11
+- 1 x SA-13
+- 1 x Shilka
+- 1 x Igla
+
+Ubicación:
+Al este o noreste de Damasco, cerca del eje hacia Dumayr.
+
+Rol:
+Dar profundidad. Si el azul destruye el corredor suroeste y el núcleo, todavía queda una amenaza secundaria.
+
+Defensa puntual de bases aéreas
+
+No pondría SAM grandes dentro de cada base. Eso carga el servidor y además es poco flexible. Para cada base usaría defensa corta.
+
+Mezzeh
+MEZZEH_POINT_DEFENSE
+
+- 1 x SA-15 Tor o SA-8
+- 1 x Shilka
+- 1 x ZU-23
+- 1 x Igla
+- 1 x Ammo truck
+Damascus Intl
+DAMASCUS_INTL_POINT_DEFENSE
+
+- 1 x SA-8 Osa
+- 1 x Shilka
+- 1 x ZU-23
+- 2 x Igla
+- 1 x Ammo truck
+Dumayr
+DUMAYR_POINT_DEFENSE
+
+- 1 x SA-13
+- 1 x Shilka
+- 1 x ZU-23
+- 1 x Igla
+- 1 x Ammo truck
+Versión recomendada para no tener lag
+
+Esta sería mi configuración equilibrada:
+
+TOTAL ACTIVO INICIAL
+
+EWR:
+- 1 activo
+- 1 late activation
+
+SAM largo:
+- 1 SA-10
+
+SAM medio:
+- 2 sitios: SA-6 / SA-11
+
+SHORAD:
+- 3 grupos: SA-15 / SA-13 / SA-8
+
+AAA:
+- 4 a 6 unidades máximo
+
+MANPADS:
+- 6 a 8 máximo
+
+Logística:
+- usar mostly static objects
+
+No pasaría de esto al inicio:
+
+Grupos activos iniciales: 10 a 14
+Unidades móviles activas: 35 a 55
+Radares activos simultáneos: 3 a 5 máximo
+
+Eso debería ser bastante razonable para multiplayer.
+
+Qué dejaría apagado al inicio
+
+Para evitar lag y además hacer la misión más interesante:
+
+ACTIVO AL INICIO:
+- 1 EWR
+- 1 SAM medio del corredor SW
+- defensa puntual de bases
+- algunos AAA/MANPADS
+
+APAGADO / LATE ACTIVATION:
+- SA-10 principal
+- segundo EWR
+- SAM del sur
+- SAM del este
+- señuelos
+
+Activaría el resto por triggers:
+
+Si grupo azul entra en ZONA_SW:
+activar SA-6 / SA-11 SW
+
+Si grupo azul cruza segunda línea:
+activar SA-10 Damascus Core
+
+Si grupo azul baja al sur:
+activar SAM Sur
+
+Si grupo azul destruye EWR principal:
+activar EWR Este
+Señuelos sin cargar el servidor
+
+Para señuelos, usaría static objects, no grupos vivos.
+
+DECOY_SITE_SW
+- static launcher
+- static radar
+- static trucks
+- static tents
+- smoke opcional
+
+Los señuelos dan realismo pero casi no cargan CPU como una unidad AI activa.
+
+Distribución visual simple
+                       [ EWR ESTE / BACKUP ]
+                              |
+                              |
+                  [ SAM ESTE / DUMAYR ]
+                              |
+                              |
+ [ SAM SW ] --------- [ DAMASCO CORE SA-10 ] --------- [ DUMAYR PD ]
+     |                        | 
+     |                        |
+ [ SHORAD SW ]          [ MEZZEH PD ]
+     |                        |
+     |                 [ DAMASCUS INTL PD ]
+     |
+Entrada azul
+Israel / Golán
+Mar de Galilea
+
+              [ SAM SUR / CIERRE BYPASS ]
+Mi recomendación final
+
+Para tu escenario, yo pondría:
+
+1) SW_CORRIDOR
+   SA-6 o SA-11 + EWR + SA-15 + Shilka + Igla
+
+2) DAMASCUS_CORE
+   SA-10 + SA-15 + SA-19 + Igla + logística
+
+3) SOUTH_BLOCK
+   SA-3 o SA-6 + SA-13 + ZU-23 + Igla
+
+4) EAST_BACKUP
+   EWR + SA-6 + SA-13 + Shilka
+
+5) MEZZEH_PD
+   SA-8 o SA-15 + Shilka + Igla
+
+6) DAMASCUS_INTL_PD
+   SA-8 + Shilka + ZU-23 + Igla
+
+7) DUMAYR_PD
+   SA-13 + Shilka + Igla
+
+Con eso tienes una red fuerte, pero no exagerada.
+La clave para evitar lag: pocas unidades activas, pocos radares encendidos, sitios separados, late activation y señuelos estáticos.
+
+
+
+
+
+
+y si habilitamos el libano para que tabien se pudiera entrar por ahi, pondrias las defenssa en los cerros, en los valles, en la costa, o como seria la estrategia ahora ??
+Pensó durante 25s
+
+Sí. Al habilitar Líbano como zona de entrada, la defensa cambia bastante, porque ya no tienes solo el corredor Israel / Golán / Mar de Galilea. Ahora los azules podrían entrar por:
+
+1) Costa mediterránea / Beirut
+2) Valle de la Bekaa
+3) Pasos de montaña hacia Siria
+4) Eje sur Líbano / Golán
+5) Entrada baja siguiendo valles hasta Damasco
+
+Mi criterio para DCS sería:
+
+Radares/EWR        -> cerros / alturas / crestas
+SAM medio         -> mesetas o lado oriental de los cerros, no en valles profundos
+SHORAD            -> salidas de valles, pasos, bases, radares
+AAA/MANPADS       -> valles, pueblos, bases, depósitos, emboscadas
+SAM largo         -> núcleo Damasco, no en la costa
+Costa             -> detección, señuelos y defensa ligera, no el peso principal
+Estrategia general nueva
+
+No llenaría la costa de SAM. Sería un error para multiplayer porque cargarías el sistema y además defenderías una zona que no es el objetivo final.
+
+Yo haría esto:
+
+LÍBANO / COSTA       -> alerta, señuelos, defensa ligera
+BEKAA / VALLES       -> zona trampa con SHORAD + MANPADS
+CRESTAS / CERROS     -> EWR y algún SAM medio
+DAMASCO              -> defensa principal
+SUR / GOLÁN          -> bloqueo secundario
+ESTE / DUMAYR        -> profundidad y reserva
+1) Costa libanesa
+Qué pondría
+
+Poca cosa. Solo para que la entrada costera no sea gratis.
+
+SECTOR_COSTA_LIBANO
+
+- 1 x EWR o radar de vigilancia
+- 1 x ZU-23 o Shilka
+- 1 x Igla
+- 1 x sitio señuelo
+Dónde
+
+En zona costera o cerros cercanos a la costa, pero no pondría SAM largo ahí.
+
+Rol
+Detectar entrada azul desde el Mediterráneo.
+Forzar a los jugadores a pensar que hay red.
+Dar aviso al sistema principal.
+No cargar el servidor con defensa innecesaria.
+
+La costa debe ser alarma, no el muro principal.
+
+2) Valle de la Bekaa
+
+Este se vuelve muy importante.
+
+Si los azules entran por Líbano, probablemente usarán valles para ocultarse, bajar radar signature y buscar salida hacia Damasco.
+
+Qué pondría
+SECTOR_BEKAA_TRAMPA
+
+- 1 x SA-13
+- 1 x SA-8 o SA-15
+- 1 x Shilka
+- 2 x Igla
+- 1 x ammo truck
+Dónde
+
+No en medio de la costa.
+Los pondría en:
+
+salidas del valle;
+pasos hacia Siria;
+zonas donde el valle se estrecha;
+alrededores de rutas o pueblos importantes;
+puntos donde el piloto bajo tenga que decidir subir o girar.
+Rol
+
+Este sector no debe destruir todo.
+Debe castigar al piloto que entra muy bajo y confiado.
+
+3) Cerros / crestas entre Líbano y Siria
+
+Aquí pondría lo más importante del nuevo frente occidental.
+
+Qué pondría en altura
+SECTOR_CRESTA_OESTE
+
+- 1 x EWR 1L13 o 55G6
+- 1 x SA-6 o SA-11
+- 1 x SA-15 Tor protegiendo radar
+- 1 x Shilka
+- 1 x Igla
+Dónde
+
+En cerros o mesetas, pero con cuidado:
+
+EWR en altura para buena línea de vista.
+SAM medio no necesariamente en la cumbre; mejor en una zona protegida cercana, con línea de vista suficiente.
+SHORAD cerca del radar y lanzadores.
+MANPADS en accesos, caminos y laderas.
+Rol
+
+Este sería el nuevo bloqueador del frente Líbano–Damasco.
+
+Si el azul cruza Líbano, este sector debe obligarlo a hacer SEAD antes de continuar hacia Damasco.
+
+4) Núcleo Damasco
+
+Este no cambia: sigue siendo el centro de gravedad.
+
+DAMASCUS_CORE
+
+- 1 x SA-10
+- 1 x SA-15 Tor
+- 1 x SA-19 Tunguska o Shilka
+- 2 x Igla
+- 1 x command truck
+- 1 x ammo truck
+- 1 x fuel truck
+Dónde
+
+Al este / noreste de Damasco o en posición que proteja:
+
+Damasco;
+Mezzeh;
+Damascus Intl;
+salida desde Líbano hacia Damasco;
+salida desde Golán hacia Damasco.
+Rol
+
+El SA-10 no debe ser la primera línea.
+Debe ser el escudo final de Damasco.
+
+5) Sur / Golán
+
+Aunque abras Líbano, no abandonaría el sur.
+El eje Israel / Mar de Galilea / Golán sigue siendo peligroso.
+
+SECTOR_SUR_GOLAN
+
+- 1 x SA-6 o SA-3
+- 1 x SA-13
+- 1 x ZU-23
+- 1 x Igla
+Rol
+
+Cerrar el bypass sur.
+Evita que los azules digan: “entro por Líbano para distraer, pero el strike real entra por Golán”.
+
+6) Este / Dumayr
+
+Lo dejaría como defensa de profundidad.
+
+SECTOR_ESTE_DUMAYR
+
+- 1 x EWR backup
+- 1 x SA-6
+- 1 x SA-13
+- 1 x Shilka
+- 1 x Igla
+Rol
+Proteger Dumayr.
+Dar profundidad si cae Damasco oeste.
+Servir como radar/reserva secundaria.
+Distribución completa recomendada
+                    [ EWR COSTA / ALERTA ]
+                              |
+             [ BEKAA / SHORAD + MANPADS ]
+                              |
+             [ CRESTA OESTE / EWR + SA-6/SA-11 ]
+                              |
+                 [ DAMASCO CORE / SA-10 ]
+                    /          |          \
+        [ MEZZEH PD ]   [ DAMASCUS INTL PD ]   [ DUMAYR PD ]
+                    \
+             [ SECTOR SUR / GOLÁN ]
+Versión liviana para multiplayer
+
+Para evitar lag, yo usaría esta cantidad:
+
+ACTIVO AL INICIO
+
+- 1 x EWR costa o cresta
+- 1 x SAM medio en cresta oeste
+- 1 x defensa puntual Damasco
+- 1 x defensa puntual Damascus Intl
+- 1 x sector sur ligero
+
+Y dejaría apagado:
+
+LATE ACTIVATION
+
+- SA-10 Damascus Core
+- EWR Este
+- SAM Bekaa
+- SAM Este / Dumayr
+- sitios señuelo
+Activación por zonas
+
+Usaría triggers así:
+
+ZONA_LIBANO_COSTA
+Si azul entra:
+- activar EWR costa
+- activar Bekaa trap
+- mensaje: "Actividad aérea detectada al oeste"
+
+ZONA_BEKAA
+Si azul entra:
+- activar SHORAD Bekaa
+- activar SAM cresta oeste
+
+ZONA_CRESTA_OESTE
+Si azul cruza hacia Siria:
+- activar SA-10 Damascus Core
+
+ZONA_SUR_GOLAN
+Si azul entra desde el sur:
+- activar SAM sur
+
+ZONA_DAMASCO_INTERIOR
+Si azul entra cerca de Damasco:
+- activar defensa puntual de Mezzeh y Damascus Intl
+Qué NO haría
+
+No haría esto:
+
+- No llenaría la costa con SA-10 o SA-20.
+- No pondría todos los radares activos desde el inicio.
+- No pondría 20 MANPADS por valle.
+- No pondría todos los SAM pegados a Damasco.
+- No pondría unidades vivas en cada cerro.
+- No pondría convoyes móviles si no son necesarios.
+
+Eso mata el rendimiento y además vuelve la misión poco realista para DCS.
+
+Configuración final que usaría
+RED_EWR_COAST_LEBANON        -> 1 EWR + defensa ligera
+RED_TRAP_BEKAA               -> SA-8/SA-13 + Shilka + Igla
+RED_EWR_WEST_RIDGE           -> EWR en altura
+RED_SAM_WEST_RIDGE           -> SA-6 o SA-11 + SA-15
+RED_SAM_DAMASCUS_CORE        -> SA-10 + SA-15 + SA-19
+RED_SAM_SOUTH_GOLAN          -> SA-3/SA-6 + SA-13
+RED_EWR_EAST_BACKUP          -> EWR backup
+RED_DUMAYR_POINT_DEFENSE     -> SA-13 + Shilka + Igla
+RED_MEZZEH_POINT_DEFENSE     -> SA-8/SA-15 + Shilka
+RED_DAMASCUS_INTL_DEFENSE    -> SA-8 + Shilka + Igla
+RED_DECOY_BEKAA              -> static objects
+RED_DECOY_SW                 -> static objects
+
+Mi respuesta directa: sí pondría defensas en cerros y pasos, no en toda la costa.
+La costa sería alerta temprana; los valles serían trampas de baja cota; las crestas serían radares y SAM medios; Damasco tendría el SAM largo y la defensa principal.

@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constructor de Misiones · DCS Campaign Manager</title>
+<style>
+  :root{
+    --bg:#0a0e13;
+    --panel:#111823;
+    --panel-2:#0d141c;
+    --panel-3:#0a1017;
+    --border:#22323f;
+    --border-soft:#182430;
+    --text:#d7e3f0;
+    --text-dim:#7f92a6;
+    --text-faint:#516375;
+    --accent:#3ec7a5;
+    --accent-dim:#256b5b;
+    --amber:#e9b23a;
+    --amber-dim:#6b5320;
+    --blue:#4d9fff;
+    --red:#e5544b;
+    --ok:#3ec77a;
+    --mono:ui-monospace,"Cascadia Mono","SF Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--mono);
+    font-size:13px;
+    line-height:1.45;
+    background-image:
+      linear-gradient(rgba(62,199,165,.025) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(62,199,165,.025) 1px,transparent 1px);
+    background-size:44px 44px;
+    background-position:-1px -1px;
+    min-height:100vh;
+  }
+
+  /* ---------- Top bar ---------- */
+  header{
+    position:sticky;top:0;z-index:50;
+    background:linear-gradient(180deg,#0c141d 0%,#0a1017 100%);
+    border-bottom:1px solid var(--border);
+    padding:14px 20px;
+    display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:baseline;gap:10px;min-width:0}
+  .brand .glyph{color:var(--accent);font-size:18px;letter-spacing:2px}
+  .brand h1{
+    font-size:15px;font-weight:600;letter-spacing:1.5px;margin:0;
+    text-transform:uppercase;white-space:nowrap;
+  }
+  .brand .sub{color:var(--text-faint);font-size:11px;letter-spacing:1px}
+  .spacer{flex:1}
+  .counter{
+    color:var(--text-dim);font-size:11px;letter-spacing:1px;
+    border:1px solid var(--border-soft);border-radius:4px;padding:4px 10px;
+    white-space:nowrap;
+  }
+  .counter b{color:var(--accent);font-weight:700}
+
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap}
+  button{
+    font-family:var(--mono);font-size:11.5px;letter-spacing:.5px;
+    background:#16212e;color:var(--text);
+    border:1px solid var(--border);border-radius:5px;
+    padding:7px 12px;cursor:pointer;transition:all .12s ease;
+    text-transform:uppercase;white-space:nowrap;
+  }
+  button:hover{border-color:var(--accent-dim);background:#1a2836}
+  button:active{transform:translateY(1px)}
+  button.primary{background:var(--accent-dim);border-color:var(--accent);color:#eafff8}
+  button.primary:hover{background:#2e7e6c}
+  button.ghost{background:transparent}
+  button.danger:hover{border-color:var(--red);color:#ffd7d3}
+  button.tiny{padding:4px 8px;font-size:10.5px}
+
+  /* ---------- Layout ---------- */
+  main{
+    display:grid;grid-template-columns:1fr 460px;gap:20px;
+    padding:20px;max-width:1500px;margin:0 auto;align-items:start;
+  }
+  @media(max-width:1080px){main{grid-template-columns:1fr}}
+
+  .stack{display:flex;flex-direction:column;gap:16px;min-width:0}
+
+  /* ---------- Mission card ---------- */
+  .card{
+    background:var(--panel);border:1px solid var(--border-soft);
+    border-radius:8px;overflow:hidden;
+  }
+  .card.err{border-color:#4a2626}
+  .card-head{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 14px;cursor:pointer;
+    background:linear-gradient(180deg,#131d29 0%,#101822 100%);
+    border-bottom:1px solid transparent;
+  }
+  .card.open .card-head{border-bottom-color:var(--border-soft)}
+  .chev{color:var(--text-faint);transition:transform .15s;font-size:11px;width:12px}
+  .card.open .chev{transform:rotate(90deg)}
+  .card-title{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .card-title .idline{
+    font-size:12px;color:var(--text-dim);letter-spacing:.5px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .card-title .idline b{color:var(--accent);font-weight:700}
+  .card-title .nameline{
+    font-family:var(--sans);font-size:14px;color:var(--text);font-weight:500;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .chip{
+    font-size:10px;letter-spacing:1px;padding:3px 7px;border-radius:3px;
+    text-transform:uppercase;font-weight:700;white-space:nowrap;
+  }
+  .chip.blue{background:rgba(77,159,255,.12);color:var(--blue);border:1px solid rgba(77,159,255,.3)}
+  .chip.red{background:rgba(229,84,75,.12);color:var(--red);border:1px solid rgba(229,84,75,.3)}
+  .chip.camp{background:rgba(233,178,58,.1);color:var(--amber);border:1px solid rgba(233,178,58,.3)}
+  .chip.simple{background:rgba(62,199,165,.08);color:var(--accent);border:1px solid rgba(62,199,165,.25)}
+  .head-actions{display:flex;gap:6px}
+
+  .card-body{padding:16px 16px 18px}
+  .card:not(.open) .card-body{display:none}
+
+  /* ---------- Fields ---------- */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px 14px}
+  .grid.g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:560px){.grid,.grid.g3{grid-template-columns:1fr}}
+  .field{display:flex;flex-direction:column;gap:5px;min-width:0}
+  .field.full{grid-column:1/-1}
+  label{
+    font-size:10.5px;letter-spacing:1px;color:var(--text-dim);
+    text-transform:uppercase;display:flex;gap:6px;align-items:center;
+  }
+  label .hint{color:var(--text-faint);text-transform:none;letter-spacing:0;font-size:10px}
+  input,select,textarea{
+    font-family:var(--mono);font-size:13px;
+    background:var(--panel-3);color:var(--text);
+    border:1px solid var(--border-soft);border-radius:5px;
+    padding:8px 10px;width:100%;outline:none;transition:border-color .12s;
+  }
+  textarea{font-family:var(--sans);resize:vertical;min-height:62px;line-height:1.5}
+  input:focus,select:focus,textarea:focus{border-color:var(--accent-dim)}
+  input.bad,select.bad{border-color:var(--red);background:#1a1113}
+  select{cursor:pointer}
+  input[type=number]{-moz-appearance:textfield}
+
+  .section-tag{
+    display:flex;align-items:center;gap:10px;margin:20px 0 12px;
+    color:var(--text-dim);font-size:10.5px;letter-spacing:1.5px;text-transform:uppercase;
+  }
+  .section-tag::after{content:"";flex:1;height:1px;background:var(--border-soft)}
+  .section-tag .n{color:var(--accent);font-weight:700}
+
+  /* ---------- Targets ---------- */
+  .tgt-row{
+    display:grid;grid-template-columns:1.4fr 1fr 1.6fr auto auto;gap:8px;
+    align-items:center;margin-bottom:8px;
+  }
+  @media(max-width:700px){.tgt-row{grid-template-columns:1fr 1fr;gap:8px 8px}
+    .tgt-row .mgrs-cell{grid-column:1/-1}}
+  .mand-toggle{
+    display:flex;align-items:center;gap:6px;font-size:10.5px;
+    color:var(--text-dim);letter-spacing:.5px;white-space:nowrap;
+    border:1px solid var(--border-soft);border-radius:5px;padding:7px 9px;
+    cursor:pointer;user-select:none;background:var(--panel-3);
+  }
+  .mand-toggle.on{color:var(--amber);border-color:var(--amber-dim);background:rgba(233,178,58,.06)}
+  .mand-toggle input{width:auto;margin:0}
+  .tgt-empty{color:var(--text-faint);font-size:11.5px;padding:6px 2px 10px;font-style:italic}
+
+  /* ---------- Conditions ---------- */
+  .camp-switch{
+    display:flex;align-items:center;gap:10px;margin-top:20px;
+    padding:12px 14px;border:1px solid var(--border-soft);border-radius:6px;
+    background:var(--panel-2);cursor:pointer;user-select:none;
+  }
+  .camp-switch.on{border-color:var(--amber-dim);background:rgba(233,178,58,.05)}
+  .camp-switch .sw-title{flex:1}
+  .camp-switch .sw-title b{display:block;color:var(--text);font-size:12.5px;letter-spacing:.5px}
+  .camp-switch .sw-title span{color:var(--text-faint);font-size:10.5px}
+  .switch{width:38px;height:20px;border-radius:20px;background:#1c2733;position:relative;transition:.15s;flex:none;border:1px solid var(--border)}
+  .camp-switch.on .switch{background:var(--amber-dim);border-color:var(--amber)}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:var(--text-dim);transition:.15s}
+  .camp-switch.on .switch::after{left:19px;background:var(--amber)}
+
+  .cond-box{margin-top:14px;padding:14px;border:1px dashed var(--amber-dim);border-radius:6px;background:rgba(233,178,58,.02)}
+  .cond-box.hidden{display:none}
+  .req-row{display:grid;grid-template-columns:1.6fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px}
+  @media(max-width:560px){.req-row{grid-template-columns:1fr 1fr}}
+  .opt-block{margin-top:14px;padding-top:12px;border-top:1px solid var(--border-soft)}
+  .opt-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+  .opt-head label{cursor:pointer}
+  .opt-head input[type=checkbox]{width:auto;accent-color:var(--amber)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:560px){.two{grid-template-columns:1fr}}
+
+  .add-line{margin-top:4px}
+
+  /* ---------- Empty state ---------- */
+  .empty{
+    text-align:center;padding:60px 20px;color:var(--text-faint);
+    border:1px dashed var(--border-soft);border-radius:10px;
+  }
+  .empty .big{color:var(--text-dim);font-size:14px;letter-spacing:1px;margin-bottom:8px}
+
+  /* ---------- Output (MFD readout) ---------- */
+  .output-wrap{position:sticky;top:78px;display:flex;flex-direction:column;gap:14px}
+  .readout{
+    background:var(--panel-3);border:1px solid var(--border);border-radius:8px;
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+  .readout-head{
+    display:flex;align-items:center;gap:10px;padding:11px 14px;
+    border-bottom:1px solid var(--border-soft);
+    background:linear-gradient(180deg,#0e1620,#0a1017);
+  }
+  .readout-head .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  .readout-head .t{flex:1;font-size:11px;letter-spacing:1.5px;color:var(--text-dim);text-transform:uppercase}
+  .readout-head .fname{color:var(--accent);font-size:11px}
+  pre.lua{
+    margin:0;padding:16px;overflow:auto;max-height:calc(100vh - 320px);min-height:200px;
+    font-size:12px;line-height:1.55;color:#bfe9db;
+    background:
+      repeating-linear-gradient(180deg,rgba(62,199,165,.018) 0 1px,transparent 1px 3px);
+    tab-size:2;white-space:pre;
+  }
+  pre.lua .k{color:var(--accent)}
+  pre.lua .s{color:#e9c98a}
+  pre.lua .b{color:var(--blue)}
+  pre.lua .n{color:#c78bff}
+  pre.lua .c{color:var(--text-faint);font-style:italic}
+  pre.lua .amberk{color:var(--amber)}
+
+  .out-actions{display:flex;gap:8px;padding:12px 14px;border-top:1px solid var(--border-soft)}
+  .out-actions button{flex:1}
+
+  /* ---------- Validation panel ---------- */
+  .valid{
+    border:1px solid var(--border-soft);border-radius:8px;background:var(--panel);
+    padding:12px 14px;font-size:11.5px;
+  }
+  .valid .vhead{display:flex;align-items:center;gap:8px;letter-spacing:1px;text-transform:uppercase;font-size:10.5px;color:var(--text-dim);margin-bottom:8px}
+  .valid .badge{padding:2px 7px;border-radius:3px;font-weight:700;font-size:10px}
+  .valid .badge.ok{background:rgba(62,199,122,.12);color:var(--ok);border:1px solid rgba(62,199,122,.3)}
+  .valid .badge.warn{background:rgba(233,178,58,.12);color:var(--amber);border:1px solid rgba(233,178,58,.3)}
+  .valid .badge.err{background:rgba(229,84,75,.12);color:var(--red);border:1px solid rgba(229,84,75,.3)}
+  .vlist{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:5px}
+  .vlist li{display:flex;gap:8px;align-items:flex-start;color:var(--text-dim);line-height:1.4}
+  .vlist li .mk{flex:none;font-weight:700}
+  .vlist li.e .mk{color:var(--red)}
+  .vlist li.w .mk{color:var(--amber)}
+  .vlist li b{color:var(--text)}
+
+  /* scrollbars */
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:var(--panel-3)}
+  ::-webkit-scrollbar-thumb{background:#1e2c39;border-radius:5px;border:2px solid var(--panel-3)}
+  ::-webkit-scrollbar-thumb:hover{background:#2a3d4d}
+
+  .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+    background:#16212e;border:1px solid var(--accent);color:#eafff8;
+    padding:10px 18px;border-radius:6px;font-size:12px;letter-spacing:.5px;
+    opacity:0;pointer-events:none;transition:.25s;z-index:100;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+  input[type=file]{display:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span class="glyph">◈</span>
+    <div>
+      <h1>Constructor de Misiones</h1>
+      <div class="sub">DCS · Campaign Manager · Siria</div>
+    </div>
+  </div>
+  <div class="spacer"></div>
+  <div class="counter">MISIONES <b id="count">0</b></div>
+  <div class="toolbar">
+    <button class="primary" onclick="addMission()">+ Nueva misión</button>
+    <button class="ghost" onclick="document.getElementById('importFile').click()">Importar JSON</button>
+    <button class="ghost" onclick="exportJSON()">Guardar JSON</button>
+    <button class="danger ghost" onclick="clearAll()">Limpiar todo</button>
+    <input type="file" id="importFile" accept=".json" onchange="importJSON(event)">
+  </div>
+</header>
+
+<main>
+  <div class="stack" id="list"></div>
+
+  <div class="output-wrap">
+    <div class="valid" id="valid"></div>
+    <div class="readout">
+      <div class="readout-head">
+        <span class="dot"></span>
+        <span class="t">Salida en vivo</span>
+        <span class="fname">MISSIONS_Config.lua</span>
+      </div>
+      <pre class="lua" id="luaOut"></pre>
+      <div class="out-actions">
+        <button class="primary" onclick="copyLua()">Copiar Lua</button>
+        <button onclick="downloadLua()">Descargar .lua</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   CONSTRUCTOR DE MISIONES — MISSIONS_Config.lua
+   Vocabulario alineado con PTS_Manager / DATA_Core:
+   domain: air / ground / sea   |   target.type: VEHICLE / AIRCRAFT / BUILDING / STRUCTURE / SHIP
+   ============================================================ */
+
+const STORAGE_KEY = "dcs_missions_config_v1";
+
+const DOMAINS      = [["air","Aéreo"],["ground","Terrestre"],["sea","Naval"]];
+const TGT_TYPES    = ["VEHICLE","AIRCRAFT","BUILDING","STRUCTURE","SHIP"];
+const COALITIONS   = [["blue","Azul"],["red","Roja"]];
+const MISSION_TYPES= ["CAP","CAS","SEAD","DEAD","Strike","Anti-Ship","Escort","Transport","CSAR","Recon","Intercept","BAI","Assault","Logistics"];
+const REQ_STATUS   = [["completed","completada"],["failed","fallida"],["in_progress","en proceso"],["available","disponible"]];
+const TRIGGER_TYPES= [["unit_destroyed","unidad destruida"],["unit_alive","unidad viva"],["base_captured","base capturada"],["base_lost","base perdida"]];
+
+let missions = [];
+
+/* ---------- persistencia local (funciona al abrir el archivo en tu navegador) ---------- */
+function save(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(missions)); }catch(e){/* preview sin storage: se ignora */}
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){ missions = JSON.parse(raw) || []; }
+  }catch(e){ missions = []; }
+}
+
+/* ---------- modelo ---------- */
+function blankMission(){
+  return {
+    id:"", name:"", type:"CAP", domain:"air", coalition:"blue",
+    minPilots:1, maxPilots:1, pointsReward:10, pointsPenalty:-5, briefing:"",
+    targets:[],
+    isCampaign:false,
+    conditions:{ requires:[], twOn:false, twStart:"06:00", twStop:"20:00", trgOn:false, trgType:"unit_destroyed", trgUnit:"" },
+    _open:true
+  };
+}
+function blankTarget(){ return { unitName:"", type:"VEHICLE", mgrs:"", mandatory:true }; }
+
+/* ---------- acciones de estructura ---------- */
+function addMission(){
+  const m = blankMission();
+  missions.forEach(x=>x._open=false);
+  missions.push(m);
+  render(); save();
+  const el = document.querySelector('.card:last-child input');
+  if(el) el.focus();
+}
+function deleteMission(i){
+  if(!confirm("¿Eliminar esta misión? No se puede deshacer.")) return;
+  missions.splice(i,1); render(); save();
+}
+function duplicateMission(i){
+  const copy = JSON.parse(JSON.stringify(missions[i]));
+  copy.id = copy.id ? copy.id+"_COPIA" : "";
+  copy._open = true;
+  missions.forEach(x=>x._open=false);
+  missions.splice(i+1,0,copy); render(); save();
+}
+function moveMission(i,dir){
+  const j=i+dir; if(j<0||j>=missions.length) return;
+  [missions[i],missions[j]]=[missions[j],missions[i]];
+  render(); save();
+}
+function toggleOpen(i){ missions[i]._open=!missions[i]._open; render(); }
+
+/* ---------- helpers de campo ---------- */
+function setField(i,key,val){ missions[i][key]=val; onChange(); }
+function setNum(i,key,val){ missions[i][key]= (val===""?"":val); onChange(); }
+
+/* ---------- render principal ---------- */
+function render(){
+  const list = document.getElementById("list");
+  document.getElementById("count").textContent = missions.length;
+  list.innerHTML = "";
+
+  if(missions.length===0){
+    list.innerHTML = `<div class="empty"><div class="big">Sin misiones todavía</div>
+      Pulsa <b style="color:var(--accent)">+ Nueva misión</b> para empezar a poblar tu campaña.<br>
+      Cada misión sin condiciones estará <b>siempre disponible</b>; agrega condiciones para hacerla de campaña.</div>`;
+    buildOutput(); return;
+  }
+
+  missions.forEach((m,i)=> list.appendChild(buildCard(m,i)) );
+  buildOutput();
+}
+
+function buildCard(m,i){
+  const card = document.createElement("div");
+  card.className = "card"+(m._open?" open":"");
+  const ids = missions.map(x=>x.id.trim().toLowerCase());
+  const dupId = m.id.trim() && ids.filter(x=>x===m.id.trim().toLowerCase()).length>1;
+  const missingCore = !m.id.trim() || !m.name.trim();
+  if(dupId||missingCore) card.classList.add("err");
+
+  // ---- head ----
+  const head = document.createElement("div");
+  head.className="card-head";
+  head.innerHTML = `
+    <span class="chev">▶</span>
+    <div class="card-title">
+      <div class="idline"><b>${escHtml(m.id)||"(sin id)"}</b> · ${escHtml(m.type)||"—"}</div>
+      <div class="nameline">${escHtml(m.name)||"(sin nombre)"}</div>
+    </div>
+    <span class="chip ${m.coalition==='red'?'red':'blue'}">${m.coalition==='red'?'ROJA':'AZUL'}</span>
+    <span class="chip ${m.isCampaign?'camp':'simple'}">${m.isCampaign?'CAMPAÑA':'SIMPLE'}</span>
+    <div class="head-actions">
+      <button class="tiny ghost" title="Subir">▲</button>
+      <button class="tiny ghost" title="Bajar">▼</button>
+      <button class="tiny ghost" title="Duplicar">⧉</button>
+      <button class="tiny danger ghost" title="Eliminar">✕</button>
+    </div>`;
+  const [titleZone] = [head.querySelector(".card-title")];
+  head.querySelector(".chev").parentElement.addEventListener("click",(e)=>{});
+  head.addEventListener("click",(e)=>{ if(e.target.tagName!=="BUTTON") toggleOpen(i); });
+  const btns = head.querySelectorAll(".head-actions button");
+  btns[0].onclick=(e)=>{e.stopPropagation();moveMission(i,-1);};
+  btns[1].onclick=(e)=>{e.stopPropagation();moveMission(i,1);};
+  btns[2].onclick=(e)=>{e.stopPropagation();duplicateMission(i);};
+  btns[3].onclick=(e)=>{e.stopPropagation();deleteMission(i);};
+  card.appendChild(head);
+
+  // ---- body ----
+  const body = document.createElement("div");
+  body.className="card-body";
+
+  // core grid
+  const g1 = document.createElement("div"); g1.className="grid";
+  g1.appendChild(fieldText("Mission ID", m.id, v=>setField(i,"id",v), "ej. SEAD_BASE_SUR_001", dupId||!m.id.trim()));
+  g1.appendChild(fieldText("Nombre de la misión", m.name, v=>setField(i,"name",v), "ej. SEAD Base Aérea Sur", !m.name.trim()));
+  g1.appendChild(fieldDatalist("Tipo de misión", m.type, MISSION_TYPES, v=>setField(i,"type",v)));
+  g1.appendChild(fieldSelect("Dominio del objetivo", m.domain, DOMAINS, v=>setField(i,"domain",v)));
+  body.appendChild(g1);
+
+  const g2 = document.createElement("div"); g2.className="grid g3";
+  g2.appendChild(fieldSelect("Coalición", m.coalition, COALITIONS, v=>setField(i,"coalition",v)));
+  g2.appendChild(fieldNum("Pilotos mínimos", m.minPilots, v=>setNum(i,"minPilots",v),1));
+  g2.appendChild(fieldNum("Pilotos máximos", m.maxPilots, v=>setNum(i,"maxPilots",v),1));
+  body.appendChild(g2);
+
+  const g3 = document.createElement("div"); g3.className="grid";
+  g3.appendChild(fieldNum("Puntos a ganar", m.pointsReward, v=>setNum(i,"pointsReward",v)));
+  g3.appendChild(fieldNum("Puntos penalización", m.pointsPenalty, v=>setNum(i,"pointsPenalty",v)));
+  body.appendChild(g3);
+
+  const gb = document.createElement("div"); gb.className="grid";
+  gb.appendChild(fieldArea("Briefing", m.briefing, v=>setField(i,"briefing",v), "Descripción para los pilotos en el menú F10."));
+  body.appendChild(gb);
+
+  // ---- targets ----
+  const tt = document.createElement("div"); tt.className="section-tag";
+  tt.innerHTML = `<span class="n">▣</span> Objetivos <span style="color:var(--text-faint)">(${m.targets.length})</span>`;
+  body.appendChild(tt);
+
+  const tgtWrap = document.createElement("div");
+  if(m.targets.length===0){
+    const e=document.createElement("div"); e.className="tgt-empty";
+    e.textContent="Sin objetivos fijos (correcto para CAP, patrulla o transporte). Agrega objetivos si la misión ataca posiciones.";
+    tgtWrap.appendChild(e);
+  }
+  m.targets.forEach((t,ti)=> tgtWrap.appendChild(buildTargetRow(i,ti,t)) );
+  body.appendChild(tgtWrap);
+
+  const addT = document.createElement("div"); addT.className="add-line";
+  const addTBtn=document.createElement("button"); addTBtn.className="tiny"; addTBtn.textContent="+ Agregar objetivo";
+  addTBtn.onclick=()=>{ m.targets.push(blankTarget()); render(); save(); };
+  addT.appendChild(addTBtn);
+  body.appendChild(addT);
+
+  // ---- campaign switch ----
+  const sw = document.createElement("div");
+  sw.className="camp-switch"+(m.isCampaign?" on":"");
+  sw.innerHTML = `<div class="switch"></div>
+    <div class="sw-title"><b>Misión de campaña</b><span>Con condiciones para estar disponible. Apágalo = siempre disponible.</span></div>`;
+  sw.onclick=()=>{ m.isCampaign=!m.isCampaign; render(); save(); };
+  body.appendChild(sw);
+
+  // ---- conditions ----
+  const cond = document.createElement("div");
+  cond.className="cond-box"+(m.isCampaign?"":" hidden");
+
+  // requires
+  const rq = document.createElement("div");
+  rq.innerHTML = `<label style="margin-bottom:8px">Requiere misiones previas <span class="hint">(todas deben cumplirse)</span></label>`;
+  m.conditions.requires.forEach((r,ri)=> rq.appendChild(buildReqRow(i,ri,r)) );
+  const addR=document.createElement("button"); addR.className="tiny"; addR.textContent="+ Agregar requisito";
+  addR.style.marginTop="4px";
+  addR.onclick=()=>{ m.conditions.requires.push({mission:"",status:"completed"}); render(); save(); };
+  rq.appendChild(addR);
+  cond.appendChild(rq);
+
+  // time window
+  const tw = document.createElement("div"); tw.className="opt-block";
+  const twHead=document.createElement("div"); twHead.className="opt-head";
+  twHead.innerHTML=`<input type="checkbox" id="tw${i}" ${m.conditions.twOn?"checked":""}>
+    <label for="tw${i}">Ventana de tiempo <span class="hint">(hora del mundo DCS)</span></label>`;
+  twHead.querySelector("input").onchange=(e)=>{ m.conditions.twOn=e.target.checked; render(); save(); };
+  tw.appendChild(twHead);
+  if(m.conditions.twOn){
+    const twg=document.createElement("div"); twg.className="two";
+    twg.appendChild(fieldTime("Desde", m.conditions.twStart, v=>{m.conditions.twStart=v; onChange();}));
+    twg.appendChild(fieldTime("Hasta", m.conditions.twStop, v=>{m.conditions.twStop=v; onChange();}));
+    tw.appendChild(twg);
+  }
+  cond.appendChild(tw);
+
+  // trigger
+  const tg = document.createElement("div"); tg.className="opt-block";
+  const tgHead=document.createElement("div"); tgHead.className="opt-head";
+  tgHead.innerHTML=`<input type="checkbox" id="trg${i}" ${m.conditions.trgOn?"checked":""}>
+    <label for="trg${i}">Disparador por evento <span class="hint">(se activa por algo del mundo)</span></label>`;
+  tgHead.querySelector("input").onchange=(e)=>{ m.conditions.trgOn=e.target.checked; render(); save(); };
+  tg.appendChild(tgHead);
+  if(m.conditions.trgOn){
+    const tgg=document.createElement("div"); tgg.className="two";
+    tgg.appendChild(fieldSelect("Tipo", m.conditions.trgType, TRIGGER_TYPES, v=>{m.conditions.trgType=v; onChange();}));
+    tgg.appendChild(fieldText("Nombre de unidad", m.conditions.trgUnit, v=>{m.conditions.trgUnit=v; onChange();}, "ej. radar-norte-1"));
+    tg.appendChild(tgg);
+  }
+  cond.appendChild(tg);
+
+  body.appendChild(cond);
+  card.appendChild(body);
+  return card;
+}
+
+function buildTargetRow(mi,ti,t){
+  const row=document.createElement("div"); row.className="tgt-row";
+  row.appendChild(cell(inputEl(t.unitName,"nombre-unidad",v=>{t.unitName=v;onChange();})));
+  row.appendChild(cell(selectEl(t.type,TGT_TYPES.map(x=>[x,x]),v=>{t.type=v;onChange();})));
+  const mgrsCell=cell(inputEl(t.mgrs,"37S DA 12345 67890",v=>{t.mgrs=v;onChange(); flagMgrs(mgrsInput,v);}));
+  mgrsCell.className="mgrs-cell";
+  const mgrsInput=mgrsCell.querySelector("input");
+  flagMgrs(mgrsInput,t.mgrs);
+  row.appendChild(mgrsCell);
+
+  const mand=document.createElement("label"); mand.className="mand-toggle"+(t.mandatory?" on":"");
+  mand.innerHTML=`<input type="checkbox" ${t.mandatory?"checked":""}> ${t.mandatory?"OBLIG.":"OPORT."}`;
+  mand.querySelector("input").onchange=(e)=>{ t.mandatory=e.target.checked; render(); save(); };
+  row.appendChild(mand);
+
+  const del=document.createElement("button"); del.className="tiny danger ghost"; del.textContent="✕"; del.title="Quitar objetivo";
+  del.onclick=()=>{ missions[mi].targets.splice(ti,1); render(); save(); };
+  row.appendChild(del);
+  return row;
+}
+
+function buildReqRow(mi,ri,r){
+  const row=document.createElement("div"); row.className="req-row";
+  const ids = missions.map(x=>x.id).filter(x=>x.trim());
+  row.appendChild(cell(datalistEl(r.mission, ids, "ID de misión previa", v=>{r.mission=v;onChange();})));
+  row.appendChild(cell(selectEl(r.status, REQ_STATUS, v=>{r.status=v;onChange();})));
+  const del=document.createElement("button"); del.className="tiny danger ghost"; del.textContent="✕";
+  del.onclick=()=>{ missions[mi].conditions.requires.splice(ri,1); render(); save(); };
+  row.appendChild(del);
+  return row;
+}
+
+/* ---------- fabricantes de campos ---------- */
+function field(labelTxt,control,hint,full){
+  const f=document.createElement("div"); f.className="field"+(full?" full":"");
+  const l=document.createElement("label"); l.innerHTML=labelTxt+(hint?` <span class="hint">${hint}</span>`:"");
+  f.appendChild(l); f.appendChild(control); return f;
+}
+function inputEl(val,ph,on,bad){
+  const el=document.createElement("input"); el.value=val??""; el.placeholder=ph||"";
+  if(bad) el.classList.add("bad");
+  el.addEventListener("input",()=>on(el.value));
+  return el;
+}
+function selectEl(val,opts,on){
+  const el=document.createElement("select");
+  opts.forEach(([v,txt])=>{ const o=document.createElement("option"); o.value=v; o.textContent=txt; if(v===val)o.selected=true; el.appendChild(o); });
+  el.addEventListener("change",()=>on(el.value));
+  return el;
+}
+function datalistEl(val,list,ph,on){
+  const wrap=document.createDocumentFragment();
+  const el=document.createElement("input"); el.value=val??""; el.placeholder=ph||"";
+  const id="dl"+Math.random().toString(36).slice(2);
+  el.setAttribute("list",id);
+  const dl=document.createElement("datalist"); dl.id=id;
+  list.forEach(v=>{ const o=document.createElement("option"); o.value=v; dl.appendChild(o); });
+  el.addEventListener("input",()=>on(el.value));
+  const span=document.createElement("span"); span.appendChild(el); span.appendChild(dl);
+  return span;
+}
+function numEl(val,on,min){
+  const el=document.createElement("input"); el.type="number"; el.value=val; if(min!==undefined)el.min=min;
+  el.addEventListener("input",()=>on(el.value));
+  return el;
+}
+function areaEl(val,on,ph){
+  const el=document.createElement("textarea"); el.value=val??""; el.placeholder=ph||"";
+  el.addEventListener("input",()=>on(el.value));
+  return el;
+}
+function timeEl(val,on){
+  const el=document.createElement("input"); el.type="time"; el.value=val||"06:00";
+  el.addEventListener("input",()=>on(el.value));
+  return el;
+}
+function fieldText(l,v,on,ph,bad){ return field(l,inputEl(v,ph,on,bad)); }
+function fieldSelect(l,v,opts,on){ return field(l,selectEl(v,opts,on)); }
+function fieldDatalist(l,v,list,on){ const f=field(l,document.createElement("span")); f.lastChild.replaceWith(datalistEl(v,list,"",on)); return f; }
+function fieldNum(l,v,on,min){ return field(l,numEl(v,on,min)); }
+function fieldArea(l,v,on,hint){ return field(l,areaEl(v,on,hint),null,true); }
+function fieldTime(l,v,on){ return field(l,timeEl(v,on)); }
+function cell(node){ const d=document.createElement("div"); d.appendChild(node); return d; }
+
+function flagMgrs(input,val){
+  const ok = val.trim()==="" || /^\d{1,2}\s?[C-X]\s?[A-Z]{2}\s?\d{2,5}\s?\d{2,5}$/i.test(val.trim());
+  input.classList.toggle("bad", !ok);
+}
+
+/* ---------- onChange: guardar + regenerar sin re-render (mantiene el foco) ---------- */
+function onChange(){ save(); buildOutput(); }
+
+/* ============================================================
+   GENERADOR DE LUA
+   ============================================================ */
+function luaStr(s){
+  return '"' + String(s??"")
+    .replace(/\\/g,"\\\\")
+    .replace(/"/g,'\\"')
+    .replace(/\r/g,"")
+    .replace(/\n/g,"\\n")
+    .replace(/\t/g,"\\t") + '"';
+}
+function num(v,def){ const n=parseInt(v,10); return isNaN(n)?def:n; }
+function pad(k){ return (k+"             ").slice(0,13); }
+
+function missionToLua(m){
+  const L=[];
+  L.push("  {");
+  L.push(`    ${pad("id")}= ${luaStr(m.id)},`);
+  L.push(`    ${pad("name")}= ${luaStr(m.name)},`);
+  L.push(`    ${pad("type")}= ${luaStr(m.type)},`);
+  L.push(`    ${pad("domain")}= ${luaStr(m.domain)},`);
+  L.push(`    ${pad("coalition")}= ${luaStr(m.coalition)},`);
+  L.push(`    ${pad("minPilots")}= ${num(m.minPilots,1)},`);
+  L.push(`    ${pad("maxPilots")}= ${num(m.maxPilots,1)},`);
+  L.push(`    ${pad("pointsReward")}= ${num(m.pointsReward,0)},`);
+  L.push(`    ${pad("pointsPenalty")}= ${num(m.pointsPenalty,0)},`);
+  L.push(`    ${pad("briefing")}= ${luaStr(m.briefing)},`);
+
+  // targets
+  if(m.targets.length===0){
+    L.push(`    ${pad("targets")}= {},`);
+  }else{
+    L.push(`    ${pad("targets")}= {`);
+    m.targets.forEach(t=>{
+      L.push(`      { unitName = ${luaStr(t.unitName)}, type = ${luaStr(t.type)}, mgrs = ${luaStr(t.mgrs)}, mandatory = ${t.mandatory?"true":"false"} },`);
+    });
+    L.push(`    },`);
+  }
+
+  // conditions (solo si campaña y hay algo definido)
+  if(m.isCampaign){
+    const c=m.conditions;
+    const parts=[];
+    if(c.requires.length>0){
+      const rl=c.requires.map(r=>`      { mission = ${luaStr(r.mission)}, status = ${luaStr(r.status)} },`);
+      parts.push(`      requires   = {\n${rl.join("\n")}\n      },`);
+    }
+    if(c.twOn){
+      parts.push(`      timeWindow = { start = ${luaStr(c.twStart)}, stop = ${luaStr(c.twStop)} },`);
+    }
+    if(c.trgOn){
+      parts.push(`      trigger    = { type = ${luaStr(c.trgType)}, unit = ${luaStr(c.trgUnit)} },`);
+    }
+    if(parts.length>0){
+      L.push(`    ${pad("conditions")}= {`);
+      L.push(parts.join("\n"));
+      L.push(`    },`);
+    }
+  }
+
+  L.push("  },");
+  return L.join("\n");
+}
+
+function generateLua(){
+  const ts = new Date().toLocaleString("es-CL");
+  const head =
+`-- ============================================================
+-- MISSIONS_Config.lua
+-- Generado por el Constructor de Misiones DCS
+-- Misiones: ${missions.length}  |  ${ts}
+-- Sin bloque conditions => misión SIEMPRE disponible.
+-- ============================================================
+
+MISSIONS_Config = {
+`;
+  const body = missions.map(missionToLua).join("\n\n");
+  return head + (missions.length? "\n"+body+"\n" : "") + "\n}\n";
+}
+
+/* syntax highlight ligero para el readout */
+function highlight(code){
+  let h = escHtml(code);
+  h = h.replace(/(--[^\n]*)/g,'<span class="c">$1</span>');
+  h = h.replace(/(&quot;(?:[^&]|&(?!quot;))*?&quot;)/g,'<span class="s">$1</span>');
+  h = h.replace(/\b(mandatory|conditions|requires|timeWindow|trigger)\b(?=\s*=)/g,'<span class="amberk">$1</span>');
+  h = h.replace(/\b([a-zA-Z_]+)\b(?=\s*=)/g,(mt,w)=> /span/.test(mt)?mt:'<span class="k">'+w+'</span>');
+  h = h.replace(/=\s*(-?\d+)\b/g,'= <span class="n">$1</span>');
+  h = h.replace(/\b(true|false)\b/g,'<span class="b">$1</span>');
+  return h;
+}
+
+function buildOutput(){
+  const lua = generateLua();
+  window.__lua = lua;
+  document.getElementById("luaOut").innerHTML = highlight(lua);
+  buildValidation();
+}
+
+/* ============================================================
+   VALIDACIÓN
+   ============================================================ */
+function buildValidation(){
+  const errs=[], warns=[];
+  const idCount={};
+  missions.forEach(m=>{ const id=m.id.trim().toLowerCase(); if(id) idCount[id]=(idCount[id]||0)+1; });
+  const allIds = missions.map(m=>m.id.trim()).filter(Boolean);
+
+  missions.forEach((m,i)=>{
+    const tag = m.id.trim()||m.name.trim()||("Misión "+(i+1));
+    if(!m.id.trim()) errs.push(`<b>${escHtml(tag)}</b>: falta el Mission ID.`);
+    if(!m.name.trim()) errs.push(`<b>${escHtml(tag)}</b>: falta el nombre.`);
+    if(m.id.trim() && idCount[m.id.trim().toLowerCase()]>1) errs.push(`ID duplicado: <b>${escHtml(m.id.trim())}</b>.`);
+    if(num(m.maxPilots,1) < num(m.minPilots,1)) warns.push(`<b>${escHtml(tag)}</b>: pilotos máx. es menor que mín.`);
+    m.targets.forEach(t=>{
+      if(t.mgrs.trim() && !/^\d{1,2}\s?[C-X]\s?[A-Z]{2}\s?\d{2,5}\s?\d{2,5}$/i.test(t.mgrs.trim()))
+        warns.push(`<b>${escHtml(tag)}</b>: MGRS con formato dudoso (<b>${escHtml(t.mgrs.trim())}</b>).`);
+    });
+    if(m.isCampaign){
+      const hasCond = m.conditions.requires.length || m.conditions.twOn || m.conditions.trgOn;
+      if(!hasCond) warns.push(`<b>${escHtml(tag)}</b>: marcada como campaña pero sin ninguna condición (quedará siempre disponible).`);
+      m.conditions.requires.forEach(r=>{
+        if(r.mission.trim() && !allIds.some(x=>x.toLowerCase()===r.mission.trim().toLowerCase()))
+          warns.push(`<b>${escHtml(tag)}</b>: requiere <b>${escHtml(r.mission.trim())}</b>, que no existe como misión.`);
+      });
+    }
+  });
+
+  const box=document.getElementById("valid");
+  let badge, cls;
+  if(errs.length){ badge=`<span class="badge err">${errs.length} error${errs.length>1?"es":""}</span>`; }
+  else if(warns.length){ badge=`<span class="badge warn">${warns.length} aviso${warns.length>1?"s":""}</span>`; }
+  else { badge=`<span class="badge ok">Todo en orden</span>`; }
+
+  let items="";
+  errs.forEach(e=> items+=`<li class="e"><span class="mk">✕</span><span>${e}</span></li>`);
+  warns.forEach(w=> items+=`<li class="w"><span class="mk">!</span><span>${w}</span></li>`);
+  if(!items) items=`<li><span class="mk" style="color:var(--ok)">✓</span><span>${missions.length} misión${missions.length!==1?"es":""} lista${missions.length!==1?"s":""} para exportar.</span></li>`;
+
+  box.innerHTML = `<div class="vhead">Validación ${badge}</div><ul class="vlist">${items}</ul>`;
+}
+
+/* ============================================================
+   EXPORT / IMPORT / COPY
+   ============================================================ */
+function copyLua(){
+  const txt=window.__lua||generateLua();
+  navigator.clipboard.writeText(txt).then(()=>toast("Lua copiado al portapapeles")).catch(()=>{
+    const ta=document.createElement("textarea"); ta.value=txt; document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); ta.remove(); toast("Lua copiado");
+  });
+}
+function downloadLua(){ downloadFile("MISSIONS_Config.lua", window.__lua||generateLua()); toast("MISSIONS_Config.lua descargado"); }
+function exportJSON(){ downloadFile("misiones_backup.json", JSON.stringify(missions,null,2)); toast("Respaldo JSON guardado"); }
+function importJSON(ev){
+  const file=ev.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const data=JSON.parse(r.result);
+      if(!Array.isArray(data)) throw 0;
+      missions=data.map(normalize);
+      render(); save(); toast("Importadas "+missions.length+" misiones");
+    }catch(e){ toast("Archivo JSON inválido"); }
+    ev.target.value="";
+  };
+  r.readAsText(file);
+}
+function normalize(m){
+  const b=blankMission();
+  const out=Object.assign(b,m);
+  out.conditions=Object.assign(b.conditions, m.conditions||{});
+  out.targets=(m.targets||[]).map(t=>Object.assign(blankTarget(),t));
+  out.conditions.requires=(out.conditions.requires||[]).map(r=>({mission:r.mission||"",status:r.status||"completed"}));
+  out._open=false;
+  return out;
+}
+function clearAll(){
+  if(!missions.length){ toast("No hay nada que limpiar"); return; }
+  if(!confirm("¿Borrar TODAS las misiones? Guarda un respaldo JSON antes si quieres conservarlas.")) return;
+  missions=[]; render(); save(); toast("Todo limpio");
+}
+function downloadFile(name,content){
+  const blob=new Blob([content],{type:"text/plain;charset=utf-8"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+
+/* ---------- util ---------- */
+function escHtml(s){ return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+let toastTimer;
+function toast(msg){
+  const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+/* ---------- init ---------- */
+load();
+render();
+</script>
+</body>
+</html>

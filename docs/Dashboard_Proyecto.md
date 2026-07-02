@@ -10,9 +10,9 @@
 | 5* | 29/06/2026 | 14:15 | ~21:15 | ~7h | Validación DATA_Core + PTS_Manager v2 + ledger ampliado (hora/avión/dominio/tipo) |
 | 6 | 30/06/2026 | 07:40 | 10:00 | 2h 20min | PTS_Manager Ground Impacts — validación targets terrestres |
 | 7 | 30/06/2026 | 11:30 | 14:00 | 2h 30min | PTS_Manager v3 + WEAPON tracking + mensajes pantalla + DATA_Export |
-| 8 | 01/07/2026 | 10:10 | 11:20 | 1h 10min | Estrategia grabación datos / Persistencia / Diseño conceptual CAMPAIGN_Manager |
+| 8 | 01/07/2026 | 10:10 | 14:45 | 4h 35min | Estrategia grabación / Persistencia / CAMPAIGN_Manager / MissionsGenerator / Referencias_Tecnicas |
 
-**Total acumulado: ~18h 50min**
+**Total acumulado: ~23h 25min**
 *Sesión 5 extendida sin cierre formal intermedio.
 
 ---
@@ -32,6 +32,7 @@
   - 3 fallbacks de dominio en `_onHit` y `_onDeadOrCrash`.
   - Soporte para scenery DCS (object_id numérico) → `Collateral` + `domain="ground"`.
   - Soporte para edificios estáticos colocados por el usuario via `RegisterTarget()`.
+  - **Pendiente validar:** `BlueOnBlue`, `TargetDestroyed` con piloto humano (todas las pruebas de terrestre fueron con IA).
   - MGRS funciona para todos los hits reales (via DCS nativo en _onHit). MGRS para MISS es nil por decisión consciente: cuando MOOSE dispara el impact callback, el objeto DCS del arma ya fue destruido ("Object doesn't exist") — no es posible obtener la posición. Los tiros perdidos en terreno no necesitan posición exacta.
   - targetType clasificado correctamente: VEHICLE, AIRCRAFT, BUILDING, STRUCTURE, SHIP via `Object.getCategory()` DCS nativo.
   - Nueva estructura de mensajes en pantalla: `[SHOT] piloto | aeronave | arma | MGRS_lanzamiento` y `[IMPACT] objeto | tipo | MGRS | alt | arma | aeronave | piloto`
@@ -99,7 +100,7 @@
   ```
   DCS-Scripts/
   ├── readme.md / .gitignore
-  ├── docs/      (Dashboard_Proyecto.md, Dashboard_Visual.html, Referencias_MOOSE.md, Ideas_Sueltas.md, Checklist_Sesion.md)
+  ├── docs/      (Dashboard_Proyecto.md, Dashboard_Visual.html, Referencias_MOOSE.md, Ideas_Sueltas.md, Checklist_Sesion.md, Referencias_Tecnicas.md)
   ├── scripts/   (EVT_Dispatcher.lua, DATA_Core.lua, PTS_Manager.lua, DATA_Export.lua, TEST_Handler.lua)
   └── prompts/   (Prompts_ClaudeCode_GitHub.md, Prompt_Estructura_Inicial_Repo.md, Prompt_Conectar_Push_GitHub.md)
   ```
@@ -132,4 +133,4 @@ Orden obligatorio. Doble barra invertida `\\` obligatoria en Lua.
 - GitHub como fuente de verdad única.
 
 ---
-*Última actualización: 01/07/2026 — Sesión 8 cerrada (11:20)*
+*Última actualización: 01/07/2026 — Sesión 8 CERRADA (14:45)*
