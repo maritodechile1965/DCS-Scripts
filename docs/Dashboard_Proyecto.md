@@ -19,9 +19,11 @@
 | 10 | 02/07/2026 | 14:20 | 15:00 | 40 min | Resumen general + setup mapa Siria + recomendación unidades |
 | 11 | 02/07/2026 | 08:40 | 20:30 | 11h 50min | SAMs escenario + ZONE_State + persistencia bases + CAMP_Net |
 | 12 | 06/07/2026 | 22:00 | 23:59 | 1h 59min | Prueba Tabla bases Nodos |
+| 13* | 07/07/2026 | 22:00 | 00:53 | 2h 53min | Revisión código real vs dashboard, corrección de 4 inconsistencias (EVT_Dispatcher MissionEnd, CAMP_Net Damascus, MISSIONS_Config, backlog TARS) y reorganización del historial git (sesiones 9-12 separadas en commits propios) |
 
-**Total acumulado sesiones 1-12: ~37h**
+**Total acumulado sesiones 1-13: ~40h**
 *Sesión 5 extendida sin cierre formal intermedio.
+*Sesión 13 cruza medianoche (termina 08/07 00:53).
 
 ---
 
@@ -42,6 +44,8 @@
 **Sesión 11 (02/07):** Análisis Test_CSAR.miz (428 unidades, sistemas SAM). Mapa táctico Siria dibujado. Decisión late activation por zona. DATA_Core ampliado con tabla _baseStates (20 bases azules + 9 rojas). ZONE_State.lua creado y validado en juego. DATA_Export ampliado (WriteBaseStates, RestoreBaseStates, grabación periódica). CAMP_Net.lua creado (LogNet renombrado + integración DATA_Core). Bug Lua 5.1 `continue` detectado y corregido. Nuevas misiones definidas (convoyes random, helis, CAPs, templates estáticos).
 
 **Sesión 12 (06/07):** Prueba de la tabla de bases y nodos (`_baseStates` / `LOGNET.NODES`/`EDGES`). `scripts/LogNet.lua` (duplicado) eliminado — `CAMP_Net.lua` queda como versión válida; `Mario_testArea/LogNet.lua` se mantiene como copia de pruebas/backup del usuario. Copia accidental `docs/DATA_Core.lua` eliminada.
+
+**Sesión 13 (07/07):** Revisión completa del código real (`.lua`) contra el dashboard. 4 inconsistencias detectadas y corregidas: (1) `MISSIONS_Config.lua` marcado como hecho en el roadmap, (2) `EVT_Dispatcher` no registraba `EVENTS.MissionEnd` → grabación automática de `ZONE_State` nunca se ejecutaba, corregido, (3) `CAMP_Net` sin nodo para `Damascus International Airport`, agregado (`DAMAS`, zona `LN_DAMASCUS`), (4) idea TARS movida de `Ideas_Sueltas.md` al backlog oficial (ítem #18). Además, se reorganizó el historial de git: el commit único que mezclaba las sesiones 9-12 se separó en 3 commits propios (sesión 11, sesión 12, documentación 9-12) vía rebase + force-push.
 
 ---
 
@@ -100,7 +104,7 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 
 ---
 
-## 🎯 PENDIENTES PARA SESIÓN 13
+## 🎯 PENDIENTES PARA SESIÓN 14
 
 1. **Validar PTS_Manager con piloto humano** — [SHOT]/[IMPACT] en pantalla, pilotAircraft en ledger, BlueOnBlue, TargetDestroyed
 2. **Crear Trigger Zones en Mission Editor** (LN_INCIR, LN_BASSEL, LN_DAMASCUS, etc.) para que CAMP_Net pueda dibujar la red
@@ -205,4 +209,4 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 
 ---
 
-*Última actualización: 06/07/2026 — Sesión 12 CERRADA (23:59)*
+*Última actualización: 07/07/2026 — Sesión 13 CERRADA (00:53)*
