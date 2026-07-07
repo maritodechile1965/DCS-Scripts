@@ -23,14 +23,7 @@ CAMP_Net.COALITION_BLUE = 2
 CAMP_Net.VISIBLE_TO     = CAMP_Net.COALITION_BLUE
 CAMP_Net.MARK_ID_BASE   = 930000
 CAMP_Net.NEXT_ID        = CAMP_Net.MARK_ID_BASE
-CAMP_Net.FLAG_CHECK_INTERVAL = 2
 CAMP_Net.ALL_CAPTURED_FLAG   = 8199
-
--- Los flags de captura (azul toma base roja) son los definidos en cada nodo.
--- Los flags de reconquista (rojo retoma base azul) = captureFlag + 10000
--- Ejemplo: SHAYRAT captureFlag=8113 → reconquista flag=18113
--- Así no hay conflicto con ningún otro flag del sistema.
-CAMP_Net.RECAPTURE_FLAG_OFFSET = 10000
 
 CAMP_Net.COLORS = {
   GREEN  = {0, 1, 0, 0.90},
@@ -91,6 +84,9 @@ CAMP_Net.NODE_TO_BASE = {
 
 -- ============================================================
 -- BLOQUE 1: NODOS
+-- captureFlag ya NO es un flag de DCS (no se lee con getUserFlag): es
+-- solo un ID numérico para clasificar el nodo. < 8200 = capturable por
+-- presencia de unidades; >= 8200 = base azul fija, nunca reconquistable.
 -- ============================================================
 
 CAMP_Net.NODES = {
