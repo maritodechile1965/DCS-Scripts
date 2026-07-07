@@ -80,7 +80,7 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 ### ETAPA 2 — ZONA Y CAMPAÑA 🔄 EN PROGRESO (~30-35h)
 - [x] `ZONE_State.lua` — persistencia de bases entre sesiones ✅
 - [x] `CAMP_Net.lua` — red visual F10 de campaña ✅
-- [ ] `MISSIONS_Config.lua` — tabla de configuración de misiones
+- [x] `MISSIONS_Config.lua` — tabla de configuración de misiones (1ª misión SEAD Tabqa cargada)
 - [ ] `MIS_Manager` — menú F10 dinámico de misiones
 - [ ] `TIMER_Manager` — timers de reconquista y ventanas de tiempo
 - [ ] Definir zonas Trigger en Mission Editor (LN_*)
@@ -114,10 +114,10 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 
 | # | Inconsistencia | Estado | Commit |
 |---|---|---|---|
-| 1 | `MISSIONS_Config.lua` ya existía (misión SEAD Tabqa) pero el dashboard lo marcaba pendiente en ETAPA 2 | ⏳ Pendiente de reflejar en roadmap | — |
+| 1 | `MISSIONS_Config.lua` ya existía (misión SEAD Tabqa) pero el dashboard lo marcaba pendiente en ETAPA 2 | ✅ Corregido — marcado `[x]` en roadmap ETAPA 2 | — |
 | 2 | `EVT_Dispatcher` no registraba `EVENTS.MissionEnd` → la grabación automática de `ZONE_State` al cerrar la misión nunca se ejecutaba | ✅ Corregido — agregado `EVENTS.MissionEnd` a `RegisteredEvents` + `OnEventMissionEnd` | `3d72cff` |
 | 3 | `CAMP_Net` no tenía nodo para `"Damascus International Airport"` (existía en `DATA_Core._baseStates` pero sin representación visual ni forma de capturarse desde F10) | ✅ Corregido — nodo `DAMAS` agregado (zona `LN_DAMASCUS`, flag 8124) | `3d72cff` |
-| 4 | Idea **TARS** (`Ideas_Sueltas.md`) nunca pasó al backlog oficial de 17 ítems | ⏳ Pendiente de decidir (agregar o descartar) | — |
+| 4 | Idea **TARS** (`Ideas_Sueltas.md`) nunca pasó al backlog oficial de 17 ítems | ✅ Corregido — agregada como ítem #18 (`Ops.TARS`, etapa 4) | — |
 
 ---
 
@@ -180,7 +180,7 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 
 ---
 
-## 📋 BACKLOG (17 ítems)
+## 📋 BACKLOG (18 ítems)
 
 | # | Nombre | Clase MOOSE | Etapa | Estado |
 |---|---|---|---|---|
@@ -201,6 +201,7 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 | 15 | TemplateSpawn | `SPAWN` | 2 | ⏳ |
 | 16 | SkyNet Custom (IADS) | `Functional.Mantis` | 6 | ⏳ |
 | 17 | TextToSpeech 🔴 PRIORIDAD ALTA | SRS | transversal | ⏳ |
+| 18 | TARS (Reconocimiento fotográfico) | `Ops.TARS` | 4 | ⏳ |
 
 ---
 

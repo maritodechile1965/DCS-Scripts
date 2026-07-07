@@ -11,14 +11,16 @@ del dashboard con su número correspondiente.
 
 ## 📌 Ideas registradas
 
-### TARS
+### TARS (MOVIDO AL BACKLOG — 07/07/2026)
 **Fuente:** [`Ops.TARS`](https://flightcontrol-master.github.io/MOOSE_DOCS_DEVELOP/Documentation/Ops.TARS.html) (clase oficial MOOSE)
 
 Simula misiones de reconocimiento fotográfico y observación visual en DCS World.
 
 **Por qué podría interesarnos:** complementa bien con Ground Control y con CSAR.
 
-*Agregado: 29/06/2026*
+**Estado:** movido al backlog oficial de `Dashboard_Proyecto.md` como ítem **#18** (etapa 4).
+
+*Agregado: 29/06/2026 — Movido al backlog: 07/07/2026*
 
 ---
 
