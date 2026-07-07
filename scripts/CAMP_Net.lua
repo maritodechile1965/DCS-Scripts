@@ -99,161 +99,161 @@ CAMP_Net.NODES = {
     zone = "LN_INCIR",
     label = "Incirlik",
     captureFlag = 8101,
-    radius = 6000,
+    radius = 2000,
   },
 
   GAZIAN = {
     zone = "LN_GAZIAN",
     label = "Gaziantep",
     captureFlag = 8102,
-    radius = 6000,
+    radius = 2000,
   },
 
   MINAK = {
     zone = "LN_MINAKH",
     label = "Minakh",
     captureFlag = 8103,
-    radius = 6000,
+    radius = 2000,
   },
 
   KUWEIRES = {
     zone = "LN_KUWEIRES",
     label = "Kuweires",
     captureFlag = 8104,
-    radius = 6000,
+    radius = 2000,
   },
 
   JIRAH = {
     zone = "LN_JIRAH",
     label = "Jirah",
     captureFlag = 8105,
-    radius = 6000,
+    radius = 2000,
   },
 
   TABQA = {
     zone = "LN_TABQUA",
     label = "Tabqa",
     captureFlag = 8106,
-    radius = 6000,
+    radius = 2000,
   },
 
   ERZOR = {
     zone = "LN_ERZOR",
     label = "Deir ez-Zor",
     captureFlag = 8107,
-    radius = 6000,
+    radius = 2000,
   },
 
   ABU = {
     zone = "LN_ABUAL",
     label = "Abu al-Duhur",
     captureFlag = 8108,
-    radius = 6000,
+    radius = 2000,
   },
 
   BASSEL = {
     zone = "LN_BASEL",
     label = "Bassel Al-Assad",
     captureFlag = 8109,
-    radius = 6000,
+    radius = 2000,
   },
 
   HAMA = {
     zone = "LN_HAMA",
     label = "Hama",
     captureFlag = 8110,
-    radius = 6000,
+    radius = 2000,
   },
 
   RENE = {
     zone = "LN_RENE",
     label = "Rene",
     captureFlag = 8111,
-    radius = 6000,
+    radius = 2000,
   },
 
   QUSAYR = {
     zone = "LN_QUSAYR",
     label = "Al-Qusayr",
     captureFlag = 8112,
-    radius = 6000,
+    radius = 2000,
   },
 
   SHAYRAT = {
     zone = "LN_SHAYRAT",
     label = "Shayrat",
     captureFlag = 8113,
-    radius = 6000,
+    radius = 2000,
   },
 
   TIYAS = {
     zone = "LN_TIYAS",
     label = "Tiyas",
     captureFlag = 8114,
-    radius = 6000,
+    radius = 2000,
   },
 
   PALMYRA = {
     zone = "LN_PALMYRA",
     label = "Palmyra",
     captureFlag = 8115,
-    radius = 6000,
+    radius = 2000,
   },
 
   SAYQAL = {
     zone = "LN_SAYQAL",
     label = "Sayqal",
     captureFlag = 8116,
-    radius = 6000,
+    radius = 2000,
   },
 
   NASIRI = {
     zone = "LN_NASIRI",
     label = "An Nasiriya",
     captureFlag = 8117,
-    radius = 6000,
+    radius = 2000,
   },
 
   RAYAK = {
     zone = "LN_RAYAK",
     label = "Rayak",
     captureFlag = 8118,
-    radius = 6000,
+    radius = 2000,
   },
 
   DUMAYR = {
     zone = "LN_DUMAYR",
     label = "Al-Dumayr",
     captureFlag = 8119,
-    radius = 6000,
+    radius = 2000,
   },
 
   MEZZE = {
     zone = "LN_MEZZE",
     label = "Mezzeh",
     captureFlag = 8120,
-    radius = 6000,
+    radius = 2000,
   },
 
   MARJ = {
     zone = "LN_MARJ",
     label = "Marj Ruhayyil",
     captureFlag = 8121,
-    radius = 6000,
+    radius = 2000,
   },
 
   KALK = {
     zone = "LN_KALK",
     label = "Khalkhalah",
     captureFlag = 8122,
-    radius = 6000,
+    radius = 2000,
   },
 
   TALAH = {
     zone = "LN_THALAH",
     label = "Tha'lah",
     captureFlag = 8123,
-    radius = 6000,
+    radius = 2000,
   },
 
   -- ===== BLUE =====
@@ -262,98 +262,98 @@ CAMP_Net.NODES = {
     zone = "LN_PAPHOS",
     label = "Paphos",
     captureFlag = 8201,
-    radius = 6000,
+    radius = 2000,
   },
 
   AKRO = {
     zone = "LN_AKRO",
     label = "Akrotiri",
     captureFlag = 8202,
-    radius = 6000,
+    radius = 2000,
   },
 
   LARNA = {
     zone = "LN_LARNA",
     label = "Larnaca",
     captureFlag = 8203,
-    radius = 6000,
+    radius = 2000,
   },
 
   KINGS = {
     zone = "LN_KINGS",
     label = "Lakatamia",
     captureFlag = 8204,
-    radius = 6000,
+    radius = 2000,
   },
 
   GECIT = {
     zone = "LN_GECIT",
     label = "Gecitkale",
     captureFlag = 8205,
-    radius = 6000,
+    radius = 2000,
   },
 
   ERKAN = {
     zone = "LN_ERKAN",
     label = "Ercan",
     captureFlag = 8206,
-    radius = 6000,
+    radius = 2000,
   },
 
   CVN73 = {
     zone = "LN_CVN73",
     label = "CVN-73",
     captureFlag = 8207,
-    radius = 6000,
+    radius = 2000,
   },
 
   RAMAT = {
     zone = "LN_RAMAT",
     label = "Ramat David",
     captureFlag = 8208,
-    radius = 6000,
+    radius = 2000,
   },
 
   SHEMER = {
     zone = "LN_SHEMER",
     label = "Eyn Shemer",
     captureFlag = 8209,
-    radius = 6000,
+    radius = 2000,
   },
 
   HERZI = {
     zone = "LN_HERZI",
     label = "Herzliya",
     captureFlag = 8210,
-    radius = 6000,
+    radius = 2000,
   },
 
   TELNOF = {
     zone = "LN_TELNOF",
     label = "Tel Nof",
     captureFlag = 8211,
-    radius = 6000,
+    radius = 2000,
   },
 
   HATZOR = {
     zone = "LN_HATZOR",
     label = "Hatzor",
     captureFlag = 8212,
-    radius = 6000,
+    radius = 2000,
   },
 
   TEYMAN = {
     zone = "LN_TEYMAN",
     label = "Teyman",
     captureFlag = 8213,
-    radius = 6000,
+    radius = 2000,
   },
 
   NEVATIM = {
     zone = "LN_NEVATIM",
     label = "Nevatim",
     captureFlag = 8214,
-    radius = 6000,
+    radius = 2000,
   },
 }
 
@@ -515,7 +515,7 @@ function CAMP_Net.DrawNode(nodeName)
 
   trigger.action.circleToAll(
     CAMP_Net.VISIBLE_TO, node.circleId, point,
-    node.radius or 6000, borderColor, fillColor, 2, true, ""
+    node.radius or 2000, borderColor, fillColor, 2, true, ""
   )
 
   local statusText = node.captured and "CAPTURADO" or "ENEMIGO"
@@ -628,13 +628,15 @@ local _zoneControl = {}
 
 -- Detecta unidades dentro de un radio usando DCS nativo.
 -- Más confiable que SET_UNIT:FilterZones en todas las versiones de MOOSE.
-local function _countUnitsInZone(zoneName, coalitionSide)
+-- Usa el radio del nodo (no el de la Trigger Zone del ME) para que el
+-- área de captura coincida siempre con el círculo dibujado en F10.
+local function _countUnitsInZone(zoneName, coalitionSide, radius)
   local z = trigger.misc.getZone(zoneName)
   if not z then return 0 end
 
   local count = 0
   local pos   = z.point
-  local radius = z.radius or 6000
+  radius = radius or 2000
 
   -- Iterar grupos de la coalición
   local groups = coalition.getGroups(coalitionSide, Group.Category.GROUND)
@@ -662,8 +664,8 @@ local function _checkZoneControl()
     -- Solo procesar nodos capturables (flag < 8200 = no es base fija)
     if node.zone and node.captureFlag and node.captureFlag < 8200 then
 
-      local blueCount = _countUnitsInZone(node.zone, coalition.side.BLUE)
-      local redCount  = _countUnitsInZone(node.zone, coalition.side.RED)
+      local blueCount = _countUnitsInZone(node.zone, coalition.side.BLUE, node.radius)
+      local redCount  = _countUnitsInZone(node.zone, coalition.side.RED, node.radius)
 
       if not _zoneControl[nodeName] then
         _zoneControl[nodeName] = { side = nil, since = now }
@@ -707,7 +709,7 @@ local function _checkZoneControl()
           if point and node.circleId then
             trigger.action.circleToAll(
               CAMP_Net.VISIBLE_TO, node.circleId, point,
-              node.radius or 6000,
+              node.radius or 2000,
               CAMP_Net.COLORS.YELLOW,
               {1, 1, 0, 0.15}, 2, true, ""
             )
