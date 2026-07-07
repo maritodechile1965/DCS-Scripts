@@ -63,6 +63,7 @@ CAMP_Net.NODE_TO_BASE = {
   RAYAK    = nil,
   DUMAYR   = nil,
   MEZZE    = "Mezzeh Air Base",
+  DAMAS    = "Damascus International Airport",
   MARJ     = nil,
   KALK     = nil,
   TALAH    = nil,
@@ -229,6 +230,13 @@ CAMP_Net.NODES = {
     radius = 6000,
   },
 
+  DAMAS = {
+    zone = "LN_DAMASCUS",
+    label = "Damascus Intl",
+    captureFlag = 8124,
+    radius = 6000,
+  },
+
   MARJ = {
     zone = "LN_MARJ",
     label = "Marj Ruhayyil",
@@ -383,6 +391,8 @@ CAMP_Net.EDGES = {
   { from = "SAYQAL",   to = "DUMAYR"  },
   { from = "RAYAK",    to = "MEZZE"   },
   { from = "MARJ",     to = "MEZZE"   },
+  { from = "DAMAS",    to = "MEZZE"   },
+  { from = "DAMAS",    to = "MARJ"    },
   { from = "MARJ",     to = "DUMAYR"  },
   { from = "MARJ",     to = "KALK"    },
   { from = "MARJ",     to = "TALAH"   },

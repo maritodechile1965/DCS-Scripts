@@ -56,6 +56,7 @@ EVT_Dispatcher.RegisteredEvents = {
     EVENTS.PlayerLeaveUnit,
     EVENTS.Hit,
     EVENTS.Shot,
+    EVENTS.MissionEnd,
 }
 
 --------------------------------------------------------------------------------
@@ -187,6 +188,10 @@ end
 
 function EVT_Dispatcher:OnEventShot(EventData)
     self:_Dispatch(EVENTS.Shot, EventData)
+end
+
+function EVT_Dispatcher:OnEventMissionEnd(EventData)
+    self:_Dispatch(EVENTS.MissionEnd, EventData)
 end
 
 --------------------------------------------------------------------------------
