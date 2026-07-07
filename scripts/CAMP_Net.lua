@@ -26,6 +26,12 @@ CAMP_Net.NEXT_ID        = CAMP_Net.MARK_ID_BASE
 CAMP_Net.FLAG_CHECK_INTERVAL = 2
 CAMP_Net.ALL_CAPTURED_FLAG   = 8199
 
+-- Los flags de captura (azul toma base roja) son los definidos en cada nodo.
+-- Los flags de reconquista (rojo retoma base azul) = captureFlag + 10000
+-- Ejemplo: SHAYRAT captureFlag=8113 → reconquista flag=18113
+-- Así no hay conflicto con ningún otro flag del sistema.
+CAMP_Net.RECAPTURE_FLAG_OFFSET = 10000
+
 CAMP_Net.COLORS = {
   GREEN  = {0, 1, 0, 0.90},
   YELLOW = {1, 1, 0, 0.90},
@@ -63,7 +69,6 @@ CAMP_Net.NODE_TO_BASE = {
   RAYAK    = nil,
   DUMAYR   = nil,
   MEZZE    = "Mezzeh Air Base",
-  DAMAS    = "Damascus International Airport",
   MARJ     = nil,
   KALK     = nil,
   TALAH    = nil,
@@ -230,13 +235,6 @@ CAMP_Net.NODES = {
     radius = 6000,
   },
 
-  DAMAS = {
-    zone = "LN_DAMASCUS",
-    label = "Damascus Intl",
-    captureFlag = 8124,
-    radius = 6000,
-  },
-
   MARJ = {
     zone = "LN_MARJ",
     label = "Marj Ruhayyil",
@@ -391,8 +389,6 @@ CAMP_Net.EDGES = {
   { from = "SAYQAL",   to = "DUMAYR"  },
   { from = "RAYAK",    to = "MEZZE"   },
   { from = "MARJ",     to = "MEZZE"   },
-  { from = "DAMAS",    to = "MEZZE"   },
-  { from = "DAMAS",    to = "MARJ"    },
   { from = "MARJ",     to = "DUMAYR"  },
   { from = "MARJ",     to = "KALK"    },
   { from = "MARJ",     to = "TALAH"   },
@@ -506,8 +502,13 @@ function CAMP_Net.DrawNode(nodeName)
   local point = CAMP_Net.GetZonePoint(node.zone)
   if not point then return end
 
+  -- Eliminar marcas anteriores
   CAMP_Net.RemoveMark(node.circleId)
   CAMP_Net.RemoveMark(node.markId)
+
+  -- Asignar IDs nuevos para evitar conflicto DCS con IDs reutilizados
+  node.circleId = CAMP_Net.NewId()
+  node.markId   = CAMP_Net.NewId()
 
   local borderColor = CAMP_Net.GetNodeColor(node)
   local fillColor   = { borderColor[1], borderColor[2], borderColor[3], 0.25 }
@@ -534,7 +535,14 @@ function CAMP_Net.DrawEdge(index)
   local pointA = CAMP_Net.GetZonePoint(nodeA.zone)
   local pointB = CAMP_Net.GetZonePoint(nodeB.zone)
   if not pointA or not pointB then return end
+
+  -- Eliminar la línea anterior
   CAMP_Net.RemoveMark(edge.lineId)
+
+  -- Asignar un ID nuevo para evitar el problema de DCS con IDs reutilizados
+  -- (DCS no siempre procesa RemoveMark antes del siguiente draw con el mismo ID)
+  edge.lineId = CAMP_Net.NewId()
+
   trigger.action.lineToAll(
     CAMP_Net.VISIBLE_TO, edge.lineId,
     pointA, pointB, CAMP_Net.GetEdgeColor(edge), 2, true, ""
@@ -550,17 +558,18 @@ function CAMP_Net.DrawAll()
   end
 end
 
--- Captura un nodo: actualiza estado local, notifica DATA_Core y redibuja.
+-- Captura un nodo: rojo → azul
 function CAMP_Net.CaptureNode(nodeName)
   local node = CAMP_Net.NODES[nodeName]
   if not node then return end
   if node.captured then
-    CAMP_Net.Msg(node.label .. " ya estaba capturado.", 10)
+    CAMP_Net.Msg(node.label .. " ya está bajo control AZUL.", 10)
     return
   end
 
   node.captured = true
-  CAMP_Net.Msg("BASE CAPTURADA: " .. node.label, 15)
+  CAMP_Net.Msg("✈ BASE CAPTURADA [AZUL]: " .. node.label, 20)
+  env.info("CAMP_Net :: CaptureNode: " .. nodeName .. " → AZUL")
 
   -- Notificar a DATA_Core y ZONE_State para persistencia
   local baseName = CAMP_Net.NODE_TO_BASE[nodeName]
@@ -576,16 +585,150 @@ function CAMP_Net.CaptureNode(nodeName)
   CAMP_Net.CheckAllCaptured()
 end
 
-function CAMP_Net.CheckCaptureFlags()
-  for nodeName, node in pairs(CAMP_Net.NODES) do
-    if node.captureFlag then
-      if trigger.misc.getUserFlag(node.captureFlag) == 1 then
-        trigger.action.setUserFlag(node.captureFlag, 0)
-        CAMP_Net.CaptureNode(nodeName)
+-- Reconquista un nodo: azul → rojo
+function CAMP_Net.ReleaseNode(nodeName)
+  local node = CAMP_Net.NODES[nodeName]
+  if not node then return end
+  if not node.captured then
+    CAMP_Net.Msg(node.label .. " ya está bajo control ROJO.", 10)
+    return
+  end
+
+  -- Bases fijas azules (flag >= 8200) no se pueden reconquistar
+  if node.captureFlag and node.captureFlag >= 8200 then
+    env.info("CAMP_Net :: ReleaseNode: " .. nodeName .. " es base fija azul, ignorado.")
+    return
+  end
+
+  node.captured = false
+  CAMP_Net.Msg("⚠ BASE RECONQUISTADA [ROJO]: " .. node.label, 20)
+  env.info("CAMP_Net :: ReleaseNode: " .. nodeName .. " → ROJO")
+
+  -- Notificar a DATA_Core y ZONE_State para persistencia
+  local baseName = CAMP_Net.NODE_TO_BASE[nodeName]
+  if baseName then
+    if ZONE_State and ZONE_State.CaptureBase then
+      ZONE_State.CaptureBase(baseName, "red")
+    elseif DATA_Core and DATA_Core.SetBaseCoalition then
+      DATA_Core.SetBaseCoalition(baseName, "red")
+    end
+  end
+
+  CAMP_Net.DrawAll()
+end
+
+-- Intervalo de chequeo de zonas en segundos
+CAMP_Net.ZONE_CHECK_INTERVAL = 5
+
+-- Tiempo mínimo de control antes de capturar (segundos)
+CAMP_Net.CAPTURE_DELAY = 10
+
+-- Tabla interna para trackear tiempo de control por zona
+local _zoneControl = {}
+
+-- Detecta unidades dentro de un radio usando DCS nativo.
+-- Más confiable que SET_UNIT:FilterZones en todas las versiones de MOOSE.
+local function _countUnitsInZone(zoneName, coalitionSide)
+  local z = trigger.misc.getZone(zoneName)
+  if not z then return 0 end
+
+  local count = 0
+  local pos   = z.point
+  local radius = z.radius or 6000
+
+  -- Iterar grupos de la coalición
+  local groups = coalition.getGroups(coalitionSide, Group.Category.GROUND)
+  for _, grp in ipairs(groups or {}) do
+    if grp and grp:isExist() then
+      for _, unit in ipairs(grp:getUnits() or {}) do
+        if unit and unit:isExist() and unit:isActive() then
+          local upos = unit:getPoint()
+          local dx = upos.x - pos.x
+          local dz = upos.z - pos.z
+          if math.sqrt(dx*dx + dz*dz) <= radius then
+            count = count + 1
+          end
+        end
       end
     end
   end
-  return timer.getTime() + CAMP_Net.FLAG_CHECK_INTERVAL
+  return count
+end
+
+local function _checkZoneControl()
+  local now = timer.getTime()
+
+  for nodeName, node in pairs(CAMP_Net.NODES) do
+    -- Solo procesar nodos capturables (flag < 8200 = no es base fija)
+    if node.zone and node.captureFlag and node.captureFlag < 8200 then
+
+      local blueCount = _countUnitsInZone(node.zone, coalition.side.BLUE)
+      local redCount  = _countUnitsInZone(node.zone, coalition.side.RED)
+
+      if not _zoneControl[nodeName] then
+        _zoneControl[nodeName] = { side = nil, since = now }
+      end
+      local zc = _zoneControl[nodeName]
+
+      if blueCount > 0 and redCount == 0 then
+        -- Solo azules
+        if zc.side ~= "blue" then
+          zc.side  = "blue"
+          zc.since = now
+          env.info(string.format("CAMP_Net :: %s bajo control azul (timer iniciado)", nodeName))
+        end
+        local elapsed = now - zc.since
+        if not node.captured and elapsed >= CAMP_Net.CAPTURE_DELAY then
+          CAMP_Net.CaptureNode(nodeName)
+        end
+
+      elseif redCount > 0 and blueCount == 0 then
+        -- Solo rojos
+        if zc.side ~= "red" then
+          zc.side  = "red"
+          zc.since = now
+          env.info(string.format("CAMP_Net :: %s bajo control rojo (timer iniciado)", nodeName))
+        end
+        local elapsed = now - zc.since
+        if node.captured and elapsed >= CAMP_Net.CAPTURE_DELAY then
+          CAMP_Net.ReleaseNode(nodeName)
+        end
+
+      elseif blueCount > 0 and redCount > 0 then
+        -- Zona en disputa
+        if zc.side ~= "contest" then
+          zc.side  = "contest"
+          zc.since = now
+          env.info(string.format("CAMP_Net :: %s EN DISPUTA", nodeName))
+        end
+        -- Redibujar en amarillo
+        pcall(function()
+          local point = CAMP_Net.GetZonePoint(node.zone)
+          if point and node.circleId then
+            trigger.action.circleToAll(
+              CAMP_Net.VISIBLE_TO, node.circleId, point,
+              node.radius or 6000,
+              CAMP_Net.COLORS.YELLOW,
+              {1, 1, 0, 0.15}, 2, true, ""
+            )
+          end
+        end)
+
+      else
+        -- Zona vacía: resetear timer
+        if zc.side ~= nil then
+          zc.side  = nil
+          zc.since = now
+        end
+      end
+    end
+  end
+
+  return now + CAMP_Net.ZONE_CHECK_INTERVAL
+end
+
+function CAMP_Net.CheckCaptureFlags()
+  return _checkZoneControl()
 end
 
 function CAMP_Net.CheckAllCaptured()
