@@ -1,136 +1,196 @@
 # 📊 Dashboard del Proyecto — DCS Scripting (MOOSE/MIST)
+**Mapa:** Siria · **Servidor:** 24/7 · **Sesiones:** ~3h · **Blue (humanos) vs Red (IA)**
 
-## ⏱️ Horas trabajadas
-| Sesión | Fecha | Inicio | Fin | Duración | Tema |
+---
+
+## ⏱️ SESIONES DE TRABAJO
+
+| # | Fecha | Inicio | Fin | Duración | Tema |
 |---|---|---|---|---|---|
-| 1 | 28/06/2026 | 23:20 | 00:20 (29/06) | 1h 00min | Creación de dashboard y arquitectura del Event Dispatcher |
-| 2 | 29/06/2026 | 00:30 | 01:50 | 1h 20min | Prueba de Event Handlers (EVT_Dispatcher + TEST_Handler) |
-| 3 | 29/06/2026 | 06:40 | 08:20 | 1h 40min | Actualización dashboard / Cierre validación EVT_Dispatcher (BaseCaptured) / Investigación clases MOOSE |
-| 4 | 29/06/2026 | 08:00 | 09:50 | 1h 50min | Diseño y escritura de DATA_Core v1 / Migración del proyecto a GitHub |
-| 5* | 29/06/2026 | 14:15 | ~21:15 | ~7h | Validación DATA_Core + PTS_Manager v2 + ledger ampliado (hora/avión/dominio/tipo) |
-| 6 | 30/06/2026 | 07:40 | 10:00 | 2h 20min | PTS_Manager Ground Impacts — validación targets terrestres |
-| 7 | 30/06/2026 | 11:30 | 14:00 | 2h 30min | PTS_Manager v3 + WEAPON tracking + mensajes pantalla + DATA_Export |
-| 8 | 01/07/2026 | 10:10 | 14:45 | 4h 35min | Estrategia grabación / Persistencia / CAMPAIGN_Manager / MissionsGenerator / Referencias_Tecnicas |
+| 1 | 28/06/2026 | 23:20 | 00:20 | 1h 00min | Dashboard inicial + arquitectura EVT_Dispatcher |
+| 2 | 29/06/2026 | 00:30 | 01:50 | 1h 20min | Prueba Event Handlers (EVT_Dispatcher + TEST_Handler) |
+| 3 | 29/06/2026 | 06:40 | 08:20 | 1h 40min | Validación BaseCaptured + investigación clases MOOSE |
+| 4 | 29/06/2026 | 08:00 | 09:50 | 1h 50min | DATA_Core v1 + migración a GitHub |
+| 5* | 29/06/2026 | 14:15 | ~21:15 | ~7h | Validación DATA_Core + PTS_Manager v1→v2 + ledger ampliado |
+| 6 | 30/06/2026 | 07:40 | 10:00 | 2h 20min | PTS_Manager Ground Impacts |
+| 7 | 30/06/2026 | 11:30 | 14:00 | 2h 30min | PTS_Manager v3 + WEAPON tracking + DATA_Export |
+| 8 | 01/07/2026 | 10:10 | 14:45 | 4h 35min | Estrategia grabación / CAMPAIGN_Manager / MissionsGenerator |
+| 9 | 02/07/2026 | 10:15 | 10:20 | 5 min | Visión global campaña + roadmap + MOOSE vs custom |
+| 10 | 02/07/2026 | 14:20 | 15:00 | 40 min | Resumen general + setup mapa Siria + recomendación unidades |
+| 11 | 02/07/2026 | 08:40 | 20:30 | 11h 50min | SAMs escenario + ZONE_State + persistencia bases + CAMP_Net |
+| 12 | 06/07/2026 | 22:00 | 23:59 | 1h 59min | Prueba Tabla bases Nodos |
 
-**Total acumulado: ~23h 25min**
+**Total acumulado sesiones 1-12: ~37h**
 *Sesión 5 extendida sin cierre formal intermedio.
 
 ---
 
-## ✅ Scripts terminados y funcionando
-- **EVT_Dispatcher.lua** — ✅ 13/13 eventos validados en juego.
-- **TEST_Handler.lua** — ✅ Cumplió su propósito de validación.
-- **DATA_Core.lua** — ✅ v1 VALIDADO EN JUEGO.
-  - Estructuras: Pilotos (con `aircraftType`), Coaliciones, Targets/Objetivos, Misiones activas, Ledger de puntos.
-  - 8 suscripciones: PlayerEnterUnit, Shot, Dead, Crash, Takeoff, Land, PilotDead, Ejection.
-  - API: `GetOrCreatePilot`, `GetPilot`, `SetPilotAircraftType`, `AddPilotPoints`, `CanFlyMissionToday`, `RegisterMissionFlown`, `ResetDailyCounters`, `AddLogbookEntry`, `RegisterShot`, `GetCoalition`, `AddCoalitionPoints`, `RegisterTarget`, `GetTarget`, `SetTargetDestroyed`, `CreateMission`, `GetMission`, `GetActiveMissions`, `AddPointsLedgerEntry`, `GetPointsLedger`, `PointsLedgerToCSV`.
+## 📋 RESUMEN POR SESIÓN
 
-- **PTS_Manager.lua** — ✅ v3 VALIDADO EN JUEGO (A-A y terrestre).
-  - Categorías: `TargetDestroyed`, `EnemyKill`, `BlueOnBlue`, `Collateral`, `OwnLoss`.
-  - Campos del ledger: `clockTime` (HH:MM:SS mundo DCS), `pilotId`, `pilotAircraft`, `coalition`, `category`, `domain` ("air"/"ground"), `amount`, `weapon`, `targetName`, `targetType`, `mgrs`, `reason`.
-  - Reparto proporcional de puntos entre contribuyentes.
-  - 3 fallbacks de dominio en `_onHit` y `_onDeadOrCrash`.
-  - Soporte para scenery DCS (object_id numérico) → `Collateral` + `domain="ground"`.
-  - Soporte para edificios estáticos colocados por el usuario via `RegisterTarget()`.
-  - **Pendiente validar:** `BlueOnBlue`, `TargetDestroyed` con piloto humano (todas las pruebas de terrestre fueron con IA).
-  - MGRS funciona para todos los hits reales (via DCS nativo en _onHit). MGRS para MISS es nil por decisión consciente: cuando MOOSE dispara el impact callback, el objeto DCS del arma ya fue destruido ("Object doesn't exist") — no es posible obtener la posición. Los tiros perdidos en terreno no necesitan posición exacta.
-  - targetType clasificado correctamente: VEHICLE, AIRCRAFT, BUILDING, STRUCTURE, SHIP via `Object.getCategory()` DCS nativo.
-  - Nueva estructura de mensajes en pantalla: `[SHOT] piloto | aeronave | arma | MGRS_lanzamiento` y `[IMPACT] objeto | tipo | MGRS | alt | arma | aeronave | piloto`
-  - **Pendiente validar:** BlueOnBlue, TargetDestroyed con piloto humano, WeaponLog con humano (actualmente 0 disparos porque todas las pruebas de terrestre fueron con IA).
+**Sesiones 1-4 (28-29/06):** Arquitectura event-driven, EVT_Dispatcher, DATA_Core v1, migración GitHub.
 
-- **DATA_Export.lua** — ✅ v1 IMPLEMENTADO (escritura a disco pendiente de validar en juego).
-  - Requiere `MissionScripting.lua` modificado para habilitar `io`/`lfs`/`os`.
-  - API: `WritePointsLedger`, `WriteWeaponLog`, `WriteAll`.
-  - Genera `DCS_Points_Ledger.csv` y `DCS_Weapon_Log.csv` en `<writedir>/Logs/`.
-  - Registra automáticamente un ítem en el menú F10 → Other → "Exportar logs (CSV)".
-  - **Modelo híbrido pendiente de construir** (ver sección "Pendiente en DATA_Export" más abajo): `WritePilotLog`, `WriteSessionLog`, detección de aterrizaje correcto.
+**Sesión 5 (29/06, extendida):** Validación DATA_Core. PTS_Manager v1→v2. Ledger ampliado con clockTime, pilotAircraft, domain, targetType. Validado en juego con derribo real.
+
+**Sesión 6 (30/06):** PTS_Manager targets terrestres validado. domain="ground" con 3 fallbacks. Soporte scenery DCS.
+
+**Sesión 7 (30/06):** PTS_Manager v3 con WEAPON tracking. Mensajes [SHOT]/[IMPACT]/[MISS]. DATA_Export v1 validado (CSV + F10).
+
+**Sesión 8 (01/07):** Estrategia grabación híbrida. MissionsGenerator.html. Diseño conceptual CAMPAIGN_Manager. Referencias_Tecnicas.md creado.
+
+**Sesiones 9-10 (02/07):** Visión global campaña formalizada. Roadmap por etapas. Setup mapa Siria (5 zonas, ~65-81 unidades). Progresión campaña en 4 fases.
+
+**Sesión 11 (02/07):** Análisis Test_CSAR.miz (428 unidades, sistemas SAM). Mapa táctico Siria dibujado. Decisión late activation por zona. DATA_Core ampliado con tabla _baseStates (20 bases azules + 9 rojas). ZONE_State.lua creado y validado en juego. DATA_Export ampliado (WriteBaseStates, RestoreBaseStates, grabación periódica). CAMP_Net.lua creado (LogNet renombrado + integración DATA_Core). Bug Lua 5.1 `continue` detectado y corregido. Nuevas misiones definidas (convoyes random, helis, CAPs, templates estáticos).
+
+**Sesión 12 (06/07):** Prueba de la tabla de bases y nodos (`_baseStates` / `LOGNET.NODES`/`EDGES`). `scripts/LogNet.lua` (duplicado) eliminado — `CAMP_Net.lua` queda como versión válida; `Mario_testArea/LogNet.lua` se mantiene como copia de pruebas/backup del usuario. Copia accidental `docs/DATA_Core.lua` eliminada.
 
 ---
 
-## 📋 Scripts pendientes por desarrollar (backlog)
-1. Warehouse Blue & Red
-2. Fighters Rojos (CAP/intercept enemigo)
-3. Escort Bombarderos
-4. Escort Transporte
-5. Transporte Suministros, paracaídas, combustible
-6. Transporte Soldados
-7. Soldados atacan Base Roja
-8. Rescate Soldados
-9. CSAR
-10. Ground Control
-11. LORD — GCI aéreo
-12. Bases CTLD
-13. Creación Template
-14. CarrierTemplate
-15. TemplateSpawn
-16. SkyNet Custom (IADS)
-17. 🔴 **TextToSpeech (PRIORIDAD ALTA)**
+## ✅ SCRIPTS EN PRODUCCIÓN
 
-### 💡 Ideas en evaluación
-- **Bajas colaterales** (futuro) — cruzar `object_id` numéricos del ledger contra catálogo de edificios del mapa para cuantificar daño civil/estructural. No prioritario.
-- TARS (`Ops.TARS`) — misiones de reconocimiento.
-- ~~SCORING (`Functional.Scoring`)~~ — descartado (bypasea EVT_Dispatcher, duplica DATA_Core, requiere os/io).
+| Script | Versión | Estado | Descripción |
+|---|---|---|---|
+| `EVT_Dispatcher.lua` | v1 | ✅ Validado 13/13 | Dispatcher central Pub/Sub sobre MOOSE EVENTHANDLER |
+| `TEST_Handler.lua` | v1 | ✅ Completado | Script de validación temporal — cumplió su propósito |
+| `DATA_Core.lua` | v2 | ✅ Validado | Base de datos en memoria + tabla _baseStates (29 bases) |
+| `PTS_Manager.lua` | v3 | ⚠️ Parcial | Scoring completo + WEAPON tracking. Pendiente: validar con piloto humano |
+| `DATA_Export.lua` | v2 | ✅ Validado | CSV + F10 + WriteBaseStates + RestoreBaseStates + timer configurable |
+| `ZONE_State.lua` | v1 | ✅ Validado | Persistencia bases, BaseCaptured handler, grabación automática |
+| `CAMP_Net.lua` | v1 | ✅ Listo | Red visual F10 de campaña (ex-LogNet) + integración DATA_Core |
 
----
-
-## 🎯 Pendientes para sesión 9 (validación PTS_Manager)
-1. Validar con **piloto humano disparando** (no IA): confirmar [SHOT]/[IMPACT] en pantalla, pilotAircraft en ledger, WeaponLog con datos reales
-2. Validar **BlueOnBlue** en juego
-3. Validar **TargetDestroyed** con piloto humano
-
-## 🏗️ Próximo gran bloque: CAMPAIGN_Manager (chat dedicado)
-- Escenario: **Siria** (cambio desde Golfo Pérsico — decidido sesión 8)
-- Módulos: `ZONE_State`, `MIS_Manager`, `TIMER_Manager`
-- Archivo de configuración: `MISSIONS_Config.lua` (Lua nativo, en el repo)
-- Ver diseño completo en `Ideas_Sueltas.md`
-
-## 🔧 Pendiente en DATA_Export (modelo híbrido)
-- Detectar "aterrizaje correcto" (Land + motor apagado + PlayerLeaveUnit)
-- `DATA_Export.WritePilotLog(pilotId)` → CSV individual del piloto
-- `DATA_Export.WriteSessionLog()` → CSV de sesión completa con timestamp
-- Persistencia: `DCS_Dead_Units.csv` para recrear destrucción entre sesiones
-
----
-
-## 🗂️ Infraestructura — GitHub
-- Repo: https://github.com/maritodechile1965/DCS-Scripts
-- Directorio local: `C:\Users\mario\Documents\DCS-Scripts`
-- Último commit confirmado: `0f5e9e4` (sincronizado)
-- Estructura:
-  ```
-  DCS-Scripts/
-  ├── readme.md / .gitignore
-  ├── docs/      (Dashboard_Proyecto.md, Dashboard_Visual.html, Referencias_MOOSE.md, Ideas_Sueltas.md, Checklist_Sesion.md, Referencias_Tecnicas.md)
-  ├── scripts/   (EVT_Dispatcher.lua, DATA_Core.lua, PTS_Manager.lua, DATA_Export.lua, TEST_Handler.lua)
-  └── prompts/   (Prompts_ClaudeCode_GitHub.md, Prompt_Estructura_Inicial_Repo.md, Prompt_Conectar_Push_GitHub.md)
-  ```
-
----
-
-## 🧷 Comandos — Carga loadfile() en Mission Editor
-
+### Orden de carga (Mission Editor — MISSION START)
 ```lua
 assert(loadfile("C:\\Users\\mario\\Saved Games\\DCS\\Scripts\\Moose.lua"))()
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\EVT_Dispatcher.lua"))()
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\DATA_Core.lua"))()
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\PTS_Manager.lua"))()
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\DATA_Export.lua"))()
+assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\ZONE_State.lua"))()
+assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua"))()
 ```
 
-Orden obligatorio. Doble barra invertida `\\` obligatoria en Lua.
+---
+
+## 🗺️ HOJA DE RUTA
+
+### ETAPA 1 — BASE ✅ (~23h — COMPLETADA)
+- [x] EVT_Dispatcher, DATA_Core, PTS_Manager, DATA_Export
+- [x] Ledger de puntos con todos los campos
+- [x] GitHub como fuente de verdad
+
+### ETAPA 2 — ZONA Y CAMPAÑA 🔄 EN PROGRESO (~30-35h)
+- [x] `ZONE_State.lua` — persistencia de bases entre sesiones ✅
+- [x] `CAMP_Net.lua` — red visual F10 de campaña ✅
+- [ ] `MISSIONS_Config.lua` — tabla de configuración de misiones
+- [ ] `MIS_Manager` — menú F10 dinámico de misiones
+- [ ] `TIMER_Manager` — timers de reconquista y ventanas de tiempo
+- [ ] Definir zonas Trigger en Mission Editor (LN_*)
+- [ ] Poblar MISSIONS_Config con misiones Fase 1
+
+### ETAPA 3 — PERSISTENCIA 🔄 EN PROGRESO (~12-15h)
+- [x] `DCS_Base_State.csv` — exportar/restaurar estados de bases ✅
+- [ ] `DCS_Dead_Units.csv` — unidades destruidas entre sesiones
+- [ ] Script de restauración de unidades destruidas
+- [ ] `DATA_Export.WritePilotLog()` + `WriteSessionLog()`
+- [ ] Detectar aterrizaje correcto (Land + PlayerLeaveUnit)
+
+### ETAPA 4 — CSAR DINÁMICO 🟡 (~8h con Ops.CSAR)
+### ETAPA 5 — WAREHOUSE Y ECONOMÍA 🟡 (~12h con Functional.Warehouse)
+### ETAPA 6 — IA ROJA 🟡 (~8h con EasyGCICAP + Mantis)
+### ETAPA 7 — WEB Y ANALYTICS 🟢 FUTURO (~35-40h)
 
 ---
 
-## 🏛️ Decisiones de arquitectura vigentes
-- Dispatcher central `EVT_Dispatcher` sobre MOOSE `EVENTHANDLER` (no Lua puro).
-- `DATA_Core` es la única fuente de estado del proyecto — los módulos no tocan tablas internas directamente.
-- `PTS_Manager` es "sin estado" — toda persistencia vive en `DATA_Core`.
-- Módulos se suscriben SOLO a los eventos que necesitan, agregando incrementalmente.
-- No usar `os` de Lua — usar `timer.getTime()` y `timer.getAbsTime()`.
-- `PointsLedgerToCSV()` genera el CSV en memoria; `DATA_Export.lua` ya implementa la escritura a disco (`WritePointsLedger`, `WriteWeaponLog`, `WriteAll`), pendiente de validar en juego con `os`/`io`/`lfs` habilitados en `MissionScripting.lua`. Modelo híbrido de grabación (por piloto + por sesión) pendiente de construir — ver `Ideas_Sueltas.md`.
-- Convención: `EVT_Dispatcher`, `DATA_Core`, prefijos `WH_` `CSAR_` `FTR_` `ESC_` `TRP_` `GC_` `CTLD_` `PTS_` `DATA_`, `PascalCase`/`camelCase`/`UPPER_SNAKE`.
-- No modificar scripts funcionando salvo necesidad justificada. Ningún código sin autorización previa.
-- GitHub como fuente de verdad única.
+## 🎯 PENDIENTES PARA SESIÓN 13
+
+1. **Validar PTS_Manager con piloto humano** — [SHOT]/[IMPACT] en pantalla, pilotAircraft en ledger, BlueOnBlue, TargetDestroyed
+2. **Crear Trigger Zones en Mission Editor** (LN_INCIR, LN_BASSEL, etc.) para que CAMP_Net pueda dibujar la red
+3. **Probar CAMP_Net en juego** — verificar que dibuja nodos y conexiones en F10
+4. **MISSIONS_Config.lua** — primeras misiones Fase 1 (simples, siempre disponibles)
+5. **Foto del F10 map** con zonas cargadas para diseñar CAMPAIGN_Manager
 
 ---
-*Última actualización: 01/07/2026 — Sesión 8 CERRADA (14:45)*
+
+## 🗺️ SETUP MAPA SIRIA (sesión 10-11)
+
+**Teatro:** Incirlik (norte) → Damasco (sur) · Chipre/Israel (oeste) · NFZ Jordania (sur)
+
+**Bases Azules:** Akrotiri · Ramat David · Carrier CVN-73 · Paphos + bases Israel
+
+**Zonas Rojas:**
+- Zona 1 — Costera (Latakia/Tartús): SA-10 + SA-11 · Base: Bassel Al-Assad
+- Zona 2 — Central (Homs/T-4): SA-6 + SA-15 + T-72 · Base: Shayrat/Tiyas
+- Zona 3 — Damasco: SA-10 + SA-8 + T-72/T-80 · Base: Mezzeh
+- Zona 4 — Líbano: SA-6 móvil + blindados (sin base aérea roja)
+- Zona 5 — Alepo (late activation): SA-10 · Base: Kuweires
+
+**Total activo:** ~65-81 unidades · Late activation por zona
+
+**Misiones adicionales definidas (sesión 11):**
+- Convoyes terrestres random (spawn dinámico, destinos random)
+- Helis enemigos con rutas random
+- CAPs rojas por sectores (siempre activas en zonas rojas)
+- Templates estáticos como blancos de oportunidad
+
+---
+
+## 🏗️ INFRAESTRUCTURA
+
+- **Repo:** https://github.com/maritodechile1965/DCS-Scripts
+- **Local:** `C:\Users\mario\Documents\DCS-Scripts`
+- **Docs:** `docs/` · **Scripts:** `scripts/` · **Prompts:** `prompts/`
+
+### Documentos clave
+| Archivo | Descripción |
+|---|---|
+| `Dashboard_Proyecto.md` | Este archivo — estado general |
+| `Dashboard_Visual.html` | Versión visual HUD del dashboard |
+| `Referencias_Tecnicas.md` | **DOCUMENTO MAESTRO** — visión, lecciones, patrones |
+| `Referencias_MOOSE.md` | Clases MOOSE evaluadas |
+| `Ideas_Sueltas.md` | Ideas futuras y decisiones de diseño |
+| `Checklist_Sesion.md` | Protocolo inicio/cierre de sesión |
+| `MissionsGenerator.html` | Generador visual MISSIONS_Config.lua (no va al repo) |
+
+---
+
+## 🏛️ DECISIONES DE ARQUITECTURA VIGENTES
+
+- **EVT_Dispatcher** como dispatcher central — no duplicar con `world.addEventHandler`
+- **DATA_Core** = única fuente de estado (incluye _baseStates con 29 bases)
+- **PTS_Manager** sin estado propio — escribe siempre a DATA_Core
+- **ZONE_State** gestiona persistencia de bases y graba automáticamente
+- **CAMP_Net** es la capa visual — sincroniza con DATA_Core al capturar nodos
+- No usar `os` de Lua — usar `timer.getTime()` / `timer.getAbsTime()`
+- Evaluar MOOSE antes de escribir código propio — ahorro estimado ~87h
+- Unidades con **nombres fijos** en Mission Editor (persistencia)
+- `pcall()` obligatorio en TODA llamada DCS/MOOSE
+- `continue` no existe en Lua 5.1 — usar `if/then` o `goto`
+- Nomenclatura: `EVT_` `DATA_` `PTS_` `ZONE_` `CAMP_` `WH_` `CSAR_` `FTR_`
+- GitHub como fuente de verdad única · ningún código sin autorización previa
+
+---
+
+## 📋 BACKLOG (17 ítems)
+
+| # | Nombre | Clase MOOSE | Etapa | Estado |
+|---|---|---|---|---|
+| 1 | Warehouse Blue & Red | `Functional.Warehouse` | 5 | ⏳ |
+| 2 | Fighters Rojos | `Ops.EasyGCICAP` | 6 | ⏳ |
+| 3 | Escort Bombarderos | `Functional.Escort` | 6 | ⏳ |
+| 4 | Escort Transporte | `Functional.Escort` | 6 | ⏳ |
+| 5 | Transporte Suministros | `Ops.OpsTransport` | 2 | ⏳ |
+| 6 | Transporte Soldados | `Ops.OpsTransport` | 2 | ⏳ |
+| 7 | Soldados Atacan Base Roja | custom | 2 | ⏳ |
+| 8 | Rescate Soldados | custom | 2 | ⏳ |
+| 9 | CSAR | `Ops.CSAR` | 4 | ⏳ |
+| 10 | Ground Control | `Core.MarkerOps_Base` | 2 | ⏳ |
+| 11 | LORD (GCI aéreo) | `Ops.EasyGCICAP` | 6 | ⏳ |
+| 12 | Bases CTLD | `Ops.CTLD` | 2 | ⏳ |
+| 13 | Creación Template | custom | 2 | ⏳ |
+| 14 | CarrierTemplate | `Ops.Airboss` | futura | ⏳ |
+| 15 | TemplateSpawn | `SPAWN` | 2 | ⏳ |
+| 16 | SkyNet Custom (IADS) | `Functional.Mantis` | 6 | ⏳ |
+| 17 | TextToSpeech 🔴 PRIORIDAD ALTA | SRS | transversal | ⏳ |
+
+---
+
+*Última actualización: 06/07/2026 — Sesión 12 CERRADA (23:59)*

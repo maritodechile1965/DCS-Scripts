@@ -1,192 +1,167 @@
 <div id="dcs-dash">
 <style>
-#dcs-dash {
-  --bg:#0b120f;--panel:#101a16;--panel-2:#14211b;--line:#24372e;
-  --hud:#39ff6a;--hud-dim:#1f7a3d;--amber:#ffb000;--red:#ff4d4d;
-  --text:#d8e8d8;--text-dim:#7fa08e;
-  font-family:'Share Tech Mono','Courier New',monospace;
-  background:var(--bg);color:var(--text);padding:28px;border-radius:6px;
-  max-width:980px;margin:0 auto;position:relative;overflow:hidden;
-}
-#dcs-dash::before{content:"";position:absolute;inset:0;
-  background:repeating-linear-gradient(0deg,rgba(57,255,106,0.025) 0px,rgba(57,255,106,0.025) 1px,transparent 1px,transparent 3px);
-  pointer-events:none;}
+#dcs-dash{--bg:#0b120f;--panel:#101a16;--panel-2:#14211b;--line:#24372e;--hud:#39ff6a;--hud-dim:#1f7a3d;--amber:#ffb000;--red:#ff4d4d;--text:#d8e8d8;--text-dim:#7fa08e;font-family:'Share Tech Mono','Courier New',monospace;background:var(--bg);color:var(--text);padding:28px;border-radius:6px;max-width:980px;margin:0 auto;position:relative;overflow:hidden;}
+#dcs-dash::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(57,255,106,0.025) 0px,rgba(57,255,106,0.025) 1px,transparent 1px,transparent 3px);pointer-events:none;}
 #dcs-dash *{box-sizing:border-box;}
-.hud-header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:22px;}
-.hud-title{font-size:22px;letter-spacing:3px;color:var(--hud);text-shadow:0 0 8px rgba(57,255,106,0.4);margin:0;}
-.hud-sub{font-size:11px;color:var(--text-dim);letter-spacing:2px;margin-top:4px;}
-.hud-clock{text-align:right;font-size:12px;color:var(--amber);letter-spacing:1px;}
-.section-label{font-size:12px;letter-spacing:3px;color:var(--text-dim);margin:28px 0 12px 0;display:flex;align-items:center;gap:8px;}
-.section-label::before{content:"▸";color:var(--hud);}
-.section-label::after{content:"";flex:1;height:1px;background:var(--line);}
-.hours-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
-.hour-card{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px 12px;text-align:center;}
-.hour-card .val{font-size:26px;color:var(--hud);font-weight:bold;}
-.hour-card .lbl{font-size:10px;color:var(--text-dim);letter-spacing:2px;margin-top:4px;}
-.session-table{width:100%;border-collapse:collapse;font-size:12px;}
-.session-table th{text-align:left;color:var(--text-dim);font-weight:normal;letter-spacing:1px;padding:6px 8px;border-bottom:1px solid var(--line);}
-.session-table td{padding:7px 8px;border-bottom:1px solid var(--line);color:var(--text);}
-.script-list{display:flex;flex-direction:column;gap:10px;}
-.script-item{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--hud-dim);border-radius:4px;padding:10px 14px;}
-.script-item.done{border-left-color:var(--hud);}
-.script-item.warn{border-left-color:var(--amber);}
-.script-top{display:flex;justify-content:space-between;align-items:center;font-size:13px;}
-.script-status{font-size:10px;letter-spacing:1px;padding:2px 8px;border-radius:10px;}
-.status-done{background:rgba(57,255,106,0.15);color:var(--hud);border:1px solid var(--hud);}
-.status-warn{background:rgba(255,176,0,0.15);color:var(--amber);border:1px solid var(--amber);}
-.progress-track{margin-top:8px;height:6px;background:#0a0f0c;border-radius:3px;overflow:hidden;}
-.progress-fill{height:100%;}
-.progress-fill.done{background:var(--hud);}
-.progress-fill.warn{background:var(--amber);}
-.points-table{width:100%;border-collapse:collapse;font-size:12px;}
-.points-table td{padding:6px 10px;border-bottom:1px solid var(--line);}
-.points-table .pos{color:var(--hud);}
-.points-table .neg{color:var(--red);}
-.points-table .neu{color:var(--text-dim);}
-.cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
-.cat-item{background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:8px 12px;font-size:12px;color:var(--text-dim);}
-.cat-item b{color:var(--text);}
-.backlog-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
-.backlog-item{background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:8px 12px;font-size:12px;color:var(--text-dim);display:flex;align-items:center;gap:8px;}
-.backlog-item.priority{border-left:3px solid var(--amber);color:var(--amber);}
-.backlog-item .num{color:var(--hud-dim);font-size:11px;min-width:18px;}
-.pending-list{display:flex;flex-direction:column;gap:6px;}
-.pending-item{font-size:12px;color:var(--text-dim);padding:6px 10px;border-left:2px solid var(--amber);}
-.pending-item b{color:var(--text);}
-.idea-list{display:flex;flex-direction:column;gap:6px;}
-.idea-item{font-size:12px;color:var(--text-dim);padding:6px 10px;border-left:2px solid var(--line);}
-.idea-item.discarded{border-left-color:var(--red);}
-.idea-item b{color:var(--text);}
-.infra-list{display:flex;flex-direction:column;gap:6px;}
-.infra-item{font-size:12px;color:var(--text-dim);padding:6px 10px;border-left:2px solid var(--hud-dim);}
-.infra-item b{color:var(--text);}
-.tree-box{background:#0a0f0c;border:1px solid var(--line);border-radius:4px;padding:10px 12px;font-size:12px;color:var(--hud);white-space:pre;overflow-x:auto;margin-top:8px;}
-.arch-box{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px;font-size:12px;color:var(--text-dim);line-height:1.7;}
-.arch-box b{color:var(--hud);}
-.arch-box code{background:#0a0f0c;color:var(--amber);padding:1px 5px;border-radius:3px;}
-@media(max-width:600px){.hours-grid{grid-template-columns:repeat(2,1fr);}.backlog-grid,.cat-grid{grid-template-columns:1fr;}}
+.hdr{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:22px;}
+.hdr-t{font-size:22px;letter-spacing:3px;color:var(--hud);text-shadow:0 0 8px rgba(57,255,106,0.4);margin:0;}
+.hdr-s{font-size:11px;color:var(--text-dim);letter-spacing:2px;margin-top:4px;}
+.hdr-c{text-align:right;font-size:12px;color:var(--amber);letter-spacing:1px;}
+.sl{font-size:12px;letter-spacing:3px;color:var(--text-dim);margin:28px 0 12px;display:flex;align-items:center;gap:8px;}
+.sl::before{content:"▸";color:var(--hud);}
+.sl::after{content:"";flex:1;height:1px;background:var(--line);}
+.hg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.hc{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:14px 12px;text-align:center;}
+.hc .v{font-size:26px;color:var(--hud);font-weight:bold;}
+.hc .l{font-size:10px;color:var(--text-dim);letter-spacing:2px;margin-top:4px;}
+.st{width:100%;border-collapse:collapse;font-size:11px;}
+.st th{text-align:left;color:var(--text-dim);font-weight:normal;letter-spacing:1px;padding:5px 8px;border-bottom:1px solid var(--line);}
+.st td{padding:6px 8px;border-bottom:1px solid var(--1a2a22, #1a2a22);color:var(--text);}
+.sl-list{display:flex;flex-direction:column;gap:8px;}
+.si{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--hud-dim);border-radius:4px;padding:10px 14px;}
+.si.done{border-left-color:var(--hud);}
+.si.warn{border-left-color:var(--amber);}
+.si.new_{border-left-color:#4d9fff;}
+.si-t{display:flex;justify-content:space-between;align-items:center;font-size:12px;}
+.ss{font-size:10px;letter-spacing:1px;padding:2px 8px;border-radius:10px;}
+.s-ok{background:rgba(57,255,106,0.15);color:var(--hud);border:1px solid var(--hud);}
+.s-w{background:rgba(255,176,0,0.15);color:var(--amber);border:1px solid var(--amber);}
+.s-n{background:rgba(77,159,255,0.15);color:#4d9fff;border:1px solid #4d9fff;}
+.pt{margin-top:7px;height:5px;background:#0a0f0c;border-radius:3px;overflow:hidden;}
+.pf{height:100%;}
+.pf.done{background:var(--hud);}
+.pf.warn{background:var(--amber);}
+.pf.new_{background:#4d9fff;}
+.rm{background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:9px 14px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;font-size:12px;}
+.rm.done{border-left:3px solid var(--hud);}
+.rm.curr{border-left:3px solid var(--amber);}
+.rm.fut{border-left:3px solid var(--hud-dim);}
+.rl{font-size:10px;padding:2px 8px;border-radius:8px;letter-spacing:1px;}
+.rl-ok{background:rgba(57,255,106,0.15);color:var(--hud);border:1px solid var(--hud);}
+.rl-c{background:rgba(255,176,0,0.15);color:var(--amber);border:1px solid var(--amber);}
+.rl-f{background:rgba(31,122,61,0.15);color:var(--hud-dim);border:1px solid var(--hud-dim);}
+.pl{display:flex;flex-direction:column;gap:5px;}
+.pi{font-size:12px;color:var(--text-dim);padding:6px 10px;border-left:2px solid var(--amber);}
+.pi.crit{border-left-color:var(--red);}
+.pi b{color:var(--text);}
+.bg{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;}
+.bi{background:var(--panel-2);border:1px solid var(--line);border-radius:4px;padding:7px 11px;font-size:11px;color:var(--text-dim);display:flex;align-items:center;gap:7px;}
+.bi.p{border-left:3px solid var(--amber);color:var(--amber);}
+.bi .n{color:var(--hud-dim);font-size:10px;min-width:18px;}
+.ab{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-size:12px;color:var(--text-dim);line-height:1.7;}
+.ab b{color:var(--hud);}
+.ab code{background:#0a0f0c;color:var(--amber);padding:1px 5px;border-radius:3px;}
+.tb{background:#0a0f0c;border:1px solid var(--line);border-radius:4px;padding:10px 12px;font-size:12px;color:var(--hud);white-space:pre;overflow-x:auto;margin-top:8px;}
+@media(max-width:600px){.hg,.bg{grid-template-columns:1fr;}}
 </style>
 
-<div class="hud-header">
-  <div>
-    <p class="hud-title">PROJECT DASHBOARD // DCS SCRIPTING</p>
-    <div class="hud-sub">MOOSE · MIST · LUA 5.1 — ARQUITECTURA EVENT-DRIVEN</div>
-  </div>
-  <div class="hud-clock">SESIÓN 8 CERRADA<br>01/07/2026 — 14:45</div>
+<div class="hdr">
+  <div><p class="hdr-t">PROJECT DASHBOARD // DCS SCRIPTING</p>
+  <div class="hdr-s">MOOSE · MIST · LUA 5.1 · SIRIA · BLUE (HUMANOS) vs RED (IA)</div></div>
+  <div class="hdr-c">SESIÓN 12 CERRADA<br>06/07/2026 — 23:59</div>
 </div>
 
-<div class="section-label">HORAS DE VUELO (DESARROLLO)</div>
-<div class="hours-grid">
-  <div class="hour-card"><div class="val">4.6h</div><div class="lbl">HOY</div></div>
-  <div class="hour-card"><div class="val">~23h</div><div class="lbl">SEMANA</div></div>
-  <div class="hour-card"><div class="val">~23h</div><div class="lbl">MES</div></div>
-  <div class="hour-card"><div class="val">~23h</div><div class="lbl">TOTAL</div></div>
+<div class="sl">HORAS DE VUELO</div>
+<div class="hg">
+  <div class="hc"><div class="v">1.98h</div><div class="l">HOY</div></div>
+  <div class="hc"><div class="v">~18h</div><div class="l">SEMANA</div></div>
+  <div class="hc"><div class="v">~37h</div><div class="l">MES</div></div>
+  <div class="hc"><div class="v">~37h</div><div class="l">TOTAL</div></div>
 </div>
 
-<div class="section-label">SESIONES REGISTRADAS</div>
-<table class="session-table">
+<div class="sl">SESIONES</div>
+<table class="st">
   <tr><th>#</th><th>Fecha</th><th>Inicio</th><th>Fin</th><th>Tema</th></tr>
-  <tr><td>1</td><td>28/06</td><td>23:20</td><td>00:20</td><td>Dashboard + arquitectura Event Dispatcher</td></tr>
-  <tr><td>2</td><td>29/06</td><td>00:30</td><td>01:50</td><td>Prueba de Event Handlers</td></tr>
-  <tr><td>3</td><td>29/06</td><td>06:40</td><td>08:20</td><td>Cierre BaseCaptured + investigación MOOSE</td></tr>
-  <tr><td>4</td><td>29/06</td><td>08:00</td><td>09:50</td><td>DATA_Core v1 + migración a GitHub</td></tr>
-  <tr><td>5*</td><td>29/06</td><td>14:15</td><td>~21:15</td><td>DATA_Core validado + PTS_Manager v2 + ledger ampliado</td></tr>
-  <tr><td>6</td><td>30/06</td><td>07:40</td><td>10:00</td><td>PTS_Manager Ground Impacts</td></tr>
-  <tr><td>7</td><td>30/06</td><td>11:30</td><td>14:00</td><td>PTS_Manager v3 + WEAPON tracking + DATA_Export</td></tr>
-  <tr><td>8</td><td>01/07</td><td>10:10</td><td>14:45</td><td>Estrategia grabación / Persistencia / CAMPAIGN_Manager / Referencias_Tecnicas</td></tr>
+  <tr><td>1-4</td><td>28-29/06</td><td>23:20</td><td>09:50</td><td style="color:var(--text-dim)">EVT_Dispatcher + DATA_Core + migración GitHub</td></tr>
+  <tr><td>5*</td><td>29/06</td><td>14:15</td><td>~21:15</td><td style="color:var(--text-dim)">DATA_Core validado + PTS_Manager v2 + ledger ampliado</td></tr>
+  <tr><td>6</td><td>30/06</td><td>07:40</td><td>10:00</td><td style="color:var(--text-dim)">PTS_Manager Ground Impacts</td></tr>
+  <tr><td>7</td><td>30/06</td><td>11:30</td><td>14:00</td><td style="color:var(--text-dim)">PTS_Manager v3 + WEAPON tracking + DATA_Export</td></tr>
+  <tr><td>8</td><td>01/07</td><td>10:10</td><td>14:45</td><td style="color:var(--text-dim)">Estrategia grabación / CAMPAIGN_Manager / MissionsGenerator</td></tr>
+  <tr><td>9</td><td>02/07</td><td>10:15</td><td>10:20</td><td style="color:var(--text-dim)">Visión global campaña + roadmap + MOOSE vs custom</td></tr>
+  <tr><td>10</td><td>02/07</td><td>14:20</td><td>15:00</td><td style="color:var(--text-dim)">Resumen + setup mapa Siria + recomendación unidades</td></tr>
+  <tr><td>11</td><td>02/07</td><td>08:40</td><td>20:30</td><td style="color:var(--text-dim)">SAMs + ZONE_State + persistencia + CAMP_Net</td></tr>
+  <tr><td>12</td><td>06/07</td><td>22:00</td><td>23:59</td><td style="color:var(--text-dim)">Prueba Tabla bases Nodos</td></tr>
 </table>
 
-<div class="section-label">SCRIPTS TERMINADOS Y FUNCIONANDO</div>
-<div class="script-list">
-  <div class="script-item done"><div class="script-top"><span>EVT_Dispatcher.lua</span><span class="script-status status-done">13/13 EVENTOS OK</span></div><div class="progress-track"><div class="progress-fill done" style="width:100%"></div></div></div>
-  <div class="script-item done"><div class="script-top"><span>TEST_Handler.lua</span><span class="script-status status-done">VALIDACIÓN COMPLETA</span></div><div class="progress-track"><div class="progress-fill done" style="width:100%"></div></div></div>
-  <div class="script-item done"><div class="script-top"><span>DATA_Core.lua</span><span class="script-status status-done">v1 VALIDADO + LEDGER</span></div><div class="progress-track"><div class="progress-fill done" style="width:100%"></div></div></div>
-  <div class="script-item done"><div class="script-top"><span>PTS_Manager.lua</span><span class="script-status status-done">v3 — SHOT/IMPACT/MISS</span></div><div class="progress-track"><div class="progress-fill done" style="width:100%"></div></div></div>
-  <div class="script-item done"><div class="script-top"><span>DATA_Export.lua</span><span class="script-status status-done">v1 VALIDADO — CSV + F10</span></div><div class="progress-track"><div class="progress-fill done" style="width:100%"></div></div></div>
+<div class="sl">SCRIPTS EN PRODUCCIÓN</div>
+<div class="sl-list">
+  <div class="si done"><div class="si-t"><span>EVT_Dispatcher.lua</span><span class="ss s-ok">13/13 EVENTOS ✅</span></div><div class="pt"><div class="pf done" style="width:100%"></div></div></div>
+  <div class="si done"><div class="si-t"><span>TEST_Handler.lua</span><span class="ss s-ok">COMPLETADO ✅</span></div><div class="pt"><div class="pf done" style="width:100%"></div></div></div>
+  <div class="si done"><div class="si-t"><span>DATA_Core.lua v2</span><span class="ss s-ok">VALIDADO + _baseStates ✅</span></div><div class="pt"><div class="pf done" style="width:100%"></div></div></div>
+  <div class="si warn"><div class="si-t"><span>PTS_Manager.lua v3</span><span class="ss s-w">PENDIENTE PILOTO HUMANO ⚠️</span></div><div class="pt"><div class="pf warn" style="width:85%"></div></div></div>
+  <div class="si done"><div class="si-t"><span>DATA_Export.lua v2</span><span class="ss s-ok">CSV + F10 + BaseStates + Timer ✅</span></div><div class="pt"><div class="pf done" style="width:100%"></div></div></div>
+  <div class="si new_"><div class="si-t"><span>ZONE_State.lua v1</span><span class="ss s-n">VALIDADO EN JUEGO ✅ NUEVO</span></div><div class="pt"><div class="pf new_" style="width:100%"></div></div></div>
+  <div class="si new_"><div class="si-t"><span>CAMP_Net.lua v1</span><span class="ss s-n">LISTO · PENDIENTE PRUEBA F10 🆕</span></div><div class="pt"><div class="pf new_" style="width:80%"></div></div></div>
 </div>
 
-<div class="section-label">PTS_MANAGER — PENDIENTES SESIÓN 7</div>
-<div class="pending-list">
-  <div class="pending-item"><b>MGRS nil (bombas GBU)</b> — EventData.Weapon no disponible en Hit para bombas caída libre. Decisión pendiente: ¿prioritario o revisión futura?</div>
-  <div class="pending-item"><b>targetType nil</b> — tipo de unidad terrestre no capturado correctamente.</div>
-  <div class="pending-item"><b>BlueOnBlue</b> — no validado en juego todavía.</div>
-  <div class="pending-item"><b>Piloto humano en targets terrestres</b> — todas las pruebas terrestres fueron con IA. Validar pilotAircraft y pilotId con humano.</div>
+<div class="sl">HOJA DE RUTA</div>
+<div class="rm done"><span>ETAPA 1 — Base (EVT + DATA + PTS + EXPORT)</span><span class="rl rl-ok">✅ ~23h</span></div>
+<div class="rm curr"><span>ETAPA 2 — Zona y Campaña (ZONE_State ✅ · CAMP_Net ✅ · MIS_Manager ⏳)</span><span class="rl rl-c">🔄 EN PROGRESO ~30h</span></div>
+<div class="rm curr"><span>ETAPA 3 — Persistencia (bases ✅ · unidades destruidas ⏳)</span><span class="rl rl-c">🔄 EN PROGRESO ~12h</span></div>
+<div class="rm fut"><span>ETAPA 4 — CSAR Dinámico (Ops.CSAR)</span><span class="rl rl-f">🟡 ~8h</span></div>
+<div class="rm fut"><span>ETAPA 5 — Warehouse y Economía</span><span class="rl rl-f">🟡 ~12h</span></div>
+<div class="rm fut"><span>ETAPA 6 — IA Roja (EasyGCICAP + Mantis)</span><span class="rl rl-f">🟡 ~8h</span></div>
+<div class="rm fut"><span>ETAPA 7 — Web y Analytics (Python + SQLite)</span><span class="rl rl-f">🟢 FUTURO ~38h</span></div>
+
+<div class="sl">PENDIENTES SESIÓN 13</div>
+<div class="pl">
+  <div class="pi crit"><b>Validar PTS_Manager con piloto humano</b> — [SHOT]/[IMPACT], BlueOnBlue, TargetDestroyed</div>
+  <div class="pi"><b>Crear Trigger Zones en Mission Editor</b> (LN_INCIR, LN_BASSEL, etc.) para CAMP_Net</div>
+  <div class="pi"><b>Probar CAMP_Net en juego</b> — verificar red F10 y captura de nodos</div>
+  <div class="pi"><b>MISSIONS_Config.lua</b> — primeras misiones Fase 1 simples</div>
+  <div class="pi"><b>Foto del F10 map</b> con zonas cargadas para diseñar CAMPAIGN_Manager</div>
 </div>
 
-<div class="section-label">PTS_MANAGER — CATEGORÍAS Y PUNTOS</div>
-<div class="cat-grid">
-  <div class="cat-item"><b>TargetDestroyed</b> — target oficial de misión</div>
-  <div class="cat-item"><b>EnemyKill</b> — unidad enemiga genérica</div>
-  <div class="cat-item"><b>BlueOnBlue</b> — fuego amigo (penaliza)</div>
-  <div class="cat-item"><b>Collateral</b> — scenery/sin atribución (neutro)</div>
-</div>
-<table class="points-table" style="margin-top:10px;">
-  <tr><td>TARGET_DESTROYED</td><td class="pos">+15</td></tr>
-  <tr><td>ENEMY_KILL</td><td class="pos">+10</td></tr>
-  <tr><td>OWN_LOSS</td><td class="neg">-10</td></tr>
-  <tr><td>BLUE_ON_BLUE</td><td class="neg">-20</td></tr>
-  <tr><td>COLLATERAL</td><td class="neu">0</td></tr>
-</table>
-
-<div class="section-label">BACKLOG — PENDIENTES (17)</div>
-<div class="backlog-grid">
-  <div class="backlog-item"><span class="num">01</span> Warehouse Blue &amp; Red</div>
-  <div class="backlog-item"><span class="num">02</span> Fighters Rojos</div>
-  <div class="backlog-item"><span class="num">03</span> Escort Bombarderos</div>
-  <div class="backlog-item"><span class="num">04</span> Escort Transporte</div>
-  <div class="backlog-item"><span class="num">05</span> Transporte Suministros</div>
-  <div class="backlog-item"><span class="num">06</span> Transporte Soldados</div>
-  <div class="backlog-item"><span class="num">07</span> Soldados Atacan Base Roja</div>
-  <div class="backlog-item"><span class="num">08</span> Rescate Soldados</div>
-  <div class="backlog-item"><span class="num">09</span> CSAR</div>
-  <div class="backlog-item"><span class="num">10</span> Ground Control</div>
-  <div class="backlog-item"><span class="num">11</span> LORD — GCI aéreo</div>
-  <div class="backlog-item"><span class="num">12</span> Bases CTLD</div>
-  <div class="backlog-item"><span class="num">13</span> Creación Template</div>
-  <div class="backlog-item"><span class="num">14</span> CarrierTemplate</div>
-  <div class="backlog-item"><span class="num">15</span> TemplateSpawn</div>
-  <div class="backlog-item"><span class="num">16</span> SkyNet Custom (IADS)</div>
-  <div class="backlog-item priority" style="grid-column:span 2;"><span class="num">17</span> TextToSpeech (PRIORIDAD ALTA)</div>
+<div class="sl">SETUP MAPA SIRIA</div>
+<div class="ab">
+  <b>Bases Azules:</b> Akrotiri · Ramat David · CVN-73 · Paphos · Larnaca · Gecitkale · Ercan + 13 bases Israel<br>
+  <b>NFZ:</b> Jordania y zona sur<br>
+  <b>Zona 1 Costera:</b> SA-10 + SA-11 · Bassel Al-Assad<br>
+  <b>Zona 2 Central:</b> SA-6 + SA-15 + T-72 · Shayrat/Tiyas<br>
+  <b>Zona 3 Damasco:</b> SA-10 + SA-8 + T-72/T-80 · Mezzeh<br>
+  <b>Zona 4 Líbano:</b> SA-6 móvil + blindados (sin base aérea)<br>
+  <b>Zona 5 Alepo (late activation):</b> SA-10 · Kuweires<br>
+  <b>Activo simultáneo:</b> ~65-81 unidades · Late activation por zona
 </div>
 
-<div class="section-label">IDEAS EN EVALUACIÓN</div>
-<div class="idea-list">
-  <div class="idea-item"><b>Bajas colaterales</b> (futuro) — cruzar object_id del ledger con catálogo de edificios del mapa DCS.</div>
-  <div class="idea-item"><b>TARS</b> — misiones de reconocimiento, sigue en evaluación.</div>
-  <div class="idea-item discarded"><b>Functional.Scoring (MOOSE)</b> — descartado: bypasea EVT_Dispatcher, duplica DATA_Core, requiere os/io.</div>
-</div>
-
-<div class="section-label">INFRAESTRUCTURA — GITHUB</div>
-<div class="infra-list">
-  <div class="infra-item"><b>Repo:</b> github.com/maritodechile1965/DCS-Scripts — fuente de verdad única.</div>
-  <div class="infra-item"><b>Local:</b> C:\Users\mario\Documents\DCS-Scripts\scripts\</div>
-  <div class="infra-item"><b>Último commit:</b> 0f5e9e4 — sincronizado ✅</div>
-</div>
-<div class="tree-box">DCS-Scripts/
-├── readme.md / .gitignore
-├── docs/      (dashboards, referencias, ideas, checklist)
-├── scripts/   (EVT_Dispatcher, DATA_Core, PTS_Manager, DATA_Export, TEST_Handler)
-└── prompts/   (inicio, fin, estructura, conectar)</div>
-
-<div class="section-label">COMANDOS — CARGA loadfile() EN MISSION EDITOR</div>
-<div class="arch-box">
-  <div style="color:var(--text-dim);margin-bottom:6px;">// DO SCRIPT FILE — Trigger: MISSION START — orden obligatorio</div>
-  <div style="background:#0a0f0c;border:1px solid var(--line);border-radius:4px;padding:10px 12px;color:var(--amber);overflow-x:auto;white-space:pre;">assert(loadfile("C:\\Users\\mario\\Saved Games\\DCS\\Scripts\\Moose.lua"))()
+<div class="sl">LOADFILE — MISSION EDITOR</div>
+<div class="tb">assert(loadfile("C:\\Users\\mario\\Saved Games\\DCS\\Scripts\\Moose.lua"))()
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\EVT_Dispatcher.lua"))()
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\DATA_Core.lua"))()
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\PTS_Manager.lua"))()
-assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\DATA_Export.lua"))()</div>
-  <div style="color:var(--text-dim);margin-top:8px;">Orden: Moose.lua → EVT_Dispatcher.lua → DATA_Core.lua → PTS_Manager.lua → DATA_Export.lua · doble \\ obligatoria</div>
+assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\DATA_Export.lua"))()
+assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\ZONE_State.lua"))()
+assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua"))()</div>
+
+<div class="sl">BACKLOG — 17 ÍTEMS</div>
+<div class="bg">
+  <div class="bi"><span class="n">01</span> Warehouse Blue &amp; Red</div>
+  <div class="bi"><span class="n">02</span> Fighters Rojos</div>
+  <div class="bi"><span class="n">03</span> Escort Bombarderos</div>
+  <div class="bi"><span class="n">04</span> Escort Transporte</div>
+  <div class="bi"><span class="n">05</span> Transporte Suministros</div>
+  <div class="bi"><span class="n">06</span> Transporte Soldados</div>
+  <div class="bi"><span class="n">07</span> Soldados Atacan Base Roja</div>
+  <div class="bi"><span class="n">08</span> Rescate Soldados</div>
+  <div class="bi"><span class="n">09</span> CSAR</div>
+  <div class="bi"><span class="n">10</span> Ground Control</div>
+  <div class="bi"><span class="n">11</span> LORD — GCI aéreo</div>
+  <div class="bi"><span class="n">12</span> Bases CTLD</div>
+  <div class="bi"><span class="n">13</span> Creación Template</div>
+  <div class="bi"><span class="n">14</span> CarrierTemplate</div>
+  <div class="bi"><span class="n">15</span> TemplateSpawn</div>
+  <div class="bi"><span class="n">16</span> SkyNet Custom (IADS)</div>
+  <div class="bi p" style="grid-column:span 2"><span class="n">17</span> TextToSpeech 🔴 PRIORIDAD ALTA</div>
 </div>
 
-<div class="section-label">ARQUITECTURA VIGENTE</div>
-<div class="arch-box">
-  Dispatcher: <b>EVT_Dispatcher</b> (MOOSE <code>EVENTHANDLER</code>) · Estado: <b>DATA_Core</b> (única fuente de verdad)<br>
-  <b>PTS_Manager</b> sin estado propio — escribe siempre a DATA_Core<br>
-  Módulos suscriben SOLO a eventos necesarios — agregar incrementalmente<br>
-  No usar <code>os</code> — usar <code>timer.getTime()</code> / <code>timer.getAbsTime()</code><br>
-  Prefijos: <code>WH_</code> <code>CSAR_</code> <code>FTR_</code> <code>ESC_</code> <code>TRP_</code> <code>GC_</code> <code>CTLD_</code> <code>PTS_</code> <code>DATA_</code><br>
-  Regla: no modificar scripts funcionando · ningún código sin autorización previa
+<div class="sl">ARQUITECTURA VIGENTE</div>
+<div class="ab">
+  <b>EVT_Dispatcher</b> → dispatcher central · <b>DATA_Core</b> → única fuente de estado<br>
+  <b>ZONE_State</b> → persistencia bases + grabación automática · <b>CAMP_Net</b> → red visual F10<br>
+  <b>PTS_Manager</b> sin estado propio · No usar <code>os</code> → <code>timer.getAbsTime()</code><br>
+  <code>continue</code> no existe en Lua 5.1 → usar <code>if/then</code><br>
+  Evaluar MOOSE antes de escribir código propio<br>
+  <code>pcall()</code> obligatorio · nombres fijos en Mission Editor · GitHub = fuente de verdad
 </div>
 
 </div>
