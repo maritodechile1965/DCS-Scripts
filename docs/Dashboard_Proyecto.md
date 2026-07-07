@@ -59,7 +59,7 @@
 | `PTS_Manager.lua` | v3 | ⚠️ Parcial | Scoring completo + WEAPON tracking. Pendiente: validar con piloto humano |
 | `DATA_Export.lua` | v2 | ✅ Validado | CSV + F10 + WriteBaseStates + RestoreBaseStates + timer configurable |
 | `ZONE_State.lua` | v1 | ✅ Validado | Persistencia bases, BaseCaptured handler, grabación automática |
-| `CAMP_Net.lua` | v1 | ✅ Listo | Red visual F10 de campaña (ex-LogNet) + integración DATA_Core |
+| `CAMP_Net.lua` | v2 | ✅ Listo | Red visual F10 de campaña + captura/reconquista por presencia de unidades en zona (reemplaza sistema de flags) + integración DATA_Core |
 
 ### Orden de carga (Mission Editor — MISSION START)
 ```lua
@@ -107,8 +107,8 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 ## 🎯 PENDIENTES PARA SESIÓN 14
 
 1. **Validar PTS_Manager con piloto humano** — [SHOT]/[IMPACT] en pantalla, pilotAircraft en ledger, BlueOnBlue, TargetDestroyed
-2. **Crear Trigger Zones en Mission Editor** (LN_INCIR, LN_BASSEL, LN_DAMASCUS, etc.) para que CAMP_Net pueda dibujar la red
-3. **Probar CAMP_Net en juego** — verificar que dibuja nodos y conexiones en F10
+2. **Crear Trigger Zones en Mission Editor** (LN_INCIR, LN_BASSEL, etc. — ya NO incluye `LN_DAMASCUS`, nodo `DAMAS` removido) para que CAMP_Net pueda dibujar la red
+3. **Probar CAMP_Net en juego** — verificar dibujo de nodos/conexiones en F10, captura por presencia de unidades (~10s), reconquista roja y zona en disputa (amarillo)
 4. **MISSIONS_Config.lua** — primeras misiones Fase 1 (simples, siempre disponibles)
 5. **Foto del F10 map** con zonas cargadas para diseñar CAMPAIGN_Manager
 
@@ -122,6 +122,25 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 | 2 | `EVT_Dispatcher` no registraba `EVENTS.MissionEnd` → la grabación automática de `ZONE_State` al cerrar la misión nunca se ejecutaba | ✅ Corregido — agregado `EVENTS.MissionEnd` a `RegisteredEvents` + `OnEventMissionEnd` | `3d72cff` |
 | 3 | `CAMP_Net` no tenía nodo para `"Damascus International Airport"` (existía en `DATA_Core._baseStates` pero sin representación visual ni forma de capturarse desde F10) | ✅ Corregido — nodo `DAMAS` agregado (zona `LN_DAMASCUS`, flag 8124) | `3d72cff` |
 | 4 | Idea **TARS** (`Ideas_Sueltas.md`) nunca pasó al backlog oficial de 17 ítems | ✅ Corregido — agregada como ítem #18 (`Ops.TARS`, etapa 4) | — |
+
+---
+
+## 🔧 MEJORAS CAMP_Net (07/07, post-cierre sesión 13)
+
+Trabajo posterior al cierre formal de la sesión 13, sobre `CAMP_Net.lua`:
+
+| # | Cambio | Commit |
+|---|---|---|
+| 1 | Sistema de **reconquista** rojo→azul: `CAMP_Net.ReleaseNode()`. Las bases azules fijas (`captureFlag >= 8200`) nunca son reconquistables | `7c77dae` |
+| 2 | Captura/reconquista pasa de flags de DCS (`getUserFlag`) a **detección de presencia de unidades en zona** en tiempo real, con debounce de 10s (`CAPTURE_DELAY`) y detección de zona en disputa (ambos bandos presentes → círculo amarillo) | `7c77dae` |
+| 3 | Nodo `DAMAS` (Damascus International) **removido** de la red — revierte la incorporación de la sesión 13 | `7c77dae` |
+| 4 | Fix de IDs de marcas/líneas: `DrawNode`/`DrawEdge` generan IDs nuevos en cada redibujo (bug conocido de DCS con `RemoveMark` + reutilización de ID) | `7c77dae` |
+| 5 | Radio de captura unificado a **2000m** — antes el círculo visual usaba `node.radius` (6000m) pero la detección real usaba el radio de la Trigger Zone del Mission Editor, pudiendo no coincidir | `c4a0b92` |
+| 6 | Limpieza de flags muertos: `RECAPTURE_FLAG_OFFSET` y `FLAG_CHECK_INTERVAL` no se usaban en ningún lado tras el cambio a detección por zona | `b991626` |
+| 7 | Optimización: `coalition.getGroups()` pasa de llamarse ~48 veces por ciclo (2 bandos × 24 nodos) a solo 2 veces por ciclo, reutilizando la lista de posiciones para todos los nodos | `e0d32ed` |
+| 8 | Fix visual: el círculo de una zona en disputa ya no se queda "pegado" en amarillo al volver a control de un solo bando — se redibuja de inmediato | `e0d32ed` |
+
+**Pendiente:** validar todo esto en juego (ver PENDIENTES PARA SESIÓN 14, ítem 3). Los cambios 1-4 no fueron revisados por Claude Code al momento de escribirse (ya estaban en el working tree al iniciar esta conversación); 5-8 sí.
 
 ---
 
@@ -174,6 +193,7 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 - **PTS_Manager** sin estado propio — escribe siempre a DATA_Core
 - **ZONE_State** gestiona persistencia de bases y graba automáticamente
 - **CAMP_Net** es la capa visual — sincroniza con DATA_Core al capturar nodos
+- Captura/reconquista de nodos en **CAMP_Net** se decide por presencia de unidades terrestres en la zona (no por flags de DCS)
 - No usar `os` de Lua — usar `timer.getTime()` / `timer.getAbsTime()`
 - Evaluar MOOSE antes de escribir código propio — ahorro estimado ~87h
 - Unidades con **nombres fijos** en Mission Editor (persistencia)
@@ -209,4 +229,4 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 
 ---
 
-*Última actualización: 07/07/2026 — Sesión 13 CERRADA (00:53)*
+*Última actualización: 07/07/2026 — Sesión 13 CERRADA (00:53) + mejoras CAMP_Net posteriores (ver sección arriba)*

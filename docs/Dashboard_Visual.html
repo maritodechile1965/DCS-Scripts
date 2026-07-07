@@ -58,15 +58,15 @@
 <div class="hdr">
   <div><p class="hdr-t">PROJECT DASHBOARD // DCS SCRIPTING</p>
   <div class="hdr-s">MOOSE · MIST · LUA 5.1 · SIRIA · BLUE (HUMANOS) vs RED (IA)</div></div>
-  <div class="hdr-c">SESIÓN 12 CERRADA<br>06/07/2026 — 23:59</div>
+  <div class="hdr-c">SESIÓN 13 CERRADA<br>08/07/2026 — 00:53<br><span style="color:var(--text-dim)">+ mejoras CAMP_Net 07/07</span></div>
 </div>
 
 <div class="sl">HORAS DE VUELO</div>
 <div class="hg">
-  <div class="hc"><div class="v">1.98h</div><div class="l">HOY</div></div>
-  <div class="hc"><div class="v">~18h</div><div class="l">SEMANA</div></div>
-  <div class="hc"><div class="v">~37h</div><div class="l">MES</div></div>
-  <div class="hc"><div class="v">~37h</div><div class="l">TOTAL</div></div>
+  <div class="hc"><div class="v">2.9h</div><div class="l">HOY</div></div>
+  <div class="hc"><div class="v">~21h</div><div class="l">SEMANA</div></div>
+  <div class="hc"><div class="v">~40h</div><div class="l">MES</div></div>
+  <div class="hc"><div class="v">~40h</div><div class="l">TOTAL</div></div>
 </div>
 
 <div class="sl">SESIONES</div>
@@ -81,7 +81,9 @@
   <tr><td>10</td><td>02/07</td><td>14:20</td><td>15:00</td><td style="color:var(--text-dim)">Resumen + setup mapa Siria + recomendación unidades</td></tr>
   <tr><td>11</td><td>02/07</td><td>08:40</td><td>20:30</td><td style="color:var(--text-dim)">SAMs + ZONE_State + persistencia + CAMP_Net</td></tr>
   <tr><td>12</td><td>06/07</td><td>22:00</td><td>23:59</td><td style="color:var(--text-dim)">Prueba Tabla bases Nodos</td></tr>
+  <tr><td>13*</td><td>07/07</td><td>22:00</td><td>00:53</td><td style="color:var(--text-dim)">Revisión código vs dashboard (4 inconsistencias) + reorganización git</td></tr>
 </table>
+<div style="font-size:10px;color:var(--text-dim);margin-top:4px">*Sesión 13 cruza medianoche (termina 08/07 00:53). Mejoras adicionales a CAMP_Net el 07/07 tras el cierre — ver sección abajo.</div>
 
 <div class="sl">SCRIPTS EN PRODUCCIÓN</div>
 <div class="sl-list">
@@ -91,7 +93,18 @@
   <div class="si warn"><div class="si-t"><span>PTS_Manager.lua v3</span><span class="ss s-w">PENDIENTE PILOTO HUMANO ⚠️</span></div><div class="pt"><div class="pf warn" style="width:85%"></div></div></div>
   <div class="si done"><div class="si-t"><span>DATA_Export.lua v2</span><span class="ss s-ok">CSV + F10 + BaseStates + Timer ✅</span></div><div class="pt"><div class="pf done" style="width:100%"></div></div></div>
   <div class="si new_"><div class="si-t"><span>ZONE_State.lua v1</span><span class="ss s-n">VALIDADO EN JUEGO ✅ NUEVO</span></div><div class="pt"><div class="pf new_" style="width:100%"></div></div></div>
-  <div class="si new_"><div class="si-t"><span>CAMP_Net.lua v1</span><span class="ss s-n">LISTO · PENDIENTE PRUEBA F10 🆕</span></div><div class="pt"><div class="pf new_" style="width:80%"></div></div></div>
+  <div class="si new_"><div class="si-t"><span>CAMP_Net.lua v2</span><span class="ss s-n">RECONQUISTA + CAPTURA POR ZONA · PENDIENTE PRUEBA F10 🆕</span></div><div class="pt"><div class="pf new_" style="width:85%"></div></div></div>
+</div>
+
+<div class="sl">MEJORAS CAMP_Net (07/07, post-cierre sesión 13)</div>
+<div class="ab">
+  <b>Reconquista</b> rojo→azul (<code>ReleaseNode</code>, bases fijas azules nunca reconquistables)<br>
+  <b>Captura por zona en tiempo real</b> — reemplaza flags de DCS por conteo de unidades en radio, debounce 10s<br>
+  Nodo <b>DAMAS</b> removido de la red (revierte incorporación sesión 13)<br>
+  <b>Radio de captura unificado a 2000m</b> (antes desalineado entre círculo visual y detección real)<br>
+  Limpieza de flags muertos (<code>RECAPTURE_FLAG_OFFSET</code>, <code>FLAG_CHECK_INTERVAL</code>)<br>
+  <b>Optimización:</b> escaneo de unidades 1x por bando por ciclo (antes ~48x)<br>
+  Fix visual: círculo de zona en disputa ya no queda pegado en amarillo
 </div>
 
 <div class="sl">HOJA DE RUTA</div>
@@ -103,11 +116,11 @@
 <div class="rm fut"><span>ETAPA 6 — IA Roja (EasyGCICAP + Mantis)</span><span class="rl rl-f">🟡 ~8h</span></div>
 <div class="rm fut"><span>ETAPA 7 — Web y Analytics (Python + SQLite)</span><span class="rl rl-f">🟢 FUTURO ~38h</span></div>
 
-<div class="sl">PENDIENTES SESIÓN 13</div>
+<div class="sl">PENDIENTES SESIÓN 14</div>
 <div class="pl">
   <div class="pi crit"><b>Validar PTS_Manager con piloto humano</b> — [SHOT]/[IMPACT], BlueOnBlue, TargetDestroyed</div>
-  <div class="pi"><b>Crear Trigger Zones en Mission Editor</b> (LN_INCIR, LN_BASSEL, etc.) para CAMP_Net</div>
-  <div class="pi"><b>Probar CAMP_Net en juego</b> — verificar red F10 y captura de nodos</div>
+  <div class="pi"><b>Crear Trigger Zones en Mission Editor</b> (LN_INCIR, LN_BASSEL, etc. — ya NO incluye LN_DAMASCUS) para CAMP_Net</div>
+  <div class="pi"><b>Probar CAMP_Net en juego</b> — dibujo F10, captura por unidades (~10s), reconquista, zona en disputa</div>
   <div class="pi"><b>MISSIONS_Config.lua</b> — primeras misiones Fase 1 simples</div>
   <div class="pi"><b>Foto del F10 map</b> con zonas cargadas para diseñar CAMPAIGN_Manager</div>
 </div>
@@ -133,7 +146,7 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\DATA_Export.
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\ZONE_State.lua"))()
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua"))()</div>
 
-<div class="sl">BACKLOG — 17 ÍTEMS</div>
+<div class="sl">BACKLOG — 18 ÍTEMS</div>
 <div class="bg">
   <div class="bi"><span class="n">01</span> Warehouse Blue &amp; Red</div>
   <div class="bi"><span class="n">02</span> Fighters Rojos</div>
@@ -152,12 +165,13 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
   <div class="bi"><span class="n">15</span> TemplateSpawn</div>
   <div class="bi"><span class="n">16</span> SkyNet Custom (IADS)</div>
   <div class="bi p" style="grid-column:span 2"><span class="n">17</span> TextToSpeech 🔴 PRIORIDAD ALTA</div>
+  <div class="bi" style="grid-column:span 2"><span class="n">18</span> TARS — Reconocimiento fotográfico</div>
 </div>
 
 <div class="sl">ARQUITECTURA VIGENTE</div>
 <div class="ab">
   <b>EVT_Dispatcher</b> → dispatcher central · <b>DATA_Core</b> → única fuente de estado<br>
-  <b>ZONE_State</b> → persistencia bases + grabación automática · <b>CAMP_Net</b> → red visual F10<br>
+  <b>ZONE_State</b> → persistencia bases + grabación automática · <b>CAMP_Net</b> → red visual F10, captura por presencia de unidades<br>
   <b>PTS_Manager</b> sin estado propio · No usar <code>os</code> → <code>timer.getAbsTime()</code><br>
   <code>continue</code> no existe en Lua 5.1 → usar <code>if/then</code><br>
   Evaluar MOOSE antes de escribir código propio<br>
