@@ -622,32 +622,32 @@ CAMP_Net.CAPTURE_DELAY = 10
 -- Tabla interna para trackear tiempo de control por zona
 local _zoneControl = {}
 
--- Detecta unidades dentro de un radio usando DCS nativo.
--- Más confiable que SET_UNIT:FilterZones en todas las versiones de MOOSE.
--- Usa el radio del nodo (no el de la Trigger Zone del ME) para que el
--- área de captura coincida siempre con el círculo dibujado en F10.
-local function _countUnitsInZone(zoneName, coalitionSide, radius)
-  local z = trigger.misc.getZone(zoneName)
-  if not z then return 0 end
-
-  local count = 0
-  local pos   = z.point
-  radius = radius or 2000
-
-  -- Iterar grupos de la coalición
+-- Obtiene la posición de todas las unidades terrestres vivas de una
+-- coalición de una sola vez (en vez de volver a llamar coalition.getGroups
+-- por cada nodo), para no repetir el escaneo completo ~24 veces por ciclo.
+local function _getGroundUnitPositions(coalitionSide)
+  local positions = {}
   local groups = coalition.getGroups(coalitionSide, Group.Category.GROUND)
   for _, grp in ipairs(groups or {}) do
     if grp and grp:isExist() then
       for _, unit in ipairs(grp:getUnits() or {}) do
         if unit and unit:isExist() and unit:isActive() then
-          local upos = unit:getPoint()
-          local dx = upos.x - pos.x
-          local dz = upos.z - pos.z
-          if math.sqrt(dx*dx + dz*dz) <= radius then
-            count = count + 1
-          end
+          positions[#positions + 1] = unit:getPoint()
         end
       end
+    end
+  end
+  return positions
+end
+
+-- Cuenta cuántas posiciones caen dentro de un radio (distancia horizontal).
+local function _countInRadius(positions, center, radius)
+  local count = 0
+  for _, upos in ipairs(positions) do
+    local dx = upos.x - center.x
+    local dz = upos.z - center.z
+    if math.sqrt(dx*dx + dz*dz) <= radius then
+      count = count + 1
     end
   end
   return count
@@ -656,67 +656,83 @@ end
 local function _checkZoneControl()
   local now = timer.getTime()
 
+  -- Un solo escaneo de unidades por bando por ciclo (no por nodo).
+  local bluePositions = _getGroundUnitPositions(coalition.side.BLUE)
+  local redPositions  = _getGroundUnitPositions(coalition.side.RED)
+
   for nodeName, node in pairs(CAMP_Net.NODES) do
     -- Solo procesar nodos capturables (flag < 8200 = no es base fija)
     if node.zone and node.captureFlag and node.captureFlag < 8200 then
+      local zone = trigger.misc.getZone(node.zone)
 
-      local blueCount = _countUnitsInZone(node.zone, coalition.side.BLUE, node.radius)
-      local redCount  = _countUnitsInZone(node.zone, coalition.side.RED, node.radius)
+      if zone then
+        local radius    = node.radius or 2000
+        local blueCount = _countInRadius(bluePositions, zone.point, radius)
+        local redCount  = _countInRadius(redPositions, zone.point, radius)
 
-      if not _zoneControl[nodeName] then
-        _zoneControl[nodeName] = { side = nil, since = now }
-      end
-      local zc = _zoneControl[nodeName]
+        if not _zoneControl[nodeName] then
+          _zoneControl[nodeName] = { side = nil, since = now }
+        end
+        local zc = _zoneControl[nodeName]
+        local previousSide = zc.side
 
-      if blueCount > 0 and redCount == 0 then
-        -- Solo azules
-        if zc.side ~= "blue" then
-          zc.side  = "blue"
-          zc.since = now
-          env.info(string.format("CAMP_Net :: %s bajo control azul (timer iniciado)", nodeName))
-        end
-        local elapsed = now - zc.since
-        if not node.captured and elapsed >= CAMP_Net.CAPTURE_DELAY then
-          CAMP_Net.CaptureNode(nodeName)
-        end
-
-      elseif redCount > 0 and blueCount == 0 then
-        -- Solo rojos
-        if zc.side ~= "red" then
-          zc.side  = "red"
-          zc.since = now
-          env.info(string.format("CAMP_Net :: %s bajo control rojo (timer iniciado)", nodeName))
-        end
-        local elapsed = now - zc.since
-        if node.captured and elapsed >= CAMP_Net.CAPTURE_DELAY then
-          CAMP_Net.ReleaseNode(nodeName)
-        end
-
-      elseif blueCount > 0 and redCount > 0 then
-        -- Zona en disputa
-        if zc.side ~= "contest" then
-          zc.side  = "contest"
-          zc.since = now
-          env.info(string.format("CAMP_Net :: %s EN DISPUTA", nodeName))
-        end
-        -- Redibujar en amarillo
-        pcall(function()
-          local point = CAMP_Net.GetZonePoint(node.zone)
-          if point and node.circleId then
-            trigger.action.circleToAll(
-              CAMP_Net.VISIBLE_TO, node.circleId, point,
-              node.radius or 2000,
-              CAMP_Net.COLORS.YELLOW,
-              {1, 1, 0, 0.15}, 2, true, ""
-            )
+        if blueCount > 0 and redCount == 0 then
+          -- Solo azules
+          if zc.side ~= "blue" then
+            zc.side  = "blue"
+            zc.since = now
+            env.info(string.format("CAMP_Net :: %s bajo control azul (timer iniciado)", nodeName))
           end
-        end)
+          local elapsed = now - zc.since
+          if not node.captured and elapsed >= CAMP_Net.CAPTURE_DELAY then
+            CAMP_Net.CaptureNode(nodeName)
+          end
 
-      else
-        -- Zona vacía: resetear timer
-        if zc.side ~= nil then
-          zc.side  = nil
-          zc.since = now
+        elseif redCount > 0 and blueCount == 0 then
+          -- Solo rojos
+          if zc.side ~= "red" then
+            zc.side  = "red"
+            zc.since = now
+            env.info(string.format("CAMP_Net :: %s bajo control rojo (timer iniciado)", nodeName))
+          end
+          local elapsed = now - zc.since
+          if node.captured and elapsed >= CAMP_Net.CAPTURE_DELAY then
+            CAMP_Net.ReleaseNode(nodeName)
+          end
+
+        elseif blueCount > 0 and redCount > 0 then
+          -- Zona en disputa
+          if zc.side ~= "contest" then
+            zc.side  = "contest"
+            zc.since = now
+            env.info(string.format("CAMP_Net :: %s EN DISPUTA", nodeName))
+          end
+          -- Redibujar en amarillo
+          pcall(function()
+            local point = CAMP_Net.GetZonePoint(node.zone)
+            if point and node.circleId then
+              trigger.action.circleToAll(
+                CAMP_Net.VISIBLE_TO, node.circleId, point,
+                radius,
+                CAMP_Net.COLORS.YELLOW,
+                {1, 1, 0, 0.15}, 2, true, ""
+              )
+            end
+          end)
+
+        else
+          -- Zona vacía: resetear timer
+          if zc.side ~= nil then
+            zc.side  = nil
+            zc.since = now
+          end
+        end
+
+        -- Si la zona deja de estar en disputa sin llegar a capturar/
+        -- reconquistar (aún dentro del CAPTURE_DELAY), redibujar de
+        -- inmediato para que el círculo no se quede amarillo "pegado".
+        if previousSide == "contest" and zc.side ~= "contest" then
+          CAMP_Net.DrawNode(nodeName)
         end
       end
     end
