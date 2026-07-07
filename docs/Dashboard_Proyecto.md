@@ -103,10 +103,21 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 ## 🎯 PENDIENTES PARA SESIÓN 13
 
 1. **Validar PTS_Manager con piloto humano** — [SHOT]/[IMPACT] en pantalla, pilotAircraft en ledger, BlueOnBlue, TargetDestroyed
-2. **Crear Trigger Zones en Mission Editor** (LN_INCIR, LN_BASSEL, etc.) para que CAMP_Net pueda dibujar la red
+2. **Crear Trigger Zones en Mission Editor** (LN_INCIR, LN_BASSEL, LN_DAMASCUS, etc.) para que CAMP_Net pueda dibujar la red
 3. **Probar CAMP_Net en juego** — verificar que dibuja nodos y conexiones en F10
 4. **MISSIONS_Config.lua** — primeras misiones Fase 1 (simples, siempre disponibles)
 5. **Foto del F10 map** con zonas cargadas para diseñar CAMPAIGN_Manager
+
+---
+
+## ✅ CORRECCIONES DE CÓDIGO (revisión dashboard vs código real)
+
+| # | Inconsistencia | Estado | Commit |
+|---|---|---|---|
+| 1 | `MISSIONS_Config.lua` ya existía (misión SEAD Tabqa) pero el dashboard lo marcaba pendiente en ETAPA 2 | ⏳ Pendiente de reflejar en roadmap | — |
+| 2 | `EVT_Dispatcher` no registraba `EVENTS.MissionEnd` → la grabación automática de `ZONE_State` al cerrar la misión nunca se ejecutaba | ✅ Corregido — agregado `EVENTS.MissionEnd` a `RegisteredEvents` + `OnEventMissionEnd` | `3d72cff` |
+| 3 | `CAMP_Net` no tenía nodo para `"Damascus International Airport"` (existía en `DATA_Core._baseStates` pero sin representación visual ni forma de capturarse desde F10) | ✅ Corregido — nodo `DAMAS` agregado (zona `LN_DAMASCUS`, flag 8124) | `3d72cff` |
+| 4 | Idea **TARS** (`Ideas_Sueltas.md`) nunca pasó al backlog oficial de 17 ítems | ⏳ Pendiente de decidir (agregar o descartar) | — |
 
 ---
 
