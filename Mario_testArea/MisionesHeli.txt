@@ -1,0 +1,35 @@
+VIP Transport
+
+Desde Cualquier Lugar
+- pIckup  H_med_orig_7  / Drop  H120  Transporte de Tecnico a Estaicion de Radares (25) Heli
+
+
+- picup H_med_18  / Drop H_med_orig_5   Transporte herido a Hospital
+
+
+- Pickup H_med_13 / Drop Ramat David
+
+
+- Hmed10 aqui van los CSAR de 1 y 2 Damasco
+- H103 aqui los CSAR de 3 y 4 Damasco
+
+
+MISIONES GRANDES
+- Atacar y Capturar INCIRLNK
+- Atacar y Capturara BASSEL
+- Capturar el Puerto de Latakia -- Permitir que lleguen barcos Azules
+
+- Milicos a capturar Petroleo, despues de Capturar INcilonkParacas en C-130  
+- SAM en Palmyra aparece solo despues de que se desabilita el de Tiyas  (sorpresa)
+
+Hay que armar Skynet Para los SAMS
+
+Armar ruta para el carrier
+Carrier template takeoff & Landing
+
+
+Como vamos a atacar los puertos ???
+
+
+Ver de donde salen los Bombers Rojos o desde el aire mejor !!
+

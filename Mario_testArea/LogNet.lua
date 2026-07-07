@@ -56,28 +56,270 @@ LOGNET.COLORS = {
 
 LOGNET.NODES = {
 
-  BASSEL = {
-    zone = "LN_BASSEL",
-    label = "Bassel Al-Assad",
+  INCIR = {
+    zone = "LN_INCIR",
+    label = "Incirlink",
     captureFlag = 8101,
     radius = 6000,
   },
 
-  ABU = {
-    zone = "LN_ABU_DUHUR",
-    label = "Abu al-Duhur",
+  GAZIAN = {
+    zone = "LN_GAZIAN",
+    label = "Gaziantep",
     captureFlag = 8102,
     radius = 6000,
   },
 
-  RENE = {
-    zone = "LN_RENE",
-    label = "Rene Mouawad",
+  MINAK = {
+    zone = "LN_MINAKH",
+    label = "Minakh",
     captureFlag = 8103,
     radius = 6000,
   },
 
-  -- EJEMPLO PARA AGREGAR OTRO NODO:
+  KUWEIRES = {
+    zone = "LN_KUWEIRES",
+    label = "Kuweires",
+    captureFlag = 8104,
+    radius = 6000,
+  },
+
+  JIRAH = {
+    zone = "LN_JIRAH",
+    label = "Jirah",
+    captureFlag = 8105,
+    radius = 6000,
+  },
+  
+    TABQA = {
+    zone = "LN_TABQUA",
+    label = "Tabqa",
+    captureFlag = 8106,
+    radius = 6000,
+  },
+
+    ERZOR = {
+    zone = "LN_ERZOR",
+    label = "Deir er-Zor",
+    captureFlag = 8107,
+    radius = 6000,
+  },
+  
+   ABU = {
+    zone = "LN_ABUAL",
+    label = "Abu al-Duhur",
+    captureFlag = 8108,
+    radius = 6000,
+  },
+
+   BASSEL = {
+    zone = "LN_BASEL",
+    label = "Bassel Al-Assad",
+    captureFlag = 8109,
+    radius = 6000,
+  },
+
+   HAMA = {
+    zone = "LN_HAMA",
+    label = "Hama",
+    captureFlag = 81010,
+    radius = 6000,
+  },
+  
+   RENE = {
+    zone = "LN_RENE",
+    label = "Hama",
+    captureFlag = 81011,
+    radius = 6000,
+  },
+    
+   QUSAYR = {
+    zone = "LN_QUSAYR",
+    label = "Al-Qusayr",
+    captureFlag = 81012,
+    radius = 6000,
+  },
+    
+   SHAYRAT = {
+    zone = "LN_SHAYRAT",
+    label = "Shayrat",
+    captureFlag = 81013,
+    radius = 6000,
+  },    
+    
+   TIYAS = {
+    zone = "LN_TIYAS",
+    label = "Tiyas",
+    captureFlag = 81014,
+    radius = 6000,
+  },
+           
+   PALMYRA = {
+    zone = "LN_PALMYRA",
+    label = "Palmyra",
+    captureFlag = 81015,
+    radius = 6000,
+  },
+           
+   SAYQAL = {
+    zone = "LN_SAYQAL",
+    label = "Sayqal",
+    captureFlag = 81016,
+    radius = 6000,
+  },    
+           
+   NASIRI = {
+    zone = "LN_NASIRI",
+    label = "An Nasiriya",
+    captureFlag = 81017,
+    radius = 6000,
+  }, 
+
+   RAYAK = {
+    zone = "LN_RAYAK",
+    label = "Rayak",
+    captureFlag = 81018,
+    radius = 6000,
+  }, 
+  
+   DUMAYR = {
+    zone = "LN_DUMAYR",
+    label = "Al-Dumayr",
+    captureFlag = 81019,
+    radius = 6000,
+  }, 
+  
+   MEZZE = {
+    zone = "LN_MEZZE",
+    label = "Mezzeh",
+    captureFlag = 81020,
+    radius = 6000,
+  }, 
+   
+   MARJ = {
+    zone = "LN_MARJ",
+    label = "Marj Ruhayyil",
+    captureFlag = 81021,
+    radius = 6000,
+  }, 
+    
+   KALK = {
+    zone = "LN_KALK",
+    label = "Khalkhalah",
+    captureFlag = 81022,
+    radius = 6000,
+  }, 
+     
+   TALAH = {
+    zone = "LN_THALAH",
+    label = "Tha'lah",
+    captureFlag = 81023,
+    radius = 6000,
+  }, 
+              
+  -- =====  BLUE ==== ---
+      
+   PAPHOS = {
+    zone = "LN_PAPHOS",
+    label = "Paphos",
+    captureFlag = 82001,
+    radius = 6000,
+  },
+      
+   AKRO = {
+    zone = "LN_AKRO",
+    label = "Akrotiri",
+    captureFlag = 82002,
+    radius = 6000,
+  },
+      
+   LARNA = {
+    zone = "LN_LARNA",
+    label = "Larnaca",
+    captureFlag = 82003,
+    radius = 6000,
+  },
+      
+   KINGS = {
+    zone = "LN_KINGS",
+    label = "Larnaca",
+    captureFlag = 82004,
+    radius = 6000,
+  },
+      
+   GECIT = {
+    zone = "LN_GECIT",
+    label = "Gecitkale",
+    captureFlag = 82005,
+    radius = 6000,
+  },
+      
+   ERKAN = {
+    zone = "LN_ERKAN",
+    label = "Ercan",
+    captureFlag = 82006,
+    radius = 6000,
+  },
+      
+   CVN73 = {
+    zone = "LN_CVN73",
+    label = "CVN-73",
+    captureFlag = 82007,
+    radius = 6000,
+  },
+      
+   RAMAT = {
+    zone = "LN_RAMAT",
+    label = "CVN-73",
+    captureFlag = 82008,
+    radius = 6000,
+  },
+      
+   SHEMER = {
+    zone = "LN_SHEMER",
+    label = "Eyn Shemer",
+    captureFlag = 82009,
+    radius = 6000,
+  },
+      
+   HERZI = {
+    zone = "LN_HERZI",
+    label = "Herzliya",
+    captureFlag = 820010,
+    radius = 6000,
+  },
+      
+   TELNOF = {
+    zone = "LN_TELNOF",
+    label = "Tel Nof",
+    captureFlag = 820011,
+    radius = 6000,
+  },
+      
+   HATZOR = {
+    zone = "LN_HATZOR",
+    label = "Hatzor",
+    captureFlag = 820012,
+    radius = 6000,
+  },
+       
+   TEYMAN = {
+    zone = "LN_TEYMAN",
+    label = "Teyman",
+    captureFlag = 820013,
+    radius = 6000,
+  }, 
+        
+   NEVATIM = {
+    zone = "LN_NEVATIM",
+    label = "Teyman",
+    captureFlag = 820013,
+    radius = 6000,
+  }, 
+   
+
+
+-- EJEMPLO PARA AGREGAR OTRO NODO:
   --
   -- HAMA = {
   --   zone = "LN_HAMA",
@@ -102,10 +344,73 @@ LOGNET.NODES = {
 
 LOGNET.EDGES = {
 
-  { from = "BASSEL", to = "ABU" },
-  { from = "BASSEL", to = "RENE" },
-  { from = "RENE", to = "ABU" },
+  { from = "INCIR", to = "GAZIAN" },
+  { from = "INCIR", to = "MINAK" },
+  { from = "GAZIAN", to = "JIRAH" },
+  { from = "MINAK", to = "KUWEIRES" },
+  { from = "KUWEIRES", to = "JIRAH" },  
+  { from = "JIRAH", to = "TABQA" },   
+  { from = "TABQA", to = "ERZOR" },   
+  { from = "ERZOR", to = "PALMYRA" },
+  { from = "PALMYRA", to = "TABQA" },
+  { from = "KUWEIRES", to = "ABU" },
+  { from = "ABU", to = "BASSEL" },
+  { from = "BASSEL", to = "HAMA" },  
+  { from = "ABU", to = "HAMA" },
+  { from = "HAMA", to = "RENE" },
+  { from = "HAMA", to = "QUSAYR" }, 
+  { from = "RENE", to = "QUSAYR" },  
+  { from = "SHAYRAT", to = "QUSAYR" },  
+  { from = "SHAYRAT", to = "TIYAS" }, 
+  { from = "PALMYRA", to = "TIYAS" },  
+  { from = "PALMYRA", to = "SAYQAL" },  
+  { from = "NASIRI", to = "SAYQAL" },  
+  { from = "NASIRI", to = "SHAYRAT" },  
+  { from = "RAYAK", to = "SHAYRAT" }, 
+  { from = "NASIRI", to = "DUMAYR" }, 
+  { from = "SAYQAL", to = "DUMAYR" }, 
+  { from = "RAYAK", to = "MEZZE" },
+  { from = "MARJ", to = "MEZZE" },
+  { from = "MARJ", to = "DUMAYR" },
+  { from = "MARJ", to = "KALK" },
+  { from = "MARJ", to = "TALAH" },
+  { from = "KALK", to = "TALAH" },
+  
+  
+  -- ===== BLUE ====---
+  
+  { from = "NEVATIM", to = "TEYMAN" },
+  { from = "HATZOR", to = "TEYMAN" }, 
+  { from = "NEVATIM", to = "HATZOR" },
+  { from = "TELNOF", to = "HATZOR" },
+  { from = "TELNOF", to = "HERZI" },
+  { from = "TELNOF", to = "RAMAT" },
+  { from = "SHEMER", to = "HERZI" },
+  { from = "SHEMER", to = "RAMAT" },
+  { from = "CVN73", to = "RAMAT" },  
+  { from = "CVN73", to = "HATZOR" },  
+  { from = "CVN73", to = "PAPHOS" },  
+  { from = "CVN73", to = "AKRO" },    
+  { from = "LARNA", to = "AKRO" },   
+  { from = "KINGS", to = "GECIT" }, 
+  { from = "KINGS", to = "ERKAN" },   
+  { from = "LARNA", to = "KINGS" },   
+  
+  
+ -- === WHITE === -- 
+ 
+   { from = "LARNA", to = "BASSEL" },
+   { from = "LARNA", to = "RENE" },
+   { from = "LARNA", to = "INCIR" },   
+   { from = "CVN73", to = "RENE" },
+   { from = "CVN73", to = "MARJ" },
+   { from = "CVN73", to = "TALAH" },  
+   { from = "RAMAT", to = "MARJ" },  
+   { from = "RAMAT", to = "TALAH" }, 
 
+
+   
+  
   -- EJEMPLO PARA AGREGAR CONEXIONES:
   --
   -- { from = "HAMA", to = "BASSEL" },
