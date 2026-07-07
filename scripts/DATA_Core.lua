@@ -393,6 +393,90 @@ local function _onPilotDeadOrEjection(EventData)
   end
 end
 
+--------------------------------------------------------------------
+-- TABLA DE ESTADOS DE BASES (persistencia entre sesiones)
+-- Indexada por nombre exacto de la base en DCS.
+-- fixed=true  → base no es capturable (Chipre, Israel)
+-- fixed=false → base capturable por la campaña
+-- Esta tabla es la fuente de verdad en runtime sobre quién
+-- controla cada base. Se persiste via DATA_Export.WriteBaseStates()
+-- y se restaura via DATA_Export.RestoreBaseStates() al inicio.
+--------------------------------------------------------------------
+local _baseStates = {
+  -- BASES AZULES FIJAS (Chipre)
+  ["Gecitkale"]                    = { coalition = "blue", fixed = true  },
+  ["Ercan"]                        = { coalition = "blue", fixed = true  },
+  ["Lakatamia"]                    = { coalition = "blue", fixed = true  },
+  ["Larnaca"]                      = { coalition = "blue", fixed = true  },
+  ["Akrotiri"]                     = { coalition = "blue", fixed = true  },
+  ["Paphos"]                       = { coalition = "blue", fixed = true  },
+  -- BASES AZULES FIJAS (Israel)
+  ["Rosh Pina"]                    = { coalition = "blue", fixed = true  },
+  ["Ramat David"]                  = { coalition = "blue", fixed = true  },
+  ["Eyn Shemer"]                   = { coalition = "blue", fixed = true  },
+  ["Herzliya"]                     = { coalition = "blue", fixed = true  },
+  ["Palmachim"]                    = { coalition = "blue", fixed = true  },
+  ["Tel Nof"]                      = { coalition = "blue", fixed = true  },
+  ["Hatzor"]                       = { coalition = "blue", fixed = true  },
+  ["Teyman"]                       = { coalition = "blue", fixed = true  },
+  ["Kedem"]                        = { coalition = "blue", fixed = true  },
+  ["Nevatim"]                      = { coalition = "blue", fixed = true  },
+  -- BASES AZULES FIJAS (helipads y carrier)
+  ["BLUE_CVN73_GROUP"]             = { coalition = "blue", fixed = true  },
+  ["HMed10"]                       = { coalition = "blue", fixed = true  },
+  ["HI02"]                         = { coalition = "blue", fixed = true  },
+  ["HI01"]                         = { coalition = "blue", fixed = true  },
+  -- BASES ROJAS CAPTURABLES (Siria)
+  ["Bassel Al-Assad International"]= { coalition = "red",  fixed = false },
+  ["Tiyas Air Base"]               = { coalition = "red",  fixed = false },
+  ["Shayrat Air Base"]             = { coalition = "red",  fixed = false },
+  ["Mezzeh Air Base"]              = { coalition = "red",  fixed = false },
+  ["Damascus International Airport"]={ coalition = "red",  fixed = false },
+  ["Kuweires"]                     = { coalition = "red",  fixed = false },
+  ["Abu al-Duhur"]                 = { coalition = "red",  fixed = false },
+  ["Deir ez-Zor"]                  = { coalition = "red",  fixed = false },
+  ["Jirah"]                        = { coalition = "red",  fixed = false },
+}
+
+--------------------------------------------------------------------
+-- API: ESTADOS DE BASES
+--------------------------------------------------------------------
+
+--- Devuelve la coalición actual de una base ("blue"/"red"/nil si no existe).
+-- @param baseName string  nombre exacto de la base en DCS
+-- @return string|nil
+function DATA_Core.GetBaseCoalition(baseName)
+  local b = _baseStates[baseName]
+  return b and b.coalition or nil
+end
+
+--- Actualiza la coalición de una base en memoria (no aplica en DCS
+-- automáticamente — llamar desde ZONE_State o script de restauración).
+-- No permite cambiar bases con fixed=true.
+-- @param baseName   string  nombre exacto de la base
+-- @param coalition  string  "blue" o "red"
+-- @return boolean   true si se actualizó, false si la base es fija o no existe
+function DATA_Core.SetBaseCoalition(baseName, coalition)
+  local b = _baseStates[baseName]
+  if not b then
+    env.info("DATA_Core :: SetBaseCoalition: base desconocida: " .. tostring(baseName))
+    return false
+  end
+  if b.fixed then
+    env.info("DATA_Core :: SetBaseCoalition: base fija, no se puede cambiar: " .. baseName)
+    return false
+  end
+  b.coalition = coalition
+  env.info("DATA_Core :: Base " .. baseName .. " → " .. coalition)
+  return true
+end
+
+--- Devuelve la tabla completa de estados de bases (solo lectura recomendada).
+-- @return table
+function DATA_Core.GetAllBaseStates()
+  return _baseStates
+end
+
 if EVT_Dispatcher and EVT_Dispatcher.Subscribe then
   EVT_Dispatcher:Subscribe(EVENTS.PlayerEnterUnit, _onPlayerEnterUnit,        "DATA_Core")
   EVT_Dispatcher:Subscribe(EVENTS.Shot,      _onShot,                       "DATA_Core")

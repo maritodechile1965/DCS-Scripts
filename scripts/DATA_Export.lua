@@ -18,8 +18,13 @@
 DATA_Export = {}
 
 --------------------------------------------------------------------
--- CONFIGURACION
+-- CONFIGURACIÓN
 --------------------------------------------------------------------
+
+-- Intervalo de grabación automática en segundos.
+-- Default: 10800 = 3 horas. Modificar libremente sin tocar el resto.
+-- Ejemplos: 300 = 5 min (para pruebas), 3600 = 1 hora, 10800 = 3 horas
+DATA_Export.SAVE_INTERVAL_SECONDS = 10800
 
 -- Ruta base de los logs (DCS writedir, ej. Saved Games\DCS\)
 -- lfs.writedir() siempre termina en backslash en Windows.
@@ -168,14 +173,95 @@ end
 function DATA_Export.WriteAll()
   local ok1 = DATA_Export.WritePointsLedger()
   local ok2 = DATA_Export.WriteWeaponLog()
-  if ok1 and ok2 then
+  local ok3 = DATA_Export.WriteBaseStates()
+  if ok1 and ok2 and ok3 then
     trigger.action.outText("DATA_Export :: Todos los logs exportados correctamente.", 15)
   else
     trigger.action.outText("DATA_Export :: Algunos logs no se pudieron exportar. Ver dcs.log.", 15)
   end
 end
 
-env.info("DATA_Export :: Modulo cargado. Usar DATA_Export.WriteAll() para exportar.")
+--- Exporta el estado actual de todas las bases a CSV.
+-- Escribe: DCS_Base_State.csv en <writedir>/Logs/
+-- Llamar al fin de cada sesión (junto con WriteAll).
+-- @return boolean
+function DATA_Export.WriteBaseStates()
+  local header = "baseName,coalition,fixed"
+  local file, path = _openCSV("DCS_Base_State.csv", header)
+  if not file then return false end
+
+  local states = DATA_Core.GetAllBaseStates()
+  local count  = 0
+  for baseName, state in pairs(states) do
+    local line = table.concat({
+      _csv(baseName),
+      _csv(state.coalition),
+      _csv(state.fixed and "true" or "false"),
+    }, ",")
+    file:write(line .. "\n")
+    count = count + 1
+  end
+
+  file:close()
+  local msg = string.format("DATA_Export :: Base states exportados: %d bases → %s", count, path)
+  env.info(msg)
+  trigger.action.outText(msg, 10)
+  return true
+end
+
+--- Lee DCS_Base_State.csv y aplica las coaliciones en DCS + DATA_Core.
+-- Llamar al inicio de la misión (en un DO SCRIPT de MISSION START,
+-- DESPUÉS de cargar todos los scripts principales).
+-- Solo aplica bases con fixed=false que hayan cambiado de coalición.
+-- @return boolean
+function DATA_Export.RestoreBaseStates()
+  local dir = _getLogDir()
+  if not dir then return false end
+
+  local path = dir .. "DCS_Base_State.csv"
+  local file, err = io.open(path, "r")
+  if not file then
+    env.info("DATA_Export :: RestoreBaseStates: no existe CSV previo (" .. tostring(err) .. ") — usando estado inicial.")
+    return false
+  end
+
+  local lineNum = 0
+  local restored = 0
+  for line in file:lines() do
+    lineNum = lineNum + 1
+    if lineNum > 1 then  -- saltar header
+      local parts = {}
+      for field in (line .. ","):gmatch("([^,]*),") do
+        table.insert(parts, field)
+      end
+
+      local baseName  = parts[1] or ""
+      local coalition = parts[2] or ""
+      local fixed     = parts[3] == "true"
+
+      if baseName ~= "" and not fixed then
+        local updated = DATA_Core.SetBaseCoalition(baseName, coalition)
+        if updated then
+          local ok = pcall(function()
+            local ab = Airbase.getByName(baseName)
+            if ab then
+              local side = coalition == "blue" and coalition.side.BLUE or coalition.side.RED
+              ab:autoCapture(false)
+              coalition.addAirfield(side, baseName)
+            end
+          end)
+          if ok then restored = restored + 1 end
+        end
+      end
+    end
+  end
+
+  file:close()
+  local msg = string.format("DATA_Export :: Bases restauradas: %d → desde %s", restored, path)
+  env.info(msg)
+  trigger.action.outText(msg, 10)
+  return true
+end
 
 --------------------------------------------------------------------
 -- REGISTRO AUTOMATICO DEL MENU F10
