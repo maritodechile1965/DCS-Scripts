@@ -24,6 +24,15 @@ Simula misiones de reconocimiento fotográfico y observación visual en DCS Worl
 
 ---
 
+### PUNTOS Y SISTEMA DE MENU MISIONES
+** IDEA:
+ Cuando una mision por ejemplo S&D de vehiculos de tierra no se puede activar otra mision Igual
+ Debe salir un mensaje que hay una mision activa
+ No se puede activar otra hasta que la que esta activa termine.
+ Termina cuando se detruye el vehiculo principal o cuando el convoy llega a su destino.
+
+ 
+
 ### SCORING (DESCARTADO)
 **Fuente:** [`Functional.Scoring`](https://flightcontrol-master.github.io/MOOSE_DOCS_DEVELOP/Documentation/Functional.Scoring.html) (clase oficial MOOSE)
 

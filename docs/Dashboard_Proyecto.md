@@ -20,8 +20,9 @@
 | 11 | 02/07/2026 | 08:40 | 20:30 | 11h 50min | SAMs escenario + ZONE_State + persistencia bases + CAMP_Net |
 | 12 | 06/07/2026 | 22:00 | 23:59 | 1h 59min | Prueba Tabla bases Nodos |
 | 13* | 07/07/2026 | 22:00 | 00:53 | 2h 53min | Revisión código real vs dashboard, corrección de 4 inconsistencias (EVT_Dispatcher MissionEnd, CAMP_Net Damascus, MISSIONS_Config, backlog TARS) y reorganización del historial git (sesiones 9-12 separadas en commits propios) |
+| 14 | 09/07/2026 | 10:00 | 13:30 | 3h 30min | WH_Manager.lua (control combustible bases), scripts de prueba AWACS y convoy S&D, limpieza CAMP_Net |
 
-**Total acumulado sesiones 1-13: ~40h**
+**Total acumulado sesiones 1-14: ~43h 30min**
 *Sesión 5 extendida sin cierre formal intermedio.
 *Sesión 13 cruza medianoche (termina 08/07 00:53).
 
@@ -47,6 +48,8 @@
 
 **Sesión 13 (07/07):** Revisión completa del código real (`.lua`) contra el dashboard. 4 inconsistencias detectadas y corregidas: (1) `MISSIONS_Config.lua` marcado como hecho en el roadmap, (2) `EVT_Dispatcher` no registraba `EVENTS.MissionEnd` → grabación automática de `ZONE_State` nunca se ejecutaba, corregido, (3) `CAMP_Net` sin nodo para `Damascus International Airport`, agregado (`DAMAS`, zona `LN_DAMASCUS`), (4) idea TARS movida de `Ideas_Sueltas.md` al backlog oficial (ítem #18). Además, se reorganizó el historial de git: el commit único que mezclaba las sesiones 9-12 se separó en 3 commits propios (sesión 11, sesión 12, documentación 9-12) vía rebase + force-push.
 
+**Sesión 14 (09/07):** `WH_Manager.lua` v1 creado — gestor de combustible de bases azules vía MOOSE STORAGE, umbrales WARNING (30.000 lbs) y BLOCKED (5.000 lbs), avisos automáticos y menú F10 de consulta. Scripts de prueba agregados a `Mario_testArea`: `AWACS_1.lua` (sistema de solicitud de AWACS E-3A/E-2D por puntos, v1.1 test) y `SND_Convoy_Hatay_V1.lua` (misiones terrestres dinámicas v3 — convoy Hatay + asalto de infantería Rosh Pina, scoring por DEAD y por zona destino). `CAMP_Net.lua` reformateado (tablas `NODES`/`EDGES` compactadas a una línea, comentario agregado sobre `VISIBLE_TO`) — sin cambios de lógica. Nueva idea en `Ideas_Sueltas.md`: bloqueo de misiones simultáneas del mismo tipo (menú F10) hasta que la activa termine.
+
 ---
 
 ## ✅ SCRIPTS EN PRODUCCIÓN
@@ -60,6 +63,7 @@
 | `DATA_Export.lua` | v2 | ✅ Validado | CSV + F10 + WriteBaseStates + RestoreBaseStates + timer configurable |
 | `ZONE_State.lua` | v1 | ✅ Validado | Persistencia bases, BaseCaptured handler, grabación automática |
 | `CAMP_Net.lua` | v2 | ✅ Listo | Red visual F10 de campaña + captura/reconquista por presencia de unidades en zona (reemplaza sistema de flags) + integración DATA_Core |
+| `WH_Manager.lua` | v1 | 🆕 Pendiente prueba en juego | Control de combustible por base (MOOSE STORAGE), umbrales warning/blocked, menú F10 |
 
 ### Orden de carga (Mission Editor — MISSION START)
 ```lua
@@ -104,13 +108,15 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 
 ---
 
-## 🎯 PENDIENTES PARA SESIÓN 14
+## 🎯 PENDIENTES PARA SESIÓN 15
 
 1. **Validar PTS_Manager con piloto humano** — [SHOT]/[IMPACT] en pantalla, pilotAircraft en ledger, BlueOnBlue, TargetDestroyed
 2. **Crear Trigger Zones en Mission Editor** (LN_INCIR, LN_BASSEL, etc. — ya NO incluye `LN_DAMASCUS`, nodo `DAMAS` removido) para que CAMP_Net pueda dibujar la red
 3. **Probar CAMP_Net en juego** — verificar dibujo de nodos/conexiones en F10, captura por presencia de unidades (~10s), reconquista roja y zona en disputa (amarillo)
 4. **MISSIONS_Config.lua** — primeras misiones Fase 1 (simples, siempre disponibles)
 5. **Foto del F10 map** con zonas cargadas para diseñar CAMPAIGN_Manager
+6. **Probar `WH_Manager.lua` en juego** — requiere "Limited Stock" habilitado en Warehouse de cada base a monitorear
+7. **Probar `AWACS_1.lua` y `SND_Convoy_Hatay_V1.lua`** (`Mario_testArea`) — validar en juego antes de promoverlos a `scripts/`
 
 ---
 
@@ -229,4 +235,4 @@ Trabajo posterior al cierre formal de la sesión 13, sobre `CAMP_Net.lua`:
 
 ---
 
-*Última actualización: 07/07/2026 — Sesión 13 CERRADA (00:53) + mejoras CAMP_Net posteriores (ver sección arriba)*
+*Última actualización: 09/07/2026 — Sesión 14 CERRADA (13:30)*
