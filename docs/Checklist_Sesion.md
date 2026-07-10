@@ -22,6 +22,10 @@
    - [ ] Hay alguna inconsistencia entre el dashboard y el codigo real?
    - [ ] Quedo algo pendiente de la sesion anterior sin resolver?
    - [ ] Hay scripts nuevos que no estaban antes? (ver punto TRABAJO OFFLINE)
+   - [ ] El orden de carga del Mission Editor coincide con la tabla
+         "Orden de carga" de `Dashboard_Proyecto.md`? (a partir de la
+         sesion 14 incluye WH_Manager, MISSIONS_Config, MIS_Manager y
+         STATUS_Manager despues de CAMP_Net)
 
 **5. Ir al chat de Claude (claude.ai) y escribir:**
    inicio de sesion
@@ -72,6 +76,16 @@ En el log de DCS aparecio:
 Ese script fue creado offline y Claude no lo tenia registrado. Si
 hubieramos avanzado sin informarlo, podriamos haber duplicado
 funcionalidad o generado conflictos con EVT_Dispatcher o DATA_Core.
+
+**Ejemplo real que ya ocurrio (10/07/2026):**
+Al cerrar la sesion 14, `git status` en Claude Code mostro
+`scripts/STATUS_Manager.lua` como archivo nuevo sin rastrear (ademas
+de cambios en `MISSIONS_Config.lua` y `MIS_Manager.lua`). Esos
+archivos se generaron en el chat online y se copiaron al repo local,
+pero Claude Code no los conocia hasta ejecutar `git status`. Se
+revisaron los diffs uno por uno antes de confirmar el commit — asi
+se detecto que `Dashboard_Proyecto.md` tampoco reflejaba la sesion
+todavia, y se corrigio antes de hacer push.
 
 Cuando trabajas sin conexion y creas o modificas scripts:
 
@@ -150,4 +164,5 @@ Cuando trabajas sin conexion y creas o modificas scripts:
   informarlo al inicio de la siguiente sesion online
 
 ---
-*Version 2 — actualizada 09/07/2026 — agrega protocolo trabajo offline*
+*Version 3 — actualizada 10/07/2026 — agrega verificacion de orden de
+carga y ejemplo real de sesion 14 (STATUS_Manager)*
