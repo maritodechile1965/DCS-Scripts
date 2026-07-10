@@ -18,13 +18,9 @@
 | 9 | 02/07/2026 | 10:15 | 10:20 | 5 min | Visión global campaña + roadmap + MOOSE vs custom |
 | 10 | 02/07/2026 | 14:20 | 15:00 | 40 min | Resumen general + setup mapa Siria + recomendación unidades |
 | 11 | 02/07/2026 | 08:40 | 20:30 | 11h 50min | SAMs escenario + ZONE_State + persistencia bases + CAMP_Net |
-| 12 | 06/07/2026 | 22:00 | 23:59 | 1h 59min | Prueba Tabla bases Nodos |
-| 13* | 07/07/2026 | 22:00 | 00:53 | 2h 53min | Revisión código real vs dashboard, corrección de 4 inconsistencias (EVT_Dispatcher MissionEnd, CAMP_Net Damascus, MISSIONS_Config, backlog TARS) y reorganización del historial git (sesiones 9-12 separadas en commits propios) |
-| 14 | 09/07/2026 | 10:00 | 13:30 | 3h 30min | WH_Manager.lua (control combustible bases), scripts de prueba AWACS y convoy S&D, limpieza CAMP_Net |
 
-**Total acumulado sesiones 1-14: ~43h 30min**
+**Total acumulado sesiones 1-11: ~35h**
 *Sesión 5 extendida sin cierre formal intermedio.
-*Sesión 13 cruza medianoche (termina 08/07 00:53).
 
 ---
 
@@ -44,12 +40,6 @@
 
 **Sesión 11 (02/07):** Análisis Test_CSAR.miz (428 unidades, sistemas SAM). Mapa táctico Siria dibujado. Decisión late activation por zona. DATA_Core ampliado con tabla _baseStates (20 bases azules + 9 rojas). ZONE_State.lua creado y validado en juego. DATA_Export ampliado (WriteBaseStates, RestoreBaseStates, grabación periódica). CAMP_Net.lua creado (LogNet renombrado + integración DATA_Core). Bug Lua 5.1 `continue` detectado y corregido. Nuevas misiones definidas (convoyes random, helis, CAPs, templates estáticos).
 
-**Sesión 12 (06/07):** Prueba de la tabla de bases y nodos (`_baseStates` / `LOGNET.NODES`/`EDGES`). `scripts/LogNet.lua` (duplicado) eliminado — `CAMP_Net.lua` queda como versión válida; `Mario_testArea/LogNet.lua` se mantiene como copia de pruebas/backup del usuario. Copia accidental `docs/DATA_Core.lua` eliminada.
-
-**Sesión 13 (07/07):** Revisión completa del código real (`.lua`) contra el dashboard. 4 inconsistencias detectadas y corregidas: (1) `MISSIONS_Config.lua` marcado como hecho en el roadmap, (2) `EVT_Dispatcher` no registraba `EVENTS.MissionEnd` → grabación automática de `ZONE_State` nunca se ejecutaba, corregido, (3) `CAMP_Net` sin nodo para `Damascus International Airport`, agregado (`DAMAS`, zona `LN_DAMASCUS`), (4) idea TARS movida de `Ideas_Sueltas.md` al backlog oficial (ítem #18). Además, se reorganizó el historial de git: el commit único que mezclaba las sesiones 9-12 se separó en 3 commits propios (sesión 11, sesión 12, documentación 9-12) vía rebase + force-push.
-
-**Sesión 14 (09/07):** `WH_Manager.lua` v1 creado — gestor de combustible de bases azules vía MOOSE STORAGE, umbrales WARNING (30.000 lbs) y BLOCKED (5.000 lbs), avisos automáticos y menú F10 de consulta. Scripts de prueba agregados a `Mario_testArea`: `AWACS_1.lua` (sistema de solicitud de AWACS E-3A/E-2D por puntos, v1.1 test) y `SND_Convoy_Hatay_V1.lua` (misiones terrestres dinámicas v3 — convoy Hatay + asalto de infantería Rosh Pina, scoring por DEAD y por zona destino). `CAMP_Net.lua` reformateado (tablas `NODES`/`EDGES` compactadas a una línea, comentario agregado sobre `VISIBLE_TO`) — sin cambios de lógica. Nueva idea en `Ideas_Sueltas.md`: bloqueo de misiones simultáneas del mismo tipo (menú F10) hasta que la activa termine.
-
 ---
 
 ## ✅ SCRIPTS EN PRODUCCIÓN
@@ -62,8 +52,7 @@
 | `PTS_Manager.lua` | v3 | ⚠️ Parcial | Scoring completo + WEAPON tracking. Pendiente: validar con piloto humano |
 | `DATA_Export.lua` | v2 | ✅ Validado | CSV + F10 + WriteBaseStates + RestoreBaseStates + timer configurable |
 | `ZONE_State.lua` | v1 | ✅ Validado | Persistencia bases, BaseCaptured handler, grabación automática |
-| `CAMP_Net.lua` | v2 | ✅ Listo | Red visual F10 de campaña + captura/reconquista por presencia de unidades en zona (reemplaza sistema de flags) + integración DATA_Core |
-| `WH_Manager.lua` | v1 | 🆕 Pendiente prueba en juego | Control de combustible por base (MOOSE STORAGE), umbrales warning/blocked, menú F10 |
+| `CAMP_Net.lua` | v1 | ✅ Listo | Red visual F10 de campaña (ex-LogNet) + integración DATA_Core |
 
 ### Orden de carga (Mission Editor — MISSION START)
 ```lua
@@ -88,7 +77,7 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 ### ETAPA 2 — ZONA Y CAMPAÑA 🔄 EN PROGRESO (~30-35h)
 - [x] `ZONE_State.lua` — persistencia de bases entre sesiones ✅
 - [x] `CAMP_Net.lua` — red visual F10 de campaña ✅
-- [x] `MISSIONS_Config.lua` — tabla de configuración de misiones (1ª misión SEAD Tabqa cargada)
+- [ ] `MISSIONS_Config.lua` — tabla de configuración de misiones
 - [ ] `MIS_Manager` — menú F10 dinámico de misiones
 - [ ] `TIMER_Manager` — timers de reconquista y ventanas de tiempo
 - [ ] Definir zonas Trigger en Mission Editor (LN_*)
@@ -108,45 +97,13 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 
 ---
 
-## 🎯 PENDIENTES PARA SESIÓN 15
+## 🎯 PENDIENTES PARA SESIÓN 12
 
 1. **Validar PTS_Manager con piloto humano** — [SHOT]/[IMPACT] en pantalla, pilotAircraft en ledger, BlueOnBlue, TargetDestroyed
-2. **Crear Trigger Zones en Mission Editor** (LN_INCIR, LN_BASSEL, etc. — ya NO incluye `LN_DAMASCUS`, nodo `DAMAS` removido) para que CAMP_Net pueda dibujar la red
-3. **Probar CAMP_Net en juego** — verificar dibujo de nodos/conexiones en F10, captura por presencia de unidades (~10s), reconquista roja y zona en disputa (amarillo)
+2. **Crear Trigger Zones en Mission Editor** (LN_INCIR, LN_BASSEL, etc.) para que CAMP_Net pueda dibujar la red
+3. **Probar CAMP_Net en juego** — verificar que dibuja nodos y conexiones en F10
 4. **MISSIONS_Config.lua** — primeras misiones Fase 1 (simples, siempre disponibles)
 5. **Foto del F10 map** con zonas cargadas para diseñar CAMPAIGN_Manager
-6. **Probar `WH_Manager.lua` en juego** — requiere "Limited Stock" habilitado en Warehouse de cada base a monitorear
-7. **Probar `AWACS_1.lua` y `SND_Convoy_Hatay_V1.lua`** (`Mario_testArea`) — validar en juego antes de promoverlos a `scripts/`
-
----
-
-## ✅ CORRECCIONES DE CÓDIGO (revisión dashboard vs código real)
-
-| # | Inconsistencia | Estado | Commit |
-|---|---|---|---|
-| 1 | `MISSIONS_Config.lua` ya existía (misión SEAD Tabqa) pero el dashboard lo marcaba pendiente en ETAPA 2 | ✅ Corregido — marcado `[x]` en roadmap ETAPA 2 | — |
-| 2 | `EVT_Dispatcher` no registraba `EVENTS.MissionEnd` → la grabación automática de `ZONE_State` al cerrar la misión nunca se ejecutaba | ✅ Corregido — agregado `EVENTS.MissionEnd` a `RegisteredEvents` + `OnEventMissionEnd` | `3d72cff` |
-| 3 | `CAMP_Net` no tenía nodo para `"Damascus International Airport"` (existía en `DATA_Core._baseStates` pero sin representación visual ni forma de capturarse desde F10) | ✅ Corregido — nodo `DAMAS` agregado (zona `LN_DAMASCUS`, flag 8124) | `3d72cff` |
-| 4 | Idea **TARS** (`Ideas_Sueltas.md`) nunca pasó al backlog oficial de 17 ítems | ✅ Corregido — agregada como ítem #18 (`Ops.TARS`, etapa 4) | — |
-
----
-
-## 🔧 MEJORAS CAMP_Net (07/07, post-cierre sesión 13)
-
-Trabajo posterior al cierre formal de la sesión 13, sobre `CAMP_Net.lua`:
-
-| # | Cambio | Commit |
-|---|---|---|
-| 1 | Sistema de **reconquista** rojo→azul: `CAMP_Net.ReleaseNode()`. Las bases azules fijas (`captureFlag >= 8200`) nunca son reconquistables | `7c77dae` |
-| 2 | Captura/reconquista pasa de flags de DCS (`getUserFlag`) a **detección de presencia de unidades en zona** en tiempo real, con debounce de 10s (`CAPTURE_DELAY`) y detección de zona en disputa (ambos bandos presentes → círculo amarillo) | `7c77dae` |
-| 3 | Nodo `DAMAS` (Damascus International) **removido** de la red — revierte la incorporación de la sesión 13 | `7c77dae` |
-| 4 | Fix de IDs de marcas/líneas: `DrawNode`/`DrawEdge` generan IDs nuevos en cada redibujo (bug conocido de DCS con `RemoveMark` + reutilización de ID) | `7c77dae` |
-| 5 | Radio de captura unificado a **2000m** — antes el círculo visual usaba `node.radius` (6000m) pero la detección real usaba el radio de la Trigger Zone del Mission Editor, pudiendo no coincidir | `c4a0b92` |
-| 6 | Limpieza de flags muertos: `RECAPTURE_FLAG_OFFSET` y `FLAG_CHECK_INTERVAL` no se usaban en ningún lado tras el cambio a detección por zona | `b991626` |
-| 7 | Optimización: `coalition.getGroups()` pasa de llamarse ~48 veces por ciclo (2 bandos × 24 nodos) a solo 2 veces por ciclo, reutilizando la lista de posiciones para todos los nodos | `e0d32ed` |
-| 8 | Fix visual: el círculo de una zona en disputa ya no se queda "pegado" en amarillo al volver a control de un solo bando — se redibuja de inmediato | `e0d32ed` |
-
-**Pendiente:** validar todo esto en juego (ver PENDIENTES PARA SESIÓN 14, ítem 3). Los cambios 1-4 no fueron revisados por Claude Code al momento de escribirse (ya estaban en el working tree al iniciar esta conversación); 5-8 sí.
 
 ---
 
@@ -199,7 +156,6 @@ Trabajo posterior al cierre formal de la sesión 13, sobre `CAMP_Net.lua`:
 - **PTS_Manager** sin estado propio — escribe siempre a DATA_Core
 - **ZONE_State** gestiona persistencia de bases y graba automáticamente
 - **CAMP_Net** es la capa visual — sincroniza con DATA_Core al capturar nodos
-- Captura/reconquista de nodos en **CAMP_Net** se decide por presencia de unidades terrestres en la zona (no por flags de DCS)
 - No usar `os` de Lua — usar `timer.getTime()` / `timer.getAbsTime()`
 - Evaluar MOOSE antes de escribir código propio — ahorro estimado ~87h
 - Unidades con **nombres fijos** en Mission Editor (persistencia)
@@ -210,7 +166,7 @@ Trabajo posterior al cierre formal de la sesión 13, sobre `CAMP_Net.lua`:
 
 ---
 
-## 📋 BACKLOG (18 ítems)
+## 📋 BACKLOG (17 ítems)
 
 | # | Nombre | Clase MOOSE | Etapa | Estado |
 |---|---|---|---|---|
@@ -231,8 +187,20 @@ Trabajo posterior al cierre formal de la sesión 13, sobre `CAMP_Net.lua`:
 | 15 | TemplateSpawn | `SPAWN` | 2 | ⏳ |
 | 16 | SkyNet Custom (IADS) | `Functional.Mantis` | 6 | ⏳ |
 | 17 | TextToSpeech 🔴 PRIORIDAD ALTA | SRS | transversal | ⏳ |
-| 18 | TARS (Reconocimiento fotográfico) | `Ops.TARS` | 4 | ⏳ |
 
 ---
 
-*Última actualización: 09/07/2026 — Sesión 14 CERRADA (13:30)*
+| 12 | 07/07/2026 | 00:10 | 01:40 | 1h 30min | Revisión CAMP_Net + ReleaseNode + CheckZoneControl automático |
+
+**Total acumulado sesiones 1-12: ~36h 30min**
+
+---
+
+## 🎯 Pendientes para sesión 13
+1. **Probar CAMP_Net en juego** — grupo azul en LN_SHAYRAT → captura automática → luego grupo rojo → reconquista
+2. **Commit + push** de sesiones 9-12 (ZONE_State, CAMP_Net, DATA_Core v2, DATA_Export v2)
+3. **Validar PTS_Manager con piloto humano** — sigue pendiente desde sesión 6
+
+---
+
+*Última actualización: 07/07/2026 — Sesión 12 CERRADA (01:40)*
