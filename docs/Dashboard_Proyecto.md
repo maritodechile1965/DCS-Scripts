@@ -40,6 +40,8 @@
 
 **Sesión 11 (02/07):** Análisis Test_CSAR.miz (428 unidades, sistemas SAM). Mapa táctico Siria dibujado. Decisión late activation por zona. DATA_Core ampliado con tabla _baseStates (20 bases azules + 9 rojas). ZONE_State.lua creado y validado en juego. DATA_Export ampliado (WriteBaseStates, RestoreBaseStates, grabación periódica). CAMP_Net.lua creado (LogNet renombrado + integración DATA_Core). Bug Lua 5.1 `continue` detectado y corregido. Nuevas misiones definidas (convoyes random, helis, CAPs, templates estáticos).
 
+**Sesiones 13-14 (09-10/07):** WH_Manager.lua v2 (gestión de combustible por base, pendiente prueba en juego). Limpieza y optimización de CAMP_Net (captura/reconquista automática validada, radio 2000m). MISSIONS_Config.lua v2 reestructurado (categorías always/campaign/intel, filtrado por plataforma fighter/heli/transport). MIS_Manager.lua v2 con menús F10 dinámicos por plataforma del piloto (evento PlayerEnterUnit). STATUS_Manager.lua v1 creado (menú Intel/Status: estado AWACS LORD, bases/combustible, puntos de coalición, estadísticas por piloto). 9 misiones de prueba agregadas para validar el filtrado por plataforma.
+
 ---
 
 ## ✅ SCRIPTS EN PRODUCCIÓN
@@ -52,7 +54,11 @@
 | `PTS_Manager.lua` | v3 | ⚠️ Parcial | Scoring completo + WEAPON tracking. Pendiente: validar con piloto humano |
 | `DATA_Export.lua` | v2 | ✅ Validado | CSV + F10 + WriteBaseStates + RestoreBaseStates + timer configurable |
 | `ZONE_State.lua` | v1 | ✅ Validado | Persistencia bases, BaseCaptured handler, grabación automática |
-| `CAMP_Net.lua` | v1 | ✅ Listo | Red visual F10 de campaña (ex-LogNet) + integración DATA_Core |
+| `CAMP_Net.lua` | v2 | ✅ Validado | Red visual F10 de campaña — captura/reconquista automática, radio 2000m |
+| `WH_Manager.lua` | v2 | ⚠️ Pendiente prueba en juego | Gestión de combustible por base |
+| `MISSIONS_Config.lua` | v2 | ✅ Validado | 9 misiones de prueba (fighter/heli/transport). Categorías always/campaign/intel |
+| `MIS_Manager.lua` | v2 | ✅ Validado | Menú F10 dinámico filtrado por plataforma del piloto (PlayerEnterUnit) |
+| `STATUS_Manager.lua` | v1 | ✅ Validado | Menú Intel/Status: AWACS LORD, bases/combustible, puntos, estadísticas piloto |
 
 ### Orden de carga (Mission Editor — MISSION START)
 ```lua
@@ -63,6 +69,10 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\PTS_Manager.
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\DATA_Export.lua"))()
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\ZONE_State.lua"))()
 assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua"))()
+assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\WH_Manager.lua"))()
+assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\MISSIONS_Config.lua"))()
+assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\MIS_Manager.lua"))()
+assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\STATUS_Manager.lua"))()
 ```
 
 ---
@@ -77,8 +87,8 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 ### ETAPA 2 — ZONA Y CAMPAÑA 🔄 EN PROGRESO (~30-35h)
 - [x] `ZONE_State.lua` — persistencia de bases entre sesiones ✅
 - [x] `CAMP_Net.lua` — red visual F10 de campaña ✅
-- [ ] `MISSIONS_Config.lua` — tabla de configuración de misiones
-- [ ] `MIS_Manager` — menú F10 dinámico de misiones
+- [x] `MISSIONS_Config.lua` — tabla de configuración de misiones ✅
+- [x] `MIS_Manager` — menú F10 dinámico de misiones (filtrado por plataforma) ✅
 - [ ] `TIMER_Manager` — timers de reconquista y ventanas de tiempo
 - [ ] Definir zonas Trigger en Mission Editor (LN_*)
 - [ ] Poblar MISSIONS_Config con misiones Fase 1
@@ -191,16 +201,19 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\CAMP_Net.lua
 ---
 
 | 12 | 07/07/2026 | 00:10 | 01:40 | 1h 30min | Revisión CAMP_Net + ReleaseNode + CheckZoneControl automático |
+| 13 | 09/07/2026 | 20:30 | 22:50 | 2h 20min | WH_Manager v2 (combustible) + scripts de prueba AWACS/convoy + limpieza CAMP_Net |
+| 14 | 10/07/2026 | 09:15 | 10:21 | 1h 06min | MISSIONS_Config v2 + MIS_Manager v2 (menú F10 por plataforma) + STATUS_Manager v1 |
 
-**Total acumulado sesiones 1-12: ~36h 30min**
-
----
-
-## 🎯 Pendientes para sesión 13
-1. **Probar CAMP_Net en juego** — grupo azul en LN_SHAYRAT → captura automática → luego grupo rojo → reconquista
-2. **Commit + push** de sesiones 9-12 (ZONE_State, CAMP_Net, DATA_Core v2, DATA_Export v2)
-3. **Validar PTS_Manager con piloto humano** — sigue pendiente desde sesión 6
+**Total acumulado sesiones 1-14: ~39h 56min**
 
 ---
 
-*Última actualización: 07/07/2026 — Sesión 12 CERRADA (01:40)*
+## 🎯 Pendientes para sesión 15
+1. **Probar WH_Manager en juego** — validar consumo/reabastecimiento de combustible por base
+2. **Validar PTS_Manager con piloto humano** — sigue pendiente desde sesión 6
+3. **Poblar MISSIONS_Config con misiones de campaña** (category = "campaign", desbloqueadas por CAMP_Net/ZONE_State) — reemplazar las 9 misiones de prueba
+4. **TIMER_Manager** — timers de reconquista y ventanas de tiempo (etapa 2, aún sin empezar)
+
+---
+
+*Última actualización: 10/07/2026 — Sesión 14 CERRADA (10:21)*
