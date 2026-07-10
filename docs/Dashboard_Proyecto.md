@@ -202,9 +202,9 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\STATUS_Manag
 
 | 12 | 07/07/2026 | 00:10 | 01:40 | 1h 30min | Revisión CAMP_Net + ReleaseNode + CheckZoneControl automático |
 | 13 | 09/07/2026 | 20:30 | 22:50 | 2h 20min | WH_Manager v2 (combustible) + scripts de prueba AWACS/convoy + limpieza CAMP_Net |
-| 14 | 10/07/2026 | 09:15 | 10:21 | 1h 06min | MISSIONS_Config v2 + MIS_Manager v2 (menú F10 por plataforma) + STATUS_Manager v1 |
+| 14 | 10/07/2026 | 09:15 | 10:30 | 1h 15min | MISSIONS_Config v2 + MIS_Manager v2 (menú F10 por plataforma) + STATUS_Manager v1 |
 
-**Total acumulado sesiones 1-14: ~39h 56min**
+**Total acumulado sesiones 1-14: ~40h 05min**
 
 ---
 
@@ -216,4 +216,4 @@ assert(loadfile("C:\\Users\\mario\\Documents\\DCS-Scripts\\scripts\\STATUS_Manag
 
 ---
 
-*Última actualización: 10/07/2026 — Sesión 14 CERRADA (10:21)*
+*Última actualización: 10/07/2026 — Sesión 14 CERRADA (10:30)*
